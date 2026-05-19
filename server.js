@@ -348,7 +348,22 @@ app.post('/api/admin/clear', verificarAdmin, async (req, res) => {
         res.status(500).json({ error: 'Erro ao limpar' });
     }
 });
-
+// Rota para alterar senha do admin
+app.post('/api/admin/change-password', verificarAdmin, async (req, res) => {
+    const { nova_senha } = req.body;
+    
+    if (!nova_senha || nova_senha.length < 6) {
+        return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
+    }
+    
+    try {
+        const senhaHash = await bcrypt.hash(nova_senha, 10);
+        await pool.query('UPDATE admin_users SET senha_hash = $1 WHERE username = $2', [senhaHash, 'admin']);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao alterar senha' });
+    }
+});
 // ============ PAINEL ADMIN HTML ============
 app.get('/admin', (req, res) => {
     res.sendFile(__dirname + '/admin.html');
