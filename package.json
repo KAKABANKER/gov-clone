@@ -1,13 +1,20 @@
 {
-  "name": "gov",
+  "name": "gov-coleta",
   "version": "1.0.0",
-  "description": "GOV pagamento de impostos",
+  "description": "Clone gov.br - Coleta CPF e Senha",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "pg": "^8.11.3",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.0",
+    "cookie-parser": "^1.4.6",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.10.0",
+    "dotenv": "^16.3.1"
   }
 }
