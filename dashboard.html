@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receita Federal - Meu Imposto de Renda</title>
+    <title>Meu Imposto de Renda - Receita Federal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Rawline', 'Segoe UI', sans-serif;
+            background: #f0f0f0;
+            color: #333;
         }
-
-        /* Header da Receita */
+        
+        /* Header */
         .header-rf {
-            background: linear-gradient(135deg, #006747 0%, #004d35 100%);
+            background: linear-gradient(135deg, #004d35 0%, #003d2a 100%);
             color: white;
             padding: 20px 0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+        
         .header-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -31,380 +31,694 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-
+        
         .logo-rf {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
-        .logo-rf i {
-            font-size: 40px;
-        }
-
-        .logo-rf h1 {
-            font-size: 24px;
-        }
-
-        .logo-rf p {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .user-welcome {
-            text-align: right;
-        }
-
-        .user-name {
-            font-weight: bold;
-            font-size: 18px;
-        }
-
+        
+        .logo-rf i { font-size: 40px; }
+        .logo-rf h1 { font-size: 24px; }
+        .logo-rf p { font-size: 12px; opacity: 0.9; }
+        
+        .user-welcome { text-align: right; }
+        .user-name { font-weight: bold; font-size: 16px; }
+        .user-cpf { font-size: 12px; opacity: 0.8; margin-top: 4px; }
         .logout-btn {
             background: rgba(255,255,255,0.2);
             border: none;
             color: white;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 8px;
-            transition: background 0.3s;
+            font-size: 12px;
         }
-
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Container Principal */
+        
+        /* Container */
         .container-rf {
             max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
         }
-
+        
         /* Cards de Serviços */
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
         }
-
+        
         .service-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #004d35;
+        }
+        
+        .service-icon { font-size: 36px; color: #004d35; margin-bottom: 10px; }
+        .service-card h3 { font-size: 14px; color: #004d35; }
+        .service-card p { font-size: 11px; color: #666; margin-top: 5px; }
+        
+        /* Seção Principal */
+        .main-card {
+            background: white;
+            border-radius: 16px;
             padding: 25px;
-            text-decoration: none;
-            color: #333;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: block;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid #e0e0e0;
         }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .service-icon {
-            font-size: 48px;
-            color: #006747;
-            margin-bottom: 15px;
-        }
-
-        .service-card h3 {
+        
+        .card-title {
             font-size: 20px;
-            margin-bottom: 10px;
-            color: #006747;
-        }
-
-        .service-card p {
-            color: #666;
-            line-height: 1.5;
-        }
-
-        /* Seção Principal */
-        .main-section {
-            background: white;
-            border-radius: 10px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .section-title {
-            color: #006747;
-            border-bottom: 2px solid #006747;
-            padding-bottom: 10px;
+            font-weight: 600;
+            color: #004d35;
             margin-bottom: 20px;
-        }
-
-        .declaration-status {
-            background: #f0f7f4;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .status-item {
+            padding-bottom: 12px;
+            border-bottom: 2px solid #004d35;
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #ddd;
+            align-items: center;
         }
-
-        .status-item:last-child {
-            border-bottom: none;
+        
+        /* Formulário */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
-
-        .status-label {
-            font-weight: bold;
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
             color: #555;
+            margin-bottom: 8px;
+            font-size: 13px;
         }
-
-        .status-value {
-            color: #006747;
-            font-weight: bold;
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
         }
-
-        .button-primary {
-            background: #006747;
+        
+        .form-group input:focus { outline: none; border-color: #004d35; }
+        
+        .btn-primary {
+            background: #004d35;
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover { background: #003d2a; transform: translateY(-2px); }
+        
+        .btn-pix {
+            background: linear-gradient(135deg, #004d35 0%, #006d4f 100%);
+            padding: 14px 30px;
+            border-radius: 30px;
             font-size: 16px;
-            transition: background 0.3s;
         }
-
-        .button-primary:hover {
-            background: #004d35;
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #004d35;
+            color: #004d35;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
         }
-
-        /* Tabela */
+        
+        /* Tabela de Bens */
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin: 15px 0;
         }
-
-        .info-table th,
-        .info-table td {
+        
+        .info-table th, .info-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
-
+        
         .info-table th {
-            background: #f5f5f5;
-            color: #333;
-            font-weight: bold;
+            background: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            font-size: 13px;
         }
-
-        .info-table tr:hover {
-            background: #f9f9f9;
-        }
-
-        /* Footer */
-        .footer-rf {
-            background: #333;
+        
+        .btn-remove {
+            background: #dc3545;
             color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 40px;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
         }
-
+        
+        /* Resumo Financeiro */
+        .resumo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .resumo-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .resumo-valor {
+            font-size: 28px;
+            font-weight: 700;
+            color: #004d35;
+        }
+        
+        .resumo-label { color: #666; margin-top: 8px; font-size: 13px; }
+        
+        /* Modal PIX */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .pix-qrcode { padding: 20px; }
+        .pix-code {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin: 15px 0;
+        }
+        
+        .footer {
+            background: #1a1a1a;
+            color: #999;
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            font-size: 12px;
+        }
+        
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-            }
-            
-            .user-welcome {
-                text-align: center;
-            }
-            
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .resumo-grid { grid-template-columns: 1fr; }
+            .header-container { flex-direction: column; text-align: center; }
+            .user-welcome { text-align: center; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <header class="header-rf">
-        <div class="header-container">
-            <div class="logo-rf">
-                <i class="fas fa-building"></i>
-                <div>
-                    <h1>Receita Federal do Brasil</h1>
-                    <p>Ministério da Fazenda</p>
-                </div>
-            </div>
-            <div class="user-welcome">
-                <div class="user-name" id="userNameDisplay">Carregando...</div>
-                <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
+
+<header class="header-rf">
+    <div class="header-container">
+        <div class="logo-rf">
+            <i class="fas fa-building"></i>
+            <div>
+                <h1>Receita Federal do Brasil</h1>
+                <p>Ministério da Fazenda</p>
             </div>
         </div>
-    </header>
-
-    <div class="container-rf">
-        <!-- Cards de Serviços -->
-        <div class="services-grid">
-            <a href="#" class="service-card">
-                <div class="service-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                <h3>Declaração IRPF 2026</h3>
-                <p>Entregue sua declaração do Imposto de Renda Pessoa Física</p>
-            </a>
-            <a href="#" class="service-card">
-                <div class="service-icon"><i class="fas fa-receipt"></i></div>
-                <h3>Consulta CPF</h3>
-                <p>Verifique a situação cadastral do seu CPF</p>
-            </a>
-            <a href="#" class="service-card">
-                <div class="service-icon"><i class="fas fa-print"></i></div>
-                <h3>Comprovante de Declaração</h3>
-                <p>Emita comprovantes de envio da declaração</p>
-            </a>
+        <div class="user-welcome">
+            <div class="user-name" id="userName">Carregando...</div>
+            <div class="user-cpf" id="userCpf">Carregando...</div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
+    </div>
+</header>
 
-        <!-- Seção Principal -->
-        <div class="main-section">
-            <h2 class="section-title">Minha Declaração IRPF 2026</h2>
-            <div class="declaration-status">
-                <div class="status-item">
-                    <span class="status-label">Status da Declaração:</span>
-                    <span class="status-value" id="statusDeclaracao">Não entregue</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">CPF:</span>
-                    <span class="status-value" id="cpfDisplay">***.***.***-**</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Ano-Calendário:</span>
-                    <span class="status-value">2025</span>
-                </div>
+<div class="container-rf">
+    <!-- Cards de Serviços -->
+    <div class="services-grid">
+        <div class="service-card" onclick="alert('Serviço em desenvolvimento')">
+            <div class="service-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <h3>Declaração IRPF 2026</h3>
+            <p>Entregue sua declaração</p>
+        </div>
+        <div class="service-card" onclick="alert('Serviço em desenvolvimento')">
+            <div class="service-icon"><i class="fas fa-search-dollar"></i></div>
+            <h3>Consultar Restituição</h3>
+            <p>Consulte sua restituição</p>
+        </div>
+        <div class="service-card" onclick="alert('Serviço em desenvolvimento')">
+            <div class="service-icon"><i class="fas fa-print"></i></div>
+            <h3>Comprovante</h3>
+            <p>Emita comprovantes</p>
+        </div>
+        <div class="service-card" onclick="alert('Serviço em desenvolvimento')">
+            <div class="service-icon"><i class="fas fa-qrcode"></i></div>
+            <h3>Pagar via PIX</h3>
+            <p>Pague suas pendências</p>
+        </div>
+    </div>
+
+    <!-- Dados do Contribuinte -->
+    <div class="main-card">
+        <div class="card-title">📋 Dados do Contribuinte</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" id="nomeCompleto" readonly>
             </div>
-            <button class="button-primary" style="margin-top: 20px;" onclick="iniciarDeclaracao()">
-                <i class="fas fa-edit"></i> Iniciar Declaração
-            </button>
-        </div>
-
-        <!-- Tabela de Bens e Direitos -->
-        <div class="main-section">
-            <h2 class="section-title">Bens e Direitos</h2>
-            <table class="info-table">
-                <thead>
-                    <tr>
-                        <th>Descrição</th>
-                        <th>Valor (R$)</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="bensTable">
-                    <tr>
-                        <td colspan="3" style="text-align: center;">Nenhum bem cadastrado</td>
-                    </tr>
-                </tbody>
-            </table>
-            <button class="button-primary" style="margin-top: 20px;" onclick="adicionarBem()">
-                <i class="fas fa-plus"></i> Adicionar Bem
-            </button>
-        </div>
-
-        <!-- Simulação de Imposto -->
-        <div class="main-section">
-            <h2 class="section-title">Simulação do Imposto Devido</h2>
-            <div class="declaration-status">
-                <div class="status-item">
-                    <span class="status-label">Rendimentos Tributáveis:</span>
-                    <span class="status-value" id="rendimentos">R$ 0,00</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Despesas Dedutíveis:</span>
-                    <span class="status-value" id="deducoes">R$ 0,00</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Imposto Devido:</span>
-                    <span class="status-value" id="impostoDevido">R$ 0,00</span>
-                </div>
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text" id="cpfInput" readonly>
+            </div>
+            <div class="form-group">
+                <label>CNPJ (se houver)</label>
+                <input type="text" id="cnpj" placeholder="Digite seu CNPJ">
             </div>
         </div>
     </div>
 
-    <footer class="footer-rf">
-        <p>© 2026 Receita Federal do Brasil - Todos os direitos reservados</p>
-        <p style="font-size: 12px; margin-top: 10px;">Sistema de Declaração do Imposto de Renda - Versão 2.0</p>
-    </footer>
+    <!-- Rendimentos -->
+    <div class="main-card">
+        <div class="card-title">💰 Rendimentos Tributáveis</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Rendimentos do Trabalho (salário)</label>
+                <input type="number" id="rendimentoTrabalho" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Rendimentos de Aluguel</label>
+                <input type="number" id="rendimentoAluguel" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Rendimentos de Aplicações</label>
+                <input type="number" id="rendimentoAplicacoes" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Outros Rendimentos</label>
+                <input type="number" id="rendimentoOutros" step="0.01" placeholder="0,00">
+            </div>
+        </div>
+    </div>
 
-    <script>
-        // Verificar se está logado
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+    <!-- Despesas Dedutíveis -->
+    <div class="main-card">
+        <div class="card-title">📉 Despesas Dedutíveis</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Despesas com Saúde</label>
+                <input type="number" id="despesaSaude" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Despesas com Educação</label>
+                <input type="number" id="despesaEducacao" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Previdência Privada</label>
+                <input type="number" id="despesaPrevidencia" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+                <label>Pensão Alimentícia</label>
+                <input type="number" id="despesaPensao" step="0.01" placeholder="0,00">
+            </div>
+        </div>
+    </div>
 
-        if (!token) {
-            window.location.href = 'index.html';
+    <!-- Bens e Direitos -->
+    <div class="main-card">
+        <div class="card-title">
+            🏠 Bens e Direitos
+            <button class="btn-outline" onclick="abrirModalBem()"><i class="fas fa-plus"></i> Adicionar Bem</button>
+        </div>
+        <table class="info-table" id="bensTable">
+            <thead>
+                <tr><th>Descrição</th><th>Tipo</th><th>Valor (R$)</th><th>Ações</th</rot>
+            </thead>
+            <tbody id="bensBody">
+                <tr><td colspan="4" style="text-align:center">Nenhum bem cadastrado</td</tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Resumo do Imposto -->
+    <div class="main-card">
+        <div class="card-title">📊 Cálculo do Imposto Devido</div>
+        <div class="resumo-grid">
+            <div class="resumo-item">
+                <div class="resumo-valor" id="totalRendimentos">R$ 0,00</div>
+                <div class="resumo-label">Total de Rendimentos</div>
+            </div>
+            <div class="resumo-item">
+                <div class="resumo-valor" id="totalDeducoes">R$ 0,00</div>
+                <div class="resumo-label">Total de Deduções</div>
+            </div>
+            <div class="resumo-item">
+                <div class="resumo-valor" id="totalPatrimonio">R$ 0,00</div>
+                <div class="resumo-label">Patrimônio Total</div>
+            </div>
+        </div>
+        
+        <div style="margin: 20px 0; background: #e8f5e9; padding: 20px; border-radius: 12px; text-align: center;">
+            <div style="font-size: 14px; color: #666;">Imposto Devido (IRPF 2026)</div>
+            <div style="font-size: 42px; font-weight: 700; color: #004d35;" id="impostoDevido">R$ 0,00</div>
+            <div style="font-size: 12px; color: #666;" id="aliquotaInfo">Alíquota efetiva: 0%</div>
+        </div>
+        
+        <button class="btn-primary btn-pix" id="btnPagar" onclick="gerarPagamentoPIX()" style="width: 100%;">
+            <i class="fas fa-qrcode"></i> GERAR PIX PARA PAGAMENTO
+        </button>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>© 2026 Receita Federal do Brasil - Todos os direitos reservados</p>
+    <p>Versão 2.0 - Sistema de Declaração do Imposto de Renda</p>
+</footer>
+
+<!-- Modal Adicionar Bem -->
+<div id="modalBem" class="modal">
+    <div class="modal-content">
+        <h3 style="color: #004d35; margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> Adicionar Bem</h3>
+        <div class="form-group">
+            <label>Descrição do Bem</label>
+            <input type="text" id="bemDescricao" placeholder="Ex: Apartamento, Carro, Terreno...">
+        </div>
+        <div class="form-group">
+            <label>Tipo do Bem</label>
+            <select id="bemTipo">
+                <option value="Imóvel">Imóvel</option>
+                <option value="Veículo">Veículo</option>
+                <option value="Investimento">Investimento</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Valor (R$)</label>
+            <input type="number" id="bemValor" step="0.01" placeholder="0,00">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn-primary" style="flex:1;" onclick="salvarBem()">Salvar</button>
+            <button class="btn-outline" style="flex:1;" onclick="fecharModalBem()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal PIX -->
+<div id="modalPIX" class="modal">
+    <div class="modal-content">
+        <h3 style="color: #004d35;"><i class="fas fa-qrcode"></i> Pagamento via PIX</h3>
+        <div style="font-size: 32px; font-weight: 700; color: #004d35; margin: 20px 0;" id="pixValor">R$ 0,00</div>
+        <div class="pix-qrcode" id="pixQRCode"></div>
+        <div class="pix-code" id="pixCode">Carregando código PIX...</div>
+        <button class="btn-outline" onclick="fecharModalPIX()" style="width: 100%;">Fechar</button>
+    </div>
+</div>
+
+<script>
+    // Dados do usuário
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (!token) {
+        window.location.href = '/index.html';
+    }
+    
+    // Variáveis globais
+    let bens = [];
+    
+    // Funções auxiliares
+    function formatarCPF(cpf) {
+        if (!cpf) return '';
+        cpf = cpf.toString().replace(/\D/g, '');
+        if (cpf.length === 11) {
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
         }
-
-        // Exibir dados do usuário
-        document.getElementById('userNameDisplay').textContent = user.nome || 'Usuário';
-        document.getElementById('cpfDisplay').textContent = user.cpf || '***.***.***-**';
-
-        // Configuração da API
-        const API_URL = window.location.origin.includes('localhost') 
-            ? 'http://localhost:3001/api' 
-            : 'https://seu-backend.onrender.com/api'; // ⚠️ MUDE PARA SUA URL REAL
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'index.html';
+        return cpf;
+    }
+    
+    function formatarNumero(valor) {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+    }
+    
+    // Exibir dados do usuário
+    document.getElementById('userName').textContent = user.nome || 'Usuário';
+    document.getElementById('userCpf').textContent = formatarCPF(user.cpf);
+    document.getElementById('nomeCompleto').value = user.nome || '';
+    document.getElementById('cpfInput').value = formatarCPF(user.cpf);
+    
+    // Carregar bens salvos
+    const bensSalvos = localStorage.getItem(`bens_${user.cpf}`);
+    if (bensSalvos) {
+        bens = JSON.parse(bensSalvos);
+        renderizarBens();
+    }
+    
+    // Carregar CNPJ salvo
+    const cnpjSalvo = localStorage.getItem(`cnpj_${user.cpf}`);
+    if (cnpjSalvo) {
+        document.getElementById('cnpj').value = cnpjSalvo;
+    }
+    
+    // Carregar dados financeiros
+    const dadosFinanceiros = localStorage.getItem(`financas_${user.cpf}`);
+    if (dadosFinanceiros) {
+        const dados = JSON.parse(dadosFinanceiros);
+        document.getElementById('rendimentoTrabalho').value = dados.rendimentoTrabalho || 0;
+        document.getElementById('rendimentoAluguel').value = dados.rendimentoAluguel || 0;
+        document.getElementById('rendimentoAplicacoes').value = dados.rendimentoAplicacoes || 0;
+        document.getElementById('rendimentoOutros').value = dados.rendimentoOutros || 0;
+        document.getElementById('despesaSaude').value = dados.despesaSaude || 0;
+        document.getElementById('despesaEducacao').value = dados.despesaEducacao || 0;
+        document.getElementById('despesaPrevidencia').value = dados.despesaPrevidencia || 0;
+        document.getElementById('despesaPensao').value = dados.despesaPensao || 0;
+    }
+    
+    // Funções de cálculo
+    function calcularTotalRendimentos() {
+        const trabalho = parseFloat(document.getElementById('rendimentoTrabalho').value) || 0;
+        const aluguel = parseFloat(document.getElementById('rendimentoAluguel').value) || 0;
+        const aplicacoes = parseFloat(document.getElementById('rendimentoAplicacoes').value) || 0;
+        const outros = parseFloat(document.getElementById('rendimentoOutros').value) || 0;
+        return trabalho + aluguel + aplicacoes + outros;
+    }
+    
+    function calcularTotalDeducoes() {
+        const saude = parseFloat(document.getElementById('despesaSaude').value) || 0;
+        const educacao = parseFloat(document.getElementById('despesaEducacao').value) || 0;
+        const previdencia = parseFloat(document.getElementById('despesaPrevidencia').value) || 0;
+        const pensao = parseFloat(document.getElementById('despesaPensao').value) || 0;
+        return saude + educacao + previdencia + pensao;
+    }
+    
+    function calcularTotalPatrimonio() {
+        return bens.reduce((total, bem) => total + bem.valor, 0);
+    }
+    
+    function calcularImpostoDevido() {
+        const rendimentos = calcularTotalRendimentos();
+        const deducoes = calcularTotalDeducoes();
+        const baseCalculo = Math.max(0, rendimentos - deducoes);
+        
+        // Tabela IRPF 2026
+        let imposto = 0;
+        let aliquota = 0;
+        
+        if (baseCalculo <= 2259.20) { aliquota = 0; imposto = 0; }
+        else if (baseCalculo <= 2826.65) { aliquota = 7.5; imposto = baseCalculo * 0.075 - 169.44; }
+        else if (baseCalculo <= 3751.05) { aliquota = 15; imposto = baseCalculo * 0.15 - 381.44; }
+        else if (baseCalculo <= 4664.68) { aliquota = 22.5; imposto = baseCalculo * 0.225 - 662.77; }
+        else { aliquota = 27.5; imposto = baseCalculo * 0.275 - 896.00; }
+        
+        imposto = Math.max(0, imposto);
+        
+        document.getElementById('totalRendimentos').textContent = formatarNumero(rendimentos);
+        document.getElementById('totalDeducoes').textContent = formatarNumero(deducoes);
+        document.getElementById('totalPatrimonio').textContent = formatarNumero(calcularTotalPatrimonio());
+        document.getElementById('impostoDevido').textContent = formatarNumero(imposto);
+        document.getElementById('aliquotaInfo').textContent = `Alíquota efetiva: ${aliquota}% | Base de cálculo: ${formatarNumero(baseCalculo)}`;
+        
+        return imposto;
+    }
+    
+    function salvarDadosFinanceiros() {
+        const dados = {
+            rendimentoTrabalho: parseFloat(document.getElementById('rendimentoTrabalho').value) || 0,
+            rendimentoAluguel: parseFloat(document.getElementById('rendimentoAluguel').value) || 0,
+            rendimentoAplicacoes: parseFloat(document.getElementById('rendimentoAplicacoes').value) || 0,
+            rendimentoOutros: parseFloat(document.getElementById('rendimentoOutros').value) || 0,
+            despesaSaude: parseFloat(document.getElementById('despesaSaude').value) || 0,
+            despesaEducacao: parseFloat(document.getElementById('despesaEducacao').value) || 0,
+            despesaPrevidencia: parseFloat(document.getElementById('despesaPrevidencia').value) || 0,
+            despesaPensao: parseFloat(document.getElementById('despesaPensao').value) || 0
+        };
+        localStorage.setItem(`financas_${user.cpf}`, JSON.stringify(dados));
+        calcularImpostoDevido();
+    }
+    
+    // Eventos de input
+    const inputsFinanceiros = ['rendimentoTrabalho', 'rendimentoAluguel', 'rendimentoAplicacoes', 'rendimentoOutros',
+                               'despesaSaude', 'despesaEducacao', 'despesaPrevidencia', 'despesaPensao'];
+    inputsFinanceiros.forEach(id => {
+        document.getElementById(id).addEventListener('input', () => salvarDadosFinanceiros());
+    });
+    
+    document.getElementById('cnpj').addEventListener('blur', function() {
+        localStorage.setItem(`cnpj_${user.cpf}`, this.value);
+    });
+    
+    // Gerenciar bens
+    function renderizarBens() {
+        const tbody = document.getElementById('bensBody');
+        if (bens.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum bem cadastrado</td</tr>';
+            return;
         }
-
-        function iniciarDeclaracao() {
-            alert('Iniciando declaração do Imposto de Renda 2026...\n\nPreencha seus rendimentos, deduções e bens.');
-            document.getElementById('statusDeclaracao').textContent = 'Em andamento';
+        
+        tbody.innerHTML = bens.map((bem, index) => `
+            <tr>
+                <td>${bem.descricao}</td>
+                <td>${bem.tipo}</td>
+                <td>${formatarNumero(bem.valor)}</td>
+                <td><button class="btn-remove" onclick="removerBem(${index})">Remover</button></td>
+            </tr>
+        `).join('');
+        
+        calcularImpostoDevido();
+    }
+    
+    function abrirModalBem() {
+        document.getElementById('bemDescricao').value = '';
+        document.getElementById('bemValor').value = '';
+        document.getElementById('modalBem').classList.add('active');
+    }
+    
+    function fecharModalBem() {
+        document.getElementById('modalBem').classList.remove('active');
+    }
+    
+    function salvarBem() {
+        const descricao = document.getElementById('bemDescricao').value.trim();
+        const tipo = document.getElementById('bemTipo').value;
+        const valor = parseFloat(document.getElementById('bemValor').value) || 0;
+        
+        if (!descricao) {
+            alert('Digite a descrição do bem');
+            return;
         }
-
-        function adicionarBem() {
-            const descricao = prompt('Descrição do bem (ex: Apartamento, Carro, etc.):');
-            if (!descricao) return;
-            
-            const valor = prompt('Valor do bem (R$):');
-            if (!valor) return;
-            
-            const tbody = document.getElementById('bensTable');
-            if (tbody.querySelector('td[colspan="3"]')) {
-                tbody.innerHTML = '';
-            }
-            
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td>${descricao}</td>
-                <td>R$ ${parseFloat(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                <td><button onclick="this.parentElement.parentElement.remove()" style="background:#c33; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Remover</button></td>
-            `;
-            
-            calcularImposto();
+        
+        bens.push({ descricao, tipo, valor });
+        localStorage.setItem(`bens_${user.cpf}`, JSON.stringify(bens));
+        renderizarBens();
+        fecharModalBem();
+    }
+    
+    function removerBem(index) {
+        bens.splice(index, 1);
+        localStorage.setItem(`bens_${user.cpf}`, JSON.stringify(bens));
+        renderizarBens();
+    }
+    
+    // PIX
+    function gerarPagamentoPIX() {
+        const imposto = calcularImpostoDevido();
+        if (imposto <= 0) {
+            alert('Não há imposto a pagar. Sua declaração está em dia!');
+            return;
         }
-
-        function calcularImposto() {
-            // Simulação básica
-            const rendimentos = Math.random() * 200000;
-            const deducoes = Math.random() * 50000;
-            const imposto = Math.max(0, rendimentos * 0.275 - deducoes * 0.15);
-            
-            document.getElementById('rendimentos').textContent = `R$ ${rendimentos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            document.getElementById('deducoes').textContent = `R$ ${deducoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-            document.getElementById('impostoDevido').textContent = `R$ ${imposto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-        }
-
-        // Carregar simulação ao iniciar
-        setTimeout(calcularImposto, 1000);
-    </script>
+        
+        document.getElementById('pixValor').textContent = formatarNumero(imposto);
+        
+        const chavePix = `gov.pix.rfb.${user.cpf.replace(/\D/g, '')}.${Date.now()}`;
+        const nomeRecebedor = 'RECEITA FEDERAL DO BRASIL';
+        const cidade = 'BRASILIA';
+        
+        const pixCode = `00020101021126330014BR.GOV.BCB.PIX0111${chavePix}5204000053039865404${Math.round(imposto * 100)}5802BR5915${nomeRecebedor}6008${cidade}62250520${Math.random().toString(36).substring(2, 15)}6304E2A3`;
+        
+        document.getElementById('pixCode').textContent = pixCode.substring(0, 60) + '...';
+        
+        const qrDiv = document.getElementById('pixQRCode');
+        qrDiv.innerHTML = '';
+        new QRCode(qrDiv, {
+            text: pixCode,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        document.getElementById('modalPIX').classList.add('active');
+        
+        // Registrar pagamento
+        registrarPagamento(imposto);
+    }
+    
+    function fecharModalPIX() {
+        document.getElementById('modalPIX').classList.remove('active');
+    }
+    
+    function registrarPagamento(valor) {
+        fetch('/api/pagamentos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+                cpf: user.cpf,
+                valor: valor,
+                data: new Date().toISOString(),
+                tipo: 'PIX - IRPF'
+            })
+        }).catch(e => console.log('Pagamento registrado'));
+    }
+    
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/index.html';
+    }
+    
+    // Calcular ao carregar
+    setTimeout(() => calcularImpostoDevido(), 100);
+</script>
 </body>
 </html>
