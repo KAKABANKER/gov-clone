@@ -19,6 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   
   <style>
+    /* Estilos personalizados para complementar e ajustar o template oficial */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
@@ -27,276 +28,60 @@
       color: #1e2a3a;
     }
     
-    /* HEADER OFICIAL GOV.BR */
-    .br-header {
-      background: #00205b;
-      color: white;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    /* Ajustes no header oficial para incluir logout */
+    .custom-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
     }
-    
-    .header-container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .logo-area i {
-      font-size: 32px;
-      color: #8bc34a;
-    }
-    
-    .logo-area h1 {
-      font-size: 20px;
-      font-weight: 600;
-    }
-    
-    .logo-area p {
-      font-size: 11px;
-      opacity: 0.8;
-    }
-    
-    .user-area {
-      text-align: right;
-    }
-    
     .user-cpf {
-      font-size: 13px;
-      font-family: monospace;
-      background: rgba(255,255,255,0.15);
-      padding: 6px 14px;
-      border-radius: 30px;
-      display: inline-block;
+        font-size: 13px;
+        font-family: monospace;
+        background: rgba(255,255,255,0.15);
+        padding: 6px 14px;
+        border-radius: 30px;
+        display: inline-block;
     }
-    
     .logout-btn {
-      background: rgba(255,255,255,0.15);
-      border: none;
-      padding: 5px 14px;
-      border-radius: 30px;
-      color: white;
-      cursor: pointer;
-      margin-top: 8px;
-      font-size: 12px;
-      transition: background 0.2s;
+        background: rgba(255,255,255,0.15);
+        border: none;
+        padding: 5px 14px;
+        border-radius: 30px;
+        color: white;
+        cursor: pointer;
+        margin-top: 0;
+        font-size: 12px;
+        transition: background 0.2s;
     }
-    
     .logout-btn:hover {
-      background: #c53030;
+        background: #c53030;
     }
     
-    .accessibility {
-      display: flex;
-      gap: 16px;
+    /* Card do Simulador */
+    .calculo-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e9edf2;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        margin-bottom: 32px;
     }
-    
-    .accessibility a {
-      color: white;
-      text-decoration: none;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      opacity: 0.85;
-    }
-    
-    .accessibility a:hover {
-      opacity: 1;
-    }
-    
-    /* BREADCRUMB */
-    .br-breadcrumb {
-      background: white;
-      padding: 12px 24px;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 13px;
-    }
-    
-    .br-breadcrumb-container {
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-    
-    .br-breadcrumb a {
-      color: #00205b;
-      text-decoration: none;
-    }
-    
-    .br-breadcrumb a:hover {
-      text-decoration: underline;
-    }
-    
-    /* CONTAINER PRINCIPAL */
-    .main-container {
-      max-width: 1280px;
-      margin: 32px auto;
-      padding: 0 24px;
-    }
-    
-    /* BANNER */
-    .banner-principal {
-      background: linear-gradient(135deg, #004d35 0%, #006d4f 100%);
-      border-radius: 20px;
-      padding: 40px 48px;
-      margin-bottom: 40px;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-    
-    .banner-text h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    
-    .banner-text p {
-      font-size: 15px;
-      opacity: 0.9;
-    }
-    
-    .btn-declarar {
-      background: white;
-      color: #004d35;
-      padding: 12px 32px;
-      border-radius: 40px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      font-size: 15px;
-      transition: transform 0.2s;
-    }
-    
-    .btn-declarar:hover {
-      transform: translateY(-2px);
-    }
-    
-    /* GRIDS OFICIAIS */
-    .servicos-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-      margin-bottom: 48px;
-    }
-    
-    .orientacoes-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-bottom: 48px;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-bottom: 48px;
-    }
-    
-    .paineis-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-bottom: 32px;
-    }
-    
-    .faq-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    
-    /* CARDS */
-    .servico-card, .orientacao-card, .stat-card, .painel-card, .faq-card, .calculo-card, .prazo-card {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      border: 1px solid #e9edf2;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-      transition: box-shadow 0.2s;
-    }
-    
-    .servico-card:hover, .calculo-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    
-    .servico-card h3, .calculo-card h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #00205b;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .servico-card ul {
-      list-style: none;
-    }
-    
-    .servico-card li {
-      margin-bottom: 12px;
-    }
-    
-    .servico-card a {
-      color: #1e4668;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-    }
-    
-    .servico-card a:hover {
-      color: #00205b;
-      text-decoration: underline;
-    }
-    
-    .section-title {
-      font-size: 24px;
-      font-weight: 700;
-      color: #00205b;
-      margin: 40px 0 24px 0;
-      border-left: 5px solid #f5a623;
-      padding-left: 18px;
-    }
-    
-    /* FORMULÁRIO DO SIMULADOR */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
       margin-bottom: 32px;
     }
-    
     .form-group {
       display: flex;
       flex-direction: column;
     }
-    
     .form-group label {
       font-size: 13px;
       font-weight: 600;
       color: #334155;
       margin-bottom: 6px;
     }
-    
     .form-group input {
       padding: 12px 14px;
       border: 1px solid #cbd5e1;
@@ -305,21 +90,17 @@
       font-family: monospace;
       transition: all 0.2s;
     }
-    
     .form-group input:focus {
       outline: none;
       border-color: #00205b;
       box-shadow: 0 0 0 3px rgba(0,32,91,0.1);
     }
-    
-    /* RESUMO DO CÁLCULO */
     .resumo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       margin: 28px 0;
     }
-    
     .resumo-item {
       background: #f8fafc;
       padding: 20px;
@@ -327,21 +108,17 @@
       text-align: center;
       border: 1px solid #e2e8f0;
     }
-    
     .resumo-valor {
       font-size: 28px;
       font-weight: 800;
       color: #00205b;
       font-family: monospace;
     }
-    
     .resumo-label {
       font-size: 13px;
       color: #64748b;
       margin-top: 6px;
     }
-    
-    /* RESULTADO DO IMPOSTO */
     .result-box {
       background: #e8f5e9;
       border-radius: 24px;
@@ -349,14 +126,12 @@
       text-align: center;
       margin: 24px 0;
     }
-    
     .result-value {
       font-size: 52px;
       font-weight: 800;
       color: #00205b;
       font-family: monospace;
     }
-    
     .btn-pix {
       background: linear-gradient(135deg, #00205b 0%, #1351b4 100%);
       color: white;
@@ -373,7 +148,6 @@
       gap: 12px;
       transition: opacity 0.2s;
     }
-    
     .btn-pix:hover {
       opacity: 0.95;
     }
@@ -392,11 +166,9 @@
       align-items: center;
       justify-content: center;
     }
-    
     .modal.active {
       display: flex;
     }
-    
     .modal-content {
       background: white;
       border-radius: 28px;
@@ -405,7 +177,6 @@
       padding: 32px;
       text-align: center;
     }
-    
     .pix-code {
       background: #f1f5f9;
       padding: 12px;
@@ -414,67 +185,6 @@
       font-size: 11px;
       word-break: break-all;
     }
-    
-    /* PRAZO CARD */
-    .prazo-card {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      flex-wrap: wrap;
-      background: #fffaf0;
-      border-left: 6px solid #f5a623;
-      margin-bottom: 40px;
-    }
-    
-    /* IFRAME ESTATÍSTICAS */
-    .stats-iframe {
-      width: 100%;
-      height: 280px;
-      border: none;
-      border-radius: 20px;
-      background: white;
-      margin-bottom: 32px;
-    }
-    
-    /* FOOTER OFICIAL */
-    footer {
-      background: #0f1a2e;
-      color: #94a3b8;
-      text-align: center;
-      padding: 40px 20px;
-      margin-top: 48px;
-      font-size: 12px;
-    }
-    
-    /* ORIENTAÇÃO CARDS */
-    .orientacao-card {
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .orientacao-card:hover {
-      transform: translateY(-3px);
-    }
-    
-    .orientacao-card i {
-      font-size: 36px;
-      color: #1351b4;
-      margin-bottom: 12px;
-      display: block;
-    }
-    
-    .orientacao-card h3 {
-      font-size: 16px;
-      margin-bottom: 6px;
-    }
-    
-    .orientacao-card p {
-      font-size: 13px;
-      color: #64748b;
-    }
-    
-    /* BOTÕES AUXILIARES */
     .btn-outline {
       background: transparent;
       border: 1.5px solid #1351b4;
@@ -485,147 +195,129 @@
       cursor: pointer;
       transition: all 0.2s;
     }
-    
     .btn-outline:hover {
       background: #1351b4;
       color: white;
     }
     
-    .link-more {
-      display: inline-block;
-      margin-top: 16px;
-      font-weight: 500;
-      color: #1351b4;
-    }
-    
-    .link-more:hover {
-      text-decoration: underline;
-    }
-    
-    /* RESPONSIVIDADE */
-    @media (max-width: 1024px) {
-      .orientacoes-grid, .stats-grid, .paineis-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-    
     @media (max-width: 768px) {
-      .servicos-grid, .form-grid, .resumo-grid, .faq-grid {
+      .form-grid, .resumo-grid {
         grid-template-columns: 1fr;
-      }
-      .orientacoes-grid, .stats-grid, .paineis-grid {
-        grid-template-columns: 1fr;
-      }
-      .header-container {
-        flex-direction: column;
-        text-align: center;
-      }
-      .banner-principal {
-        text-align: center;
-        justify-content: center;
-        padding: 32px 24px;
-      }
-      .banner-text h1 {
-        font-size: 24px;
       }
       .result-value {
         font-size: 40px;
       }
-      .section-title {
-        font-size: 22px;
-      }
     }
     
-    @media (max-width: 480px) {
-      .main-container {
-        padding: 0 16px;
-      }
-      .servico-card, .calculo-card, .prazo-card {
-        padding: 20px;
-      }
+    /* Contraste */
+    .contraste {
+      background: #000 !important;
+      color: #fff !important;
+    }
+    .contraste .servico-card, .contraste .calculo-card, .contraste .prazo-card,
+    .contraste .orientacao-card, .contraste .stat-card, .contraste .painel-card,
+    .contraste .faq-card {
+      background: #1a1a1a !important;
+      color: #fff !important;
+      border-color: #333 !important;
+    }
+    .contraste .btn-declarar {
+      background: #333 !important;
+      color: #fff !important;
+    }
+    .contraste .resumo-item {
+      background: #222 !important;
+    }
+    .contraste .result-box {
+      background: #111 !important;
+    }
+    .contraste .btn-outline {
+      border-color: #fff !important;
+      color: #fff !important;
+    }
+    .contraste a {
+      color: #90cdf4 !important;
     }
   </style>
 </head>
 <body>
 
-<!-- HEADER OFICIAL GOV.BR -->
-<header class="br-header">
-  <div class="header-container">
-    <div class="logo-area">
-      <i class="fas fa-building"></i>
+<!-- HEADER OFICIAL GOV.BR (Personalizado) -->
+<header class="br-header" style="background: #00205b; color: white; position: sticky; top: 0; z-index: 1000;">
+  <div class="container-lg" style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div class="logo-area" style="display: flex; align-items: center; gap: 15px;">
+      <i class="fas fa-building" style="font-size: 32px; color: #8bc34a;"></i>
       <div>
-        <h1>Receita Federal do Brasil</h1>
-        <p>Ministério da Fazenda</p>
+        <h1 style="font-size: 20px; font-weight: 600;">Receita Federal do Brasil</h1>
+        <p style="font-size: 11px; opacity: 0.8;">Ministério da Fazenda</p>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 20px;">
-      <div class="user-area">
+    <div class="custom-header-actions">
+      <div class="user-area" style="text-align: right;">
         <div class="user-cpf" id="userCpf">Carregando CPF...</div>
         <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </div>
-      <div class="accessibility">
-        <a href="#" onclick="toggleContrast()"><i class="fas fa-adjust"></i><span>Alto Contraste</span></a>
-        <a href="https://www.vlibras.gov.br" target="_blank"><i class="fas fa-deaf"></i><span>VLibras</span></a>
+      <div class="accessibility" style="display: flex; gap: 16px;">
+        <a href="#" onclick="toggleContrast()" style="color: white; text-decoration: none;"><i class="fas fa-adjust"></i><span> Alto Contraste</span></a>
+        <a href="https://www.vlibras.gov.br" target="_blank" style="color: white; text-decoration: none;"><i class="fas fa-deaf"></i><span> VLibras</span></a>
       </div>
     </div>
   </div>
 </header>
 
 <!-- BREADCRUMB OFICIAL -->
-<div class="br-breadcrumb">
-  <div class="br-breadcrumb-container">
-    <a href="#">Início</a> &nbsp;/&nbsp;
-    <a href="#">Assuntos</a> &nbsp;/&nbsp;
+<div class="br-breadcrumb" style="background: white; padding: 12px 24px; border-bottom: 1px solid #e2e8f0; font-size: 13px;">
+  <div class="container-lg" style="max-width: 1280px; margin: 0 auto;">
+    <a href="#" style="color: #00205b;">Início</a> &nbsp;/&nbsp;
+    <a href="#" style="color: #00205b;">Assuntos</a> &nbsp;/&nbsp;
     <span>Meu Imposto de Renda 2026</span>
   </div>
 </div>
 
-<!-- CONTEÚDO PRINCIPAL -->
-<div class="main-container">
+<!-- CONTEÚDO PRINCIPAL (ESTILO OFICIAL) -->
+<div class="main-container" style="max-width: 1280px; margin: 32px auto; padding: 0 24px;">
   
   <!-- BANNER PRINCIPAL -->
-  <div class="banner-principal">
+  <div class="banner-principal" style="background: linear-gradient(135deg, #004d35 0%, #006d4f 100%); border-radius: 20px; padding: 40px 48px; margin-bottom: 40px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
     <div class="banner-text">
-      <h1>Declaração do Imposto de Renda 2026</h1>
-      <p>Prazo de entrega até 29 de maio de 2026</p>
+      <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Declaração do Imposto de Renda 2026</h1>
+      <p style="font-size: 15px; opacity: 0.9;">Prazo de entrega até 29 de maio de 2026</p>
     </div>
-    <button class="btn-declarar" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})">
+    <button class="btn-declarar" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})" style="background: white; color: #004d35; padding: 12px 32px; border-radius: 40px; font-weight: 600; border: none; cursor: pointer;">
       Fazer minha declaração →
     </button>
   </div>
 
-  <!-- SERVIÇOS -->
-  <div class="servicos-grid">
-    <div class="servico-card">
-      <h3><i class="fas fa-tools"></i> Serviços</h3>
-      <ul>
-        <li><a href="#"><i class="fas fa-search"></i> Consultar meu imposto de renda</a></li>
-        <li><a href="#"><i class="fas fa-dollar-sign"></i> Consultar minha restituição</a></li>
-        <li><a href="#"><i class="fas fa-barcode"></i> Emitir DARF para pagar o imposto</a></li>
-        <li><a href="#"><i class="fas fa-upload"></i> Entregar documentos de malha fiscal</a></li>
-        <li><a href="#"><i class="fas fa-edit"></i> Retificar notificação de lançamento (SRL)</a></li>
-        <li><a href="#"><i class="fas fa-balance-scale"></i> Impugnar notificação de lançamento</a></li>
+  <!-- SERVIÇOS (Grid oficial) -->
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 48px;">
+    <div class="servico-card" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid #e9edf2;">
+      <h3 style="font-size: 18px; font-weight: 700; color: #00205b; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-tools"></i> Serviços</h3>
+      <ul style="list-style: none;">
+        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-search"></i> Consultar meu imposto de renda</a></li>
+        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-dollar-sign"></i> Consultar minha restituição</a></li>
+        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-barcode"></i> Emitir DARF para pagar o imposto</a></li>
+        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-upload"></i> Entregar documentos de malha fiscal</a></li>
       </ul>
-      <a href="#" class="link-more">Mais serviços →</a>
+      <a href="#" class="link-more" style="display: inline-block; margin-top: 16px; font-weight: 500; color: #1351b4;">Mais serviços →</a>
     </div>
-    <div class="servico-card">
-      <h3><i class="fas fa-info-circle"></i> Meu Imposto de Renda</h3>
+    <div class="servico-card" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid #e9edf2;">
+      <h3 style="font-size: 18px; font-weight: 700; color: #00205b; margin-bottom: 16px;"><i class="fas fa-info-circle"></i> Meu Imposto de Renda</h3>
       <p>Os valores arrecadados com o imposto de renda contribuem para o desenvolvimento do Brasil, financiando a saúde, educação, segurança e inúmeros serviços públicos prestados ao cidadão brasileiro.</p>
       <p style="margin-top: 15px;">Algumas pessoas são <strong>obrigadas</strong> a entregar a declaração. Se você está obrigado, o envio fora do prazo gera multa pelo atraso.</p>
     </div>
   </div>
 
   <!-- ORIENTAÇÕES -->
-  <h2 class="section-title">Orientações</h2>
-  <div class="orientacoes-grid">
-    <div class="orientacao-card"><i class="fas fa-file-upload"></i><h3>Declaração</h3><p>Descubra como preencher e enviar sua declaração à Receita.</p></div>
-    <div class="orientacao-card"><i class="fas fa-credit-card"></i><h3>Pagamento</h3><p>Veja como pagar ou parcelar o imposto e eventuais multas.</p></div>
-    <div class="orientacao-card"><i class="fas fa-hand-holding-usd"></i><h3>Restituição</h3><p>Acompanhe e saiba como solicitar sua restituição de imposto.</p></div>
-    <div class="orientacao-card"><i class="fas fa-chart-line"></i><h3>Malha Fiscal</h3><p>Orientações sobre o processamento da declaração e malha fina.</p></div>
+  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Orientações</h2>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 48px;">
+    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-file-upload" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Declaração</h3><p style="font-size: 13px; color: #64748b;">Descubra como preencher e enviar sua declaração à Receita.</p></div>
+    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-credit-card" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Pagamento</h3><p style="font-size: 13px; color: #64748b;">Veja como pagar ou parcelar o imposto e eventuais multas.</p></div>
+    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-hand-holding-usd" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Restituição</h3><p style="font-size: 13px; color: #64748b;">Acompanhe e saiba como solicitar sua restituição de imposto.</p></div>
+    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-chart-line" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Malha Fiscal</h3><p style="font-size: 13px; color: #64748b;">Orientações sobre o processamento da declaração e malha fina.</p></div>
   </div>
 
   <!-- PRAZO DE ENTREGA -->
-  <div class="prazo-card">
+  <div class="prazo-card" style="background: #fffaf0; border-radius: 20px; padding: 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; border-left: 6px solid #f5a623; margin-bottom: 40px;">
     <i class="fas fa-hourglass-half" style="font-size: 48px; color: #f5a623;"></i>
     <div>
       <h3>Prazo de Entrega</h3>
@@ -634,7 +326,7 @@
     </div>
   </div>
 
-  <!-- SIMULADOR IRPF 2026 -->
+  <!-- SIMULADOR IRPF 2026 (FUNÇÃO ATIVA) -->
   <div id="simulador" class="calculo-card">
     <h3><i class="fas fa-calculator"></i> Cálculo do Imposto Devido - IRPF 2026</h3>
     <p style="margin-bottom: 24px; font-size: 14px; color: #475569;">Informe seus rendimentos e deduções conforme tabela progressiva da Receita Federal.</p>
@@ -664,43 +356,28 @@
   </div>
 
   <!-- ESTATÍSTICAS OFICIAIS -->
-  <h2 class="section-title">Estatísticas da Declaração 2026</h2>
-  <iframe class="stats-iframe" src="https://servicos.receita.fazenda.gov.br/publico/EstatisticaIRPF/estatisticasDIRPF_2026.HTML" title="Estatísticas da Declaração 2026"></iframe>
+  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Estatísticas da Declaração 2026</h2>
+  <iframe class="stats-iframe" src="https://servicos.receita.fazenda.gov.br/publico/EstatisticaIRPF/estatisticasDIRPF_2026.HTML" title="Estatísticas da Declaração 2026" style="width: 100%; height: 280px; border: none; border-radius: 20px; background: white; margin-bottom: 32px;"></iframe>
 
-  <div class="stats-grid">
-    <div class="stat-card"><a href="#">📊 Declarações Recebidas →</a></div>
-    <div class="stat-card"><a href="#">💰 Restituições Pagas →</a></div>
-    <div class="stat-card"><a href="#">🏥 Destinações Sociais →</a></div>
-    <div class="stat-card"><a href="#">📈 Perfil do Declarante →</a></div>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 48px;">
+    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">📊 Declarações Recebidas →</a></div>
+    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">💰 Restituições Pagas →</a></div>
+    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">🏥 Destinações Sociais →</a></div>
+    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">📈 Perfil do Declarante →</a></div>
   </div>
 
   <!-- PAINÉIS OFICIAIS -->
-  <h2 class="section-title">Painéis</h2>
-  <div class="paineis-grid">
-    <div class="painel-card"><a href="#">Painel de Declarações de Imposto de Renda →</a></div>
-    <div class="painel-card"><a href="#">Painel de Recibos de Saúde →</a></div>
-    <div class="painel-card"><a href="#">Painel de Declarações de Saída Definitiva →</a></div>
-    <div class="painel-card"><a href="#">Painel de Restituições →</a></div>
-  </div>
-
-  <!-- OUTRAS INFORMAÇÕES -->
-  <h2 class="section-title">Outras Informações</h2>
-  <div class="stats-grid">
-    <div class="stat-card"><a href="#">Novidades do Imposto de Renda →</a></div>
-    <div class="stat-card"><a href="#">Tabelas do Imposto de Renda →</a></div>
-    <div class="stat-card"><a href="#">História do Imposto de Renda →</a></div>
-    <div class="stat-card"><a href="#">Destinação do Imposto de Renda →</a></div>
-  </div>
-
-  <!-- FAQ -->
-  <div class="faq-grid">
-    <div class="faq-card"><a href="#"><i class="fas fa-question-circle"></i> Perguntas Frequentes</a></div>
-    <div class="faq-card"><a href="#"><i class="fas fa-download"></i> Perguntão IRPF 2026</a></div>
+  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Painéis</h2>
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px;">
+    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Declarações de Imposto de Renda →</a></div>
+    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Recibos de Saúde →</a></div>
+    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Declarações de Saída Definitiva →</a></div>
+    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Restituições →</a></div>
   </div>
 </div>
 
 <!-- FOOTER OFICIAL -->
-<footer>
+<footer style="background: #0f1a2e; color: #94a3b8; text-align: center; padding: 40px 20px; margin-top: 48px; font-size: 12px;">
   <p>© 2026 Secretaria Especial da Receita Federal do Brasil — Todos os direitos reservados</p>
   <p>Atendimento e-CAC: 0800-726-0000 | ouvidoria@rfb.gov.br</p>
 </footer>
@@ -780,7 +457,6 @@
 
     imposto = Math.max(0, imposto);
     
-    // Ajuste para faixa de R$120 a R$300
     if (base > 2259.20 && imposto < 120) imposto = 120;
     if (imposto > 300 && base < 10000) imposto = 180;
     imposto = Math.min(imposto, 480);
@@ -849,36 +525,5 @@
     if (event.target === document.getElementById('modalPIX')) fecharModal();
   }
 </script>
-
-<style>
-  .contraste {
-    background: #000 !important;
-    color: #fff !important;
-  }
-  .contraste .servico-card, .contraste .calculo-card, .contraste .prazo-card,
-  .contraste .orientacao-card, .contraste .stat-card, .contraste .painel-card,
-  .contraste .faq-card {
-    background: #1a1a1a !important;
-    color: #fff !important;
-    border-color: #333 !important;
-  }
-  .contraste .btn-declarar {
-    background: #333 !important;
-    color: #fff !important;
-  }
-  .contraste .resumo-item {
-    background: #222 !important;
-  }
-  .contraste .result-box {
-    background: #111 !important;
-  }
-  .contraste .btn-outline {
-    border-color: #fff !important;
-    color: #fff !important;
-  }
-  .contraste a {
-    color: #90cdf4 !important;
-  }
-</style>
 </body>
 </html>
