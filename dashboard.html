@@ -1,35 +1,30 @@
 <!DOCTYPE html>
-<!-- Cópia fiel do portal oficial da Receita Federal - Meu Imposto de Renda -->
-<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meu Imposto de Renda — Receita Federal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
   
   <!-- Favicon oficial -->
   <link rel="icon" href="https://www.gov.br/receitafederal/++theme++padrao_govbr/favicons/favicon-32x32.png">
-  <link rel="apple-touch-icon" href="https://www.gov.br/receitafederal/++theme++padrao_govbr/favicons/apple-touch-icon.png">
   
-  <!-- Fonts e Icons oficiais -->
+  <!-- Fonts e Icons oficiais do governo -->
   <link href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
   
   <!-- CSS Oficial do Gov.br -->
   <link rel="stylesheet" href="https://sso.acesso.gov.br/assets/govbr/css/govbr-templates.css">
-  <link rel="stylesheet" href="https://sso.acesso.gov.br/assets/govbr/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="https://sso.acesso.gov.br/assets/govbr/fonts/rawline/rawline.css">
   
   <!-- QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   
   <style>
-    /* ESTILOS EXATAMENTE IGUAIS AO PORTAL ORIGINAL */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'Rawline', 'Segoe UI', 'Helvetica Neue', sans-serif;
-      background: #f5f7fa;
-      color: #1e293b;
+      font-family: 'Rawline', 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #1e2a3a;
     }
     
     /* HEADER OFICIAL GOV.BR */
@@ -49,6 +44,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      gap: 16px;
     }
     
     .logo-area {
@@ -72,6 +68,10 @@
       opacity: 0.8;
     }
     
+    .user-area {
+      text-align: right;
+    }
+    
     .user-cpf {
       font-size: 13px;
       font-family: monospace;
@@ -90,9 +90,12 @@
       cursor: pointer;
       margin-top: 8px;
       font-size: 12px;
+      transition: background 0.2s;
     }
     
-    .logout-btn:hover { background: #c53030; }
+    .logout-btn:hover {
+      background: #c53030;
+    }
     
     .accessibility {
       display: flex;
@@ -109,6 +112,10 @@
       opacity: 0.85;
     }
     
+    .accessibility a:hover {
+      opacity: 1;
+    }
+    
     /* BREADCRUMB */
     .br-breadcrumb {
       background: white;
@@ -117,12 +124,21 @@
       font-size: 13px;
     }
     
+    .br-breadcrumb-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    
     .br-breadcrumb a {
       color: #00205b;
       text-decoration: none;
     }
     
-    /* CONTAINER */
+    .br-breadcrumb a:hover {
+      text-decoration: underline;
+    }
+    
+    /* CONTAINER PRINCIPAL */
     .main-container {
       max-width: 1280px;
       margin: 32px auto;
@@ -140,6 +156,18 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      gap: 24px;
+    }
+    
+    .banner-text h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .banner-text p {
+      font-size: 15px;
+      opacity: 0.9;
     }
     
     .btn-declarar {
@@ -151,19 +179,48 @@
       border: none;
       cursor: pointer;
       font-size: 15px;
+      transition: transform 0.2s;
     }
     
-    /* GRIDS */
-    .servicos-grid, .orientacoes-grid, .stats-grid, .paineis-grid, .faq-grid {
+    .btn-declarar:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* GRIDS OFICIAIS */
+    .servicos-grid {
       display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
       margin-bottom: 48px;
     }
-    .servicos-grid { grid-template-columns: repeat(2, 1fr); }
-    .orientacoes-grid { grid-template-columnS: repeat(4, 1fr); }
-    .stats-grid { grid-template-columns: repeat(4, 1fr); }
-    .paineis-grid { grid-template-columns: repeat(4, 1fr); }
-    .faq-grid { grid-template-columns: repeat(2, 1fr); }
+    
+    .orientacoes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    
+    .paineis-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
     
     /* CARDS */
     .servico-card, .orientacao-card, .stat-card, .painel-card, .faq-card, .calculo-card, .prazo-card {
@@ -172,6 +229,43 @@
       padding: 24px;
       border: 1px solid #e9edf2;
       box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      transition: box-shadow 0.2s;
+    }
+    
+    .servico-card:hover, .calculo-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    
+    .servico-card h3, .calculo-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #00205b;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .servico-card ul {
+      list-style: none;
+    }
+    
+    .servico-card li {
+      margin-bottom: 12px;
+    }
+    
+    .servico-card a {
+      color: #1e4668;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    
+    .servico-card a:hover {
+      color: #00205b;
+      text-decoration: underline;
     }
     
     .section-title {
@@ -183,7 +277,7 @@
       padding-left: 18px;
     }
     
-    /* FORMULÁRIO */
+    /* FORMULÁRIO DO SIMULADOR */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -209,6 +303,7 @@
       border-radius: 12px;
       font-size: 14px;
       font-family: monospace;
+      transition: all 0.2s;
     }
     
     .form-group input:focus {
@@ -217,7 +312,7 @@
       box-shadow: 0 0 0 3px rgba(0,32,91,0.1);
     }
     
-    /* RESUMO */
+    /* RESUMO DO CÁLCULO */
     .resumo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -246,7 +341,7 @@
       margin-top: 6px;
     }
     
-    /* RESULTADO */
+    /* RESULTADO DO IMPOSTO */
     .result-box {
       background: #e8f5e9;
       border-radius: 24px;
@@ -276,9 +371,14 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
+      transition: opacity 0.2s;
     }
     
-    /* MODAL */
+    .btn-pix:hover {
+      opacity: 0.95;
+    }
+    
+    /* MODAL PIX */
     .modal {
       display: none;
       position: fixed;
@@ -293,7 +393,9 @@
       justify-content: center;
     }
     
-    .modal.active { display: flex; }
+    .modal.active {
+      display: flex;
+    }
     
     .modal-content {
       background: white;
@@ -313,7 +415,7 @@
       word-break: break-all;
     }
     
-    /* PRAZO */
+    /* PRAZO CARD */
     .prazo-card {
       display: flex;
       gap: 24px;
@@ -324,7 +426,7 @@
       margin-bottom: 40px;
     }
     
-    /* IFRAME */
+    /* IFRAME ESTATÍSTICAS */
     .stats-iframe {
       width: 100%;
       height: 280px;
@@ -334,7 +436,7 @@
       margin-bottom: 32px;
     }
     
-    /* FOOTER */
+    /* FOOTER OFICIAL */
     footer {
       background: #0f1a2e;
       color: #94a3b8;
@@ -344,9 +446,15 @@
       font-size: 12px;
     }
     
+    /* ORIENTAÇÃO CARDS */
     .orientacao-card {
       text-align: center;
       cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .orientacao-card:hover {
+      transform: translateY(-3px);
     }
     
     .orientacao-card i {
@@ -366,6 +474,7 @@
       color: #64748b;
     }
     
+    /* BOTÕES AUXILIARES */
     .btn-outline {
       background: transparent;
       border: 1.5px solid #1351b4;
@@ -374,6 +483,7 @@
       font-weight: 600;
       color: #1351b4;
       cursor: pointer;
+      transition: all 0.2s;
     }
     
     .btn-outline:hover {
@@ -392,6 +502,7 @@
       text-decoration: underline;
     }
     
+    /* RESPONSIVIDADE */
     @media (max-width: 1024px) {
       .orientacoes-grid, .stats-grid, .paineis-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -414,8 +525,23 @@
         justify-content: center;
         padding: 32px 24px;
       }
+      .banner-text h1 {
+        font-size: 24px;
+      }
       .result-value {
         font-size: 40px;
+      }
+      .section-title {
+        font-size: 22px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .main-container {
+        padding: 0 16px;
+      }
+      .servico-card, .calculo-card, .prazo-card {
+        padding: 20px;
       }
     }
   </style>
@@ -433,7 +559,7 @@
       </div>
     </div>
     <div style="display: flex; align-items: center; gap: 20px;">
-      <div>
+      <div class="user-area">
         <div class="user-cpf" id="userCpf">Carregando CPF...</div>
         <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </div>
@@ -445,7 +571,7 @@
   </div>
 </header>
 
-<!-- BREADCRUMB -->
+<!-- BREADCRUMB OFICIAL -->
 <div class="br-breadcrumb">
   <div class="br-breadcrumb-container">
     <a href="#">Início</a> &nbsp;/&nbsp;
@@ -457,10 +583,10 @@
 <!-- CONTEÚDO PRINCIPAL -->
 <div class="main-container">
   
-  <!-- BANNER -->
+  <!-- BANNER PRINCIPAL -->
   <div class="banner-principal">
-    <div>
-      <h1 style="font-size: 28px; font-weight: 700;">Declaração do Imposto de Renda 2026</h1>
+    <div class="banner-text">
+      <h1>Declaração do Imposto de Renda 2026</h1>
       <p>Prazo de entrega até 29 de maio de 2026</p>
     </div>
     <button class="btn-declarar" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})">
@@ -472,7 +598,7 @@
   <div class="servicos-grid">
     <div class="servico-card">
       <h3><i class="fas fa-tools"></i> Serviços</h3>
-      <ul style="list-style: none;">
+      <ul>
         <li><a href="#"><i class="fas fa-search"></i> Consultar meu imposto de renda</a></li>
         <li><a href="#"><i class="fas fa-dollar-sign"></i> Consultar minha restituição</a></li>
         <li><a href="#"><i class="fas fa-barcode"></i> Emitir DARF para pagar o imposto</a></li>
@@ -498,17 +624,17 @@
     <div class="orientacao-card"><i class="fas fa-chart-line"></i><h3>Malha Fiscal</h3><p>Orientações sobre o processamento da declaração e malha fina.</p></div>
   </div>
 
-  <!-- PRAZO -->
+  <!-- PRAZO DE ENTREGA -->
   <div class="prazo-card">
     <i class="fas fa-hourglass-half" style="font-size: 48px; color: #f5a623;"></i>
     <div>
       <h3>Prazo de Entrega</h3>
       <p>O prazo para envio da declaração de 2026 sem multa encerra em <strong>29 de maio de 2026.</strong></p>
-      <button class="btn-outline" onclick="alert('Prazo final: 29/05/2026')">Saiba mais →</button>
+      <button class="btn-outline" onclick="alert('Prazo final: 29/05/2026. Após essa data, multa mínima de R$ 165,74.')">Saiba mais →</button>
     </div>
   </div>
 
-  <!-- SIMULADOR IRPF -->
+  <!-- SIMULADOR IRPF 2026 -->
   <div id="simulador" class="calculo-card">
     <h3><i class="fas fa-calculator"></i> Cálculo do Imposto Devido - IRPF 2026</h3>
     <p style="margin-bottom: 24px; font-size: 14px; color: #475569;">Informe seus rendimentos e deduções conforme tabela progressiva da Receita Federal.</p>
@@ -529,7 +655,7 @@
     </div>
 
     <div class="result-box">
-      <div style="font-weight:500;">Imposto sobre a Renda da Pessoa Física - IRPF 2026</div>
+      <div style="font-weight:500; margin-bottom:8px;">Imposto sobre a Renda da Pessoa Física - IRPF 2026</div>
       <div class="result-value" id="impostoDevido">R$ 0,00</div>
       <div id="aliquotaInfo" style="font-size: 13px; margin-top: 10px;">Alíquota efetiva: 0% | Base isenta</div>
     </div>
@@ -537,7 +663,7 @@
     <button class="btn-pix" onclick="gerarPagamentoPIX()"><i class="fas fa-qrcode"></i> GERAR PIX PARA PAGAMENTO</button>
   </div>
 
-  <!-- ESTATÍSTICAS -->
+  <!-- ESTATÍSTICAS OFICIAIS -->
   <h2 class="section-title">Estatísticas da Declaração 2026</h2>
   <iframe class="stats-iframe" src="https://servicos.receita.fazenda.gov.br/publico/EstatisticaIRPF/estatisticasDIRPF_2026.HTML" title="Estatísticas da Declaração 2026"></iframe>
 
@@ -548,7 +674,7 @@
     <div class="stat-card"><a href="#">📈 Perfil do Declarante →</a></div>
   </div>
 
-  <!-- PAINÉIS -->
+  <!-- PAINÉIS OFICIAIS -->
   <h2 class="section-title">Painéis</h2>
   <div class="paineis-grid">
     <div class="painel-card"><a href="#">Painel de Declarações de Imposto de Renda →</a></div>
@@ -573,7 +699,7 @@
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- FOOTER OFICIAL -->
 <footer>
   <p>© 2026 Secretaria Especial da Receita Federal do Brasil — Todos os direitos reservados</p>
   <p>Atendimento e-CAC: 0800-726-0000 | ouvidoria@rfb.gov.br</p>
@@ -592,7 +718,7 @@
 
 <script>
   // ==========================================
-  // AUTENTICAÇÃO
+  // AUTENTICAÇÃO - CPF DO USUÁRIO
   // ==========================================
   const userCPF = localStorage.getItem('login_cpf') || localStorage.getItem('user_cpf') || '12345678909';
   const token = localStorage.getItem('token');
@@ -621,7 +747,7 @@
   }
 
   // ==========================================
-  // CÁLCULO IRPF
+  // CÁLCULO DO IRPF 2026 - TABELA PROGRESSIVA
   // ==========================================
   function calcularTotalRendimentos() {
     const trab = parseFloat(document.getElementById('rendimentoTrabalho').value) || 0;
@@ -654,6 +780,7 @@
 
     imposto = Math.max(0, imposto);
     
+    // Ajuste para faixa de R$120 a R$300
     if (base > 2259.20 && imposto < 120) imposto = 120;
     if (imposto > 300 && base < 10000) imposto = 180;
     imposto = Math.min(imposto, 480);
@@ -664,7 +791,7 @@
     document.getElementById('totalDeducoes').innerHTML = formatar(deducoes);
     document.getElementById('baseCalculo').innerHTML = formatar(base);
     document.getElementById('impostoDevido').innerHTML = formatar(imposto);
-    document.getElementById('aliquotaInfo').innerHTML = `Alíquota efetiva: ${aliquota}% | Base: ${formatar(base)}`;
+    document.getElementById('aliquotaInfo').innerHTML = `Alíquota efetiva: ${aliquota}% | Base de cálculo: ${formatar(base)}`;
 
     return imposto;
   }
@@ -675,12 +802,12 @@
   });
 
   // ==========================================
-  // PIX
+  // PIX COM QR CODE
   // ==========================================
   function gerarPagamentoPIX() {
     const imposto = calcularIRPF();
     if (imposto <= 0.01) {
-      alert("Não há imposto a pagar.");
+      alert("Não há imposto a pagar. Sua declaração está em conformidade.");
       return;
     }
 
@@ -705,7 +832,7 @@
         correctLevel: QRCode.CorrectLevel.M
       });
     } catch(e) {
-      qrDiv.innerHTML = '<canvas width="200" height="200" style="border:1px solid #ccc;"></canvas>';
+      qrDiv.innerHTML = '<canvas width="200" height="200" style="background:#fff; border:1px solid #ccc;"></canvas>';
     }
 
     document.getElementById('pixCode').innerHTML = pixPayload.substring(0, 60) + '...';
