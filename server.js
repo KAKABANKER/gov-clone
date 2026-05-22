@@ -237,7 +237,7 @@ function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
 
-// Rota para criar pagamento via Plumify
+// Rota para criar pagamento via Plumify (SEM AXIOS)
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -264,21 +264,25 @@ app.post('/api/create-payment', async (req, res) => {
             payment_methods: ['pix']
         };
 
-        // Chamada para API Plumify
-        const response = await axios.post(`${PLUMIFY_API_URL}/transactions`, payload, {
+        // Usando fetch nativo (Node.js 18+)
+        const response = await fetch(`${PLUMIFY_API_URL}/transactions`, {
+            method: 'POST',
             headers: {
                 'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify(payload)
         });
+
+        const data = await response.json();
 
         res.json({
             success: true,
-            payment: response.data
+            payment: data
         });
 
     } catch (error) {
-        console.error('Erro Plumify:', error.response?.data || error.message);
+        console.error('Erro Plumify:', error.message);
         res.status(500).json({
             error: 'Erro ao gerar pagamento. Tente novamente.'
         });
