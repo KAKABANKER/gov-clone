@@ -195,21 +195,37 @@ app.post('/api/admin/clear', async (req, res) => {
     }
 });
 
-// Alterar senha admin
+// Alterar senha admin (com verificação da senha antiga)
 app.post('/api/admin/change-password', async (req, res) => {
-    const { nova_senha } = req.body;
-    if (!nova_senha || nova_senha.length < 6) {
-        return res.status(400).json({ error: 'Mínimo 6 caracteres' });
+    const { senha_antiga, nova_senha } = req.body;
+    
+    if (!senha_antiga || !nova_senha || nova_senha.length < 6) {
+        return res.status(400).json({ error: 'Senha antiga obrigatória e nova senha deve ter no mínimo 6 caracteres' });
     }
+    
     try {
+        // Buscar admin
+        const result = await pool.query('SELECT * FROM admin_users WHERE username = $1', ['admin']);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Admin não encontrado' });
+        }
+        
+        // Verificar senha antiga
+        const senhaValida = await bcrypt.compare(senha_antiga, result.rows[0].senha_hash);
+        if (!senhaValida) {
+            return res.status(401).json({ error: 'Senha atual incorreta' });
+        }
+        
+        // Atualizar para nova senha
         const hash = await bcrypt.hash(nova_senha, 10);
         await pool.query('UPDATE admin_users SET senha_hash = $1 WHERE username = $2', [hash, 'admin']);
+        
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: 'Erro' });
+        console.error('Erro ao alterar senha:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
-
 // Servir arquivos estáticos
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
