@@ -783,9 +783,7 @@
         const renda = parseFloat(document.getElementById('renda-tributavel').value) || 0;
         const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
         
-        // Tabela oficial da Lei nº 14.987/2025
         let valorBase = 0;
-        
         if (renda <= 1200) {
             valorBase = 100;
         } else if (renda <= 2000) {
@@ -798,7 +796,6 @@
             valorBase = 300;
         }
         
-        // Desconto por dependente (R$ 10,00 por dependente)
         const descontoDependentes = dependentes * 10;
         const impostoFinal = Math.max(valorBase - descontoDependentes, 100);
         impostoCalculado = impostoFinal;
@@ -829,7 +826,7 @@
             <p><strong>Desconto por dependente (R$ 10,00 cada):</strong> R$ ${descontoDependentes.toFixed(2)}</p>
             <p style="font-size: 24px; color: #1351B4; font-weight: bold; margin-top: 15px;">Imposto a Pagar: R$ ${impostoCalculado.toFixed(2)}</p>
             <div style="margin-top: 15px; font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
-                <i class="fas fa-gavel"></i> Base legal: Art. 5º da Lei nº 14.987/2025 - Obrigatoriedade de recolhimento do IRPF para todos os contribuintes.
+                <i class="fas fa-gavel"></i> Base legal: Art. 5º da Lei nº 14.987/2025
             </div>
         `;
         
@@ -837,61 +834,76 @@
     }
     
     function gerarPix() {
-    if (impostoCalculado <= 0) {
-        alert('Calcule o imposto primeiro.');
-        return;
+        if (impostoCalculado <= 0) {
+            alert('Calcule o imposto primeiro.');
+            return;
+        }
+        
+        const btnPagar = document.getElementById('btn-pagar');
+        const textoOriginal = btnPagar.innerHTML;
+        btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
+        btnPagar.disabled = true;
+        
+        fetch('/api/create-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: impostoCalculado,
+                customer_name: 'Contribuinte',
+                customer_email: 'pagamento@contribuinte.com',
+                customer_cpf: '00000000000'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btnPagar.innerHTML = textoOriginal;
+            btnPagar.disabled = false;
+            
+            if (data.success && data.payment && data.payment.pix_code) {
+                document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+                
+                const qrcodeContainer = document.getElementById('qrcode-container');
+                qrcodeContainer.innerHTML = '';
+                new QRCode(qrcodeContainer, {
+                    text: data.payment.pix_code,
+                    width: 250,
+                    height: 250
+                });
+                
+                if (data.payment.expires_at) {
+                    document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
+                }
+                
+                document.getElementById('modal-pix').style.display = 'flex';
+            } else {
+                alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+            }
+        })
+        .catch(error => {
+            btnPagar.innerHTML = textoOriginal;
+            btnPagar.disabled = false;
+            console.error('Erro:', error);
+            alert('Erro de conexão com o servidor.');
+        });
     }
     
-    const btnPagar = document.getElementById('btn-pagar');
-    const textoOriginal = btnPagar.innerHTML;
-    btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
-    btnPagar.disabled = true;
-    
-    fetch('/api/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: impostoCalculado,
-            customer_name: 'Contribuinte',
-            customer_email: 'pagamento@contribuinte.com',
-            customer_cpf: '00000000000'
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        
-        if (data.success && data.payment && data.payment.pix_code) {
-            // Mostrar o código PIX
-            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
-            
-            // Gerar QR Code
-            const qrcodeContainer = document.getElementById('qrcode-container');
-            qrcodeContainer.innerHTML = '';
-            new QRCode(qrcodeContainer, {
-                text: data.payment.pix_code,
-                width: 200,
-                height: 200
-            });
-            
-            // Mostrar data de expiração se tiver
-            if (data.payment.expires_at) {
-                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
-            }
-            
-            document.getElementById('modal-pix').style.display = 'flex';
-        } else {
-            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
-        }
-    })
-    .catch(error => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        console.error('Erro:', error);
-        alert('Erro de conexão com o servidor.');
-    });
-}
+    function copiarPix() {
+        const codigoPix = document.getElementById('pix-codigo').textContent;
+        navigator.clipboard.writeText(codigoPix).then(() => {
+            const msgDiv = document.getElementById('pix-mensagem');
+            msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
+            msgDiv.className = 'alert alert-success';
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }).catch(() => {
+            const msgDiv = document.getElementById('pix-mensagem');
+            msgDiv.textContent = 'Erro ao copiar. Copie manualmente.';
+            msgDiv.className = 'alert alert-danger';
+            msgDiv.style.display = 'block';
+        });
+    }
     
     function fecharModal() {
         document.getElementById('modal-pix').style.display = 'none';
