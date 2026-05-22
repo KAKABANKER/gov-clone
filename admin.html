@@ -913,15 +913,15 @@
             </div>
         </div>
 
-        <!-- Configurações Tab -->
+       <!-- Configurações Tab -->
 <div id="tabSettings" class="tab-content">
     <div class="section-card">
         <div class="section-title">ALTERAR SENHA DO ADMIN</div>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex-direction: column;">
-            <input type="password" id="senhaAntigaAdmin" placeholder="Senha atual" style="flex: 1;">
-            <input type="password" id="novaSenhaAdmin" placeholder="Nova senha (mínimo 6 caracteres)" style="flex: 1;">
-            <input type="password" id="confirmarSenhaAdmin" placeholder="Confirmar nova senha" style="flex: 1;">
-            <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="alterarSenhaAdmin()">ALTERAR SENHA</button>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="password" id="senhaAntigaAdmin" placeholder="Senha atual" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff;">
+            <input type="password" id="novaSenhaAdmin" placeholder="Nova senha (mínimo 6 caracteres)" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff;">
+            <input type="password" id="confirmarSenhaAdmin" placeholder="Confirmar nova senha" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff;">
+            <button class="btn-alterar-senha" onclick="alterarSenhaAdmin()" style="background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%); color: #0a0a0a; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; width: 100%;">ALTERAR SENHA</button>
         </div>
         <div id="senhaMsg" style="margin-top: 15px;"></div>
     </div>
