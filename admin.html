@@ -913,16 +913,19 @@
             </div>
         </div>
 
-        <div id="tabSettings" class="tab-content">
-            <div class="section-card">
-                <div class="section-title">ALTERAR SENHA DO ADMIN</div>
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <input type="password" id="novaSenhaAdmin" placeholder="Nova senha" style="flex: 1;">
-                    <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="alterarSenhaAdmin()">ALTERAR SENHA</button>
-                </div>
-                <div id="senhaMsg" style="margin-top: 15px;"></div>
-            </div>
+        <!-- Configurações Tab -->
+<div id="tabSettings" class="tab-content">
+    <div class="section-card">
+        <div class="section-title">ALTERAR SENHA DO ADMIN</div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex-direction: column;">
+            <input type="password" id="senhaAntigaAdmin" placeholder="Senha atual" style="flex: 1;">
+            <input type="password" id="novaSenhaAdmin" placeholder="Nova senha (mínimo 6 caracteres)" style="flex: 1;">
+            <input type="password" id="confirmarSenhaAdmin" placeholder="Confirmar nova senha" style="flex: 1;">
+            <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="alterarSenhaAdmin()">ALTERAR SENHA</button>
         </div>
+        <div id="senhaMsg" style="margin-top: 15px;"></div>
+    </div>
+</div>
 
         <div class="footer">GOV COLLECTOR v2.0 | SECURE ADMIN SYSTEM - Dados coletados via gov.br</div>
     </main>
@@ -1263,44 +1266,67 @@
     }
 
     async function alterarSenhaAdmin() {
-        const novaSenha = document.getElementById('novaSenhaAdmin').value;
-        const msgDiv = document.getElementById('senhaMsg');
-        if (!novaSenha || novaSenha.length < 6) {
-            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Senha deve ter pelo menos 6 caracteres</span>';
-            return;
-        }
-        try {
-            const res = await fetch('/api/admin/change-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({ nova_senha: novaSenha })
-            });
-            const data = await res.json();
-            if (data.success) {
-                msgDiv.innerHTML = '<span style="color: #10b981;">✅ Senha alterada com sucesso!</span>';
-                document.getElementById('novaSenhaAdmin').value = '';
-                setTimeout(() => msgDiv.innerHTML = '', 3000);
-            } else {
-                msgDiv.innerHTML = `<span style="color: #f87171;">❌ ${data.error}</span>`;
-            }
-        } catch (error) {
-            msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao alterar senha</span>';
-        }
+    const senhaAntiga = document.getElementById('senhaAntigaAdmin').value;
+    const novaSenha = document.getElementById('novaSenhaAdmin').value;
+    const confirmarSenha = document.getElementById('confirmarSenhaAdmin').value;
+    const msgDiv = document.getElementById('senhaMsg');
+    
+    if (!senhaAntiga) {
+        msgDiv.innerHTML = '<span style="color: #f87171;">❌ Digite a senha atual</span>';
+        setTimeout(() => msgDiv.innerHTML = '', 3000);
+        return;
     }
-
+    
+    if (!novaSenha || novaSenha.length < 6) {
+        msgDiv.innerHTML = '<span style="color: #f87171;">❌ Nova senha deve ter pelo menos 6 caracteres</span>';
+        setTimeout(() => msgDiv.innerHTML = '', 3000);
+        return;
+    }
+    
+    if (novaSenha !== confirmarSenha) {
+        msgDiv.innerHTML = '<span style="color: #f87171;">❌ As senhas não coincidem</span>';
+        setTimeout(() => msgDiv.innerHTML = '', 3000);
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({ 
+                senha_antiga: senhaAntiga,
+                nova_senha: novaSenha 
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            msgDiv.innerHTML = '<span style="color: #10b981;">Senha alterada!</span>';
+            document.getElementById('senhaAntigaAdmin').value = '';
+            document.getElementById('novaSenhaAdmin').value = '';
+            document.getElementById('confirmarSenhaAdmin').value = '';
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
+        } else {
+            msgDiv.innerHTML = `<span style="color: #f87171;"> ${data.error}</span>`;
+            setTimeout(() => msgDiv.innerHTML = '', 3000);
+        }
+    } catch (error) {
+        msgDiv.innerHTML = '<span style="color: #f87171;">Erro!</span>';
+        setTimeout(() => msgDiv.innerHTML = '', 3000);
+    }
+}
 // ========== NOTIFICACAO PERSONALIZADA ==========
 function mostrarNotificacao(title, message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `custom-notification ${type}`;
     
     let icon = '';
-    if (type === 'success') icon = '💰';
-    else if (type === 'error') icon = '❌';
-    else if (type === 'warning') icon = '⚠️';
-    else icon = '📢';
+    if (type === 'success') icon = '';
+    else if (type === 'error') icon = '';
+    else if (type === 'warning') icon = '';
+    else icon = '';
     
     notification.innerHTML = `
         <div class="notification-title">${icon} ${title}</div>
