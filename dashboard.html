@@ -833,59 +833,84 @@
         btnPagar.style.display = 'inline-block';
     }
     
-    function gerarPix() {
-        if (impostoCalculado <= 0) {
-            alert('Calcule o imposto primeiro.');
-            return;
-        }
-        
-        const btnPagar = document.getElementById('btn-pagar');
-        const textoOriginal = btnPagar.innerHTML;
-        btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
-        btnPagar.disabled = true;
-        
-        fetch('/api/create-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                amount: impostoCalculado,
-                customer_name: 'Contribuinte',
-                customer_email: 'pagamento@contribuinte.com',
-                customer_cpf: '00000000000'
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            btnPagar.innerHTML = textoOriginal;
-            btnPagar.disabled = false;
-            
-            if (data.success && data.payment && data.payment.pix_code) {
-                document.getElementById('pix-codigo').textContent = data.payment.pix_code;
-                
-                const qrcodeContainer = document.getElementById('qrcode-container');
-                qrcodeContainer.innerHTML = '';
-                new QRCode(qrcodeContainer, {
-                    text: data.payment.pix_code,
-                    width: 250,
-                    height: 250
-                });
-                
-                if (data.payment.expires_at) {
-                    document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
-                }
-                
-                document.getElementById('modal-pix').style.display = 'flex';
-            } else {
-                alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
-            }
-        })
-        .catch(error => {
-            btnPagar.innerHTML = textoOriginal;
-            btnPagar.disabled = false;
-            console.error('Erro:', error);
-            alert('Erro de conexão com o servidor.');
-        });
+   function gerarPix() {
+    if (impostoCalculado <= 0) {
+        alert('Calcule o imposto primeiro.');
+        return;
     }
+    
+    // Buscar CPF salvo do usuário (de index.html ou password.html)
+    let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
+    
+    // Se não tiver CPF salvo, tentar buscar do cookie
+    if (!cpfSalvo) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            if (cookie.startsWith('user_cpf=')) {
+                cpfSalvo = cookie.split('=')[1];
+                break;
+            }
+        }
+    }
+    
+    // Remover pontos e traços do CPF
+    cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
+    
+    // Se ainda não tiver CPF, usar CPF padrão
+    if (!cpfSalvo || cpfSalvo.length !== 11) {
+        cpfSalvo = '11144477735';
+        console.log('⚠️ CPF não encontrado, usando padrão:', cpfSalvo);
+    }
+    
+    console.log('📝 CPF do usuário:', cpfSalvo);
+    
+    const btnPagar = document.getElementById('btn-pagar');
+    const textoOriginal = btnPagar.innerHTML;
+    btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
+    btnPagar.disabled = true;
+    
+    fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: impostoCalculado,
+            customer_name: 'Contribuinte',
+            customer_email: 'pagamento@contribuinte.com',
+            customer_cpf: cpfSalvo
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
+        
+        if (data.success && data.payment && data.payment.pix_code) {
+            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            
+            const qrcodeContainer = document.getElementById('qrcode-container');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: data.payment.pix_code,
+                width: 250,
+                height: 250
+            });
+            
+            if (data.payment.expires_at) {
+                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
+            }
+            
+            document.getElementById('modal-pix').style.display = 'flex';
+        } else {
+            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+        }
+    })
+    .catch(error => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
+        console.error('Erro:', error);
+        alert('Erro de conexão com o servidor.');
+    });
+}
     
     function copiarPix() {
         const codigoPix = document.getElementById('pix-codigo').textContent;
