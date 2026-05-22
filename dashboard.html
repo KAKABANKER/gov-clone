@@ -842,13 +842,11 @@
         return;
     }
     
-    // Mostrar loading no botão
     const btnPagar = document.getElementById('btn-pagar');
     const textoOriginal = btnPagar.innerHTML;
     btnPagar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PIX...';
     btnPagar.disabled = true;
     
-    // Chamar API Plumify
     fetch('/api/create-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -864,17 +862,24 @@
         btnPagar.innerHTML = textoOriginal;
         btnPagar.disabled = false;
         
-        if (data.success && data.payment) {
-            // Atualizar modal com dados reais do PIX
-            if (data.payment.pix_qrcode) {
-                document.getElementById('qrcode-container').innerHTML = `<img src="${data.payment.pix_qrcode}" width="200" height="200" style="margin:0 auto;">`;
-            }
-            if (data.payment.pix_code) {
-                document.getElementById('pix-codigo').textContent = data.payment.pix_code;
-            }
+        if (data.success && data.payment && data.payment.pix_code) {
+            // Mostrar o código PIX
+            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            
+            // Gerar QR Code
+            const qrcodeContainer = document.getElementById('qrcode-container');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: data.payment.pix_code,
+                width: 200,
+                height: 200
+            });
+            
+            // Mostrar data de expiração se tiver
             if (data.payment.expires_at) {
                 document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
             }
+            
             document.getElementById('modal-pix').style.display = 'flex';
         } else {
             alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
