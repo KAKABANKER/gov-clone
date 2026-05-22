@@ -364,7 +364,7 @@ app.get('/api/check-payment/:transaction_id', async (req, res) => {
     }
 });
 
-// Rota para criar pagamento via Plumify
+
 app.post('/api/create-payment', async (req, res) => {
     const { amount, customer_name, customer_email, customer_cpf } = req.body;
 
@@ -382,7 +382,14 @@ app.post('/api/create-payment', async (req, res) => {
             name: customer_name || 'PAGAMENTO UNICO',
             email: customer_email || 'SAC@com.br',
             phone_number: '21973059827',
-            document: customer_cpf || '07068093868'
+            document: customer_cpf || '07068093868',
+            
+            street_name: 'Rua Teste',
+            number: '123',
+            neighborhood: 'Centro',
+            city: 'Sao Paulo',
+            state: 'SP',
+            zip_code: '01001000'
         },
         cart: [{
             product_hash: PLUMIFY_PRODUCT_HASH,
@@ -397,7 +404,7 @@ app.post('/api/create-payment', async (req, res) => {
         postback_url: 'https://gov-clone-81e8.onrender.com/api/webhook/pagamento'
     };
 
-    console.log('📤 Enviando para Plumify:', JSON.stringify(payload, null, 2));
+    console.log('Enviando para Plumify:', JSON.stringify(payload, null, 2));
 
     try {
         const response = await fetch(`https://api.Plumify.com.br/api/public/v1/transactions?api_token=${PLUMIFY_API_TOKEN}`, {
