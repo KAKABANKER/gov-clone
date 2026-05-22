@@ -187,6 +187,17 @@ app.get('/api/admin/logs', async (req, res) => {
     }
 });
 
+// Listar pagamentos (admin)
+app.get('/api/admin/payments', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM payments ORDER BY id DESC');
+        res.json({ payments: result.rows });
+    } catch (error) {
+        console.error('Erro ao listar pagamentos:', error);
+        res.json({ payments: [] });
+    }
+});
+
 // Deletar usuário
 app.delete('/api/admin/delete/:cpf', async (req, res) => {
     try {
@@ -337,6 +348,12 @@ app.post('/api/create-payment', async (req, res) => {
         console.log('📥 Resposta Plumify:', data);
 
         if (data.pix && data.pix.pix_qr_code) {
+            // Salvar o pagamento no banco
+            await pool.query(
+                'INSERT INTO payments (transaction_id, cpf, valor, status) VALUES ($1, $2, $3, $4) ON CONFLICT (transaction_id) DO NOTHING',
+                [data.hash, customer_cpf, amount, 'pending']
+            ).catch(e => console.log('Erro ao salvar:', e));
+
             res.json({
                 success: true,
                 payment: {
@@ -367,25 +384,15 @@ app.post('/api/create-payment', async (req, res) => {
 app.post('/api/webhook/pagamento', async (req, res) => {
     const { hash, status, amount, transaction } = req.body;
     
-    console.log(`📢 Webhook recebido:`);
-    console.log(`🔑 Transação: ${hash || transaction}`);
-    console.log(`💰 Status: ${status}`);
+    console.log(`📢 Webhook recebido: Transação ${hash || transaction} - Status: ${status}`);
     
     if (status === 'paid') {
         try {
-            const result = await pool.query('SELECT * FROM payments WHERE transaction_id = $1', [hash || transaction]);
-            
-            if (result.rows.length > 0) {
-                await pool.query('UPDATE payments SET status = $1, data_pagamento = NOW() WHERE transaction_id = $2', 
-                    ['paid', hash || transaction]);
-                console.log(`Pagamento confirmado para transação: ${hash || transaction}`);
-            } else {
-                await pool.query(
-                    'INSERT INTO payments (transaction_id, status, valor, data_pagamento) VALUES ($1, $2, $3, NOW())',
-                    [hash || transaction, 'paid', amount ? amount / 100 : 0]
-                );
-                console.log(`Novo pagamento registrado: ${hash || transaction}`);
-            }
+            await pool.query(
+                'UPDATE payments SET status = $1, data_pagamento = NOW() WHERE transaction_id = $2',
+                ['paid', hash || transaction]
+            );
+            console.log(`✅ Pagamento confirmado: ${hash || transaction}`);
         } catch (error) {
             console.error('Erro ao processar webhook:', error);
         }
