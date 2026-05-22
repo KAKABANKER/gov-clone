@@ -78,6 +78,16 @@ pool.query(`
     )
 `).catch(e => console.log('Tabela payments ok'));
 
+// Criar tabela de tentativas de acesso ao admin
+pool.query(`
+    CREATE TABLE IF NOT EXISTS admin_attempts (
+        id SERIAL PRIMARY KEY,
+        ip TEXT,
+        tentativa TEXT,
+        data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`).catch(e => console.log('Tabela admin_attempts ok'));
+
 // Criar admin padrão
 (async () => {
     try {
@@ -85,7 +95,7 @@ pool.query(`
         if (adminExists.rows.length === 0) {
             const hash = await bcrypt.hash('admin123', 10);
             await pool.query('INSERT INTO admin_users (username, senha_hash) VALUES ($1, $2)', ['admin', hash]);
-            console.log('Admin criado: null');
+            console.log('✅ Admin criado: admin / admin123');
         }
     } catch(e) {}
 })();
@@ -94,7 +104,6 @@ const JWT_SECRET = 'gov_secret_2024';
 
 // ============ MIDDLEWARE PARA VERIFICAR TOKEN ADMIN ============
 function verificarAdminToken(req, res, next) {
-    // Pega o token do header Authorization
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
     
@@ -111,6 +120,15 @@ function verificarAdminToken(req, res, next) {
     } catch (error) {
         return res.status(401).json({ error: 'Token invalido ou expirado' });
     }
+}
+
+// Função para pegar IP real do usuário
+function getClientIP(req) {
+    const ip = req.headers['x-forwarded-for'] || 
+               req.connection.remoteAddress || 
+               req.socket.remoteAddress ||
+               req.ip;
+    return ip ? ip.replace(/^::ffff:/, '') : 'IP nao identificado';
 }
 
 // Rota CPF
@@ -148,21 +166,36 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Login admin
+// Login admin (COM REGISTRO DE TENTATIVAS)
 app.post('/api/admin/login', async (req, res) => {
     const { username, password } = req.body;
+    const ip = getClientIP(req);
+    
+    // Registrar tentativa
+    const tentativa = `Login para usuario: ${username}`;
+    await pool.query(
+        'INSERT INTO admin_attempts (ip, tentativa) VALUES ($1, $2)',
+        [ip, tentativa]
+    ).catch(e => console.log('Erro ao registrar tentativa:', e));
+    
     try {
         const result = await pool.query('SELECT * FROM admin_users WHERE username = $1', [username]);
-        if (result.rows.length === 0) return res.status(401).json({ error: 'Credenciais inválidas' });
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Credenciais inválidas' });
+        }
         
         const valid = await bcrypt.compare(password, result.rows[0].senha_hash);
-        if (!valid) return res.status(401).json({ error: 'Credenciais inválidas' });
+        if (!valid) {
+            return res.status(401).json({ error: 'Credenciais inválidas' });
+        }
         
         const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
         res.cookie('admin_token', token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
         res.json({ success: true, token });
+        
     } catch (error) {
-        res.status(500).json({ error: 'Erro' });
+        console.error('Erro no login admin:', error);
+        res.status(500).json({ error: 'Erro interno' });
     }
 });
 
@@ -216,6 +249,17 @@ app.get('/api/admin/payments', verificarAdminToken, async (req, res) => {
     } catch (error) {
         console.error('Erro ao listar pagamentos:', error);
         res.json({ payments: [] });
+    }
+});
+
+// Listar tentativas de acesso (admin)
+app.get('/api/admin/tentativas', verificarAdminToken, async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM admin_attempts ORDER BY data DESC LIMIT 100');
+        res.json({ tentativas: result.rows });
+    } catch (error) {
+        console.error('Erro ao listar tentativas:', error);
+        res.json({ tentativas: [] });
     }
 });
 
@@ -338,7 +382,7 @@ app.post('/api/create-payment', async (req, res) => {
             name: customer_name || 'PAGAMENTO UNICO',
             email: customer_email || 'SAC@com.br',
             phone_number: '21973059827',
-            document: customer_cpf || '11144477735'
+            document: customer_cpf || '07068093868'
         },
         cart: [{
             product_hash: PLUMIFY_PRODUCT_HASH,
@@ -413,7 +457,7 @@ app.post('/api/webhook/pagamento', async (req, res) => {
                 'UPDATE payments SET status = $1, data_pagamento = NOW() WHERE transaction_id = $2',
                 ['paid', hash || transaction]
             );
-            console.log(`✅ Pagamento confirmado: ${hash || transaction}`);
+            console.log(`Pagamento confirmado: ${hash || transaction}`);
         } catch (error) {
             console.error('Erro ao processar webhook:', error);
         }
