@@ -1,529 +1,903 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Imposto de Renda — Receita Federal</title>
-  
-  <!-- Favicon oficial -->
-  <link rel="icon" href="https://www.gov.br/receitafederal/++theme++padrao_govbr/favicons/favicon-32x32.png">
-  
-  <!-- Fonts e Icons oficiais do governo -->
-  <link href="https://fonts.googleapis.com/css2?family=Rawline:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
-  
-  <!-- CSS Oficial do Gov.br -->
-  <link rel="stylesheet" href="https://sso.acesso.gov.br/assets/govbr/css/govbr-templates.css">
-  
-  <!-- QR Code -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-  
-  <style>
-    /* Estilos personalizados para complementar e ajustar o template oficial */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      font-family: 'Rawline', 'Segoe UI', sans-serif;
-      background: #f0f4f8;
-      color: #1e2a3a;
-    }
-    
-    /* Ajustes no header oficial para incluir logout */
-    .custom-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    .user-cpf {
-        font-size: 13px;
-        font-family: monospace;
-        background: rgba(255,255,255,0.15);
-        padding: 6px 14px;
-        border-radius: 30px;
-        display: inline-block;
-    }
-    .logout-btn {
-        background: rgba(255,255,255,0.15);
-        border: none;
-        padding: 5px 14px;
-        border-radius: 30px;
-        color: white;
-        cursor: pointer;
-        margin-top: 0;
-        font-size: 12px;
-        transition: background 0.2s;
-    }
-    .logout-btn:hover {
-        background: #c53030;
-    }
-    
-    /* Card do Simulador */
-    .calculo-card {
-        background: white;
-        border-radius: 20px;
-        padding: 24px;
-        border: 1px solid #e9edf2;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-        margin-bottom: 32px;
-    }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-    .form-group label {
-      font-size: 13px;
-      font-weight: 600;
-      color: #334155;
-      margin-bottom: 6px;
-    }
-    .form-group input {
-      padding: 12px 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      font-size: 14px;
-      font-family: monospace;
-      transition: all 0.2s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: #00205b;
-      box-shadow: 0 0 0 3px rgba(0,32,91,0.1);
-    }
-    .resumo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin: 28px 0;
-    }
-    .resumo-item {
-      background: #f8fafc;
-      padding: 20px;
-      border-radius: 20px;
-      text-align: center;
-      border: 1px solid #e2e8f0;
-    }
-    .resumo-valor {
-      font-size: 28px;
-      font-weight: 800;
-      color: #00205b;
-      font-family: monospace;
-    }
-    .resumo-label {
-      font-size: 13px;
-      color: #64748b;
-      margin-top: 6px;
-    }
-    .result-box {
-      background: #e8f5e9;
-      border-radius: 24px;
-      padding: 32px;
-      text-align: center;
-      margin: 24px 0;
-    }
-    .result-value {
-      font-size: 52px;
-      font-weight: 800;
-      color: #00205b;
-      font-family: monospace;
-    }
-    .btn-pix {
-      background: linear-gradient(135deg, #00205b 0%, #1351b4 100%);
-      color: white;
-      padding: 16px 28px;
-      border-radius: 48px;
-      border: none;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      transition: opacity 0.2s;
-    }
-    .btn-pix:hover {
-      opacity: 0.95;
-    }
-    
-    /* MODAL PIX */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal.active {
-      display: flex;
-    }
-    .modal-content {
-      background: white;
-      border-radius: 28px;
-      max-width: 480px;
-      width: 90%;
-      padding: 32px;
-      text-align: center;
-    }
-    .pix-code {
-      background: #f1f5f9;
-      padding: 12px;
-      border-radius: 14px;
-      font-family: monospace;
-      font-size: 11px;
-      word-break: break-all;
-    }
-    .btn-outline {
-      background: transparent;
-      border: 1.5px solid #1351b4;
-      padding: 8px 24px;
-      border-radius: 30px;
-      font-weight: 600;
-      color: #1351b4;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-outline:hover {
-      background: #1351b4;
-      color: white;
-    }
-    
-    @media (max-width: 768px) {
-      .form-grid, .resumo-grid {
-        grid-template-columns: 1fr;
-      }
-      .result-value {
-        font-size: 40px;
-      }
-    }
-    
-    /* Contraste */
-    .contraste {
-      background: #000 !important;
-      color: #fff !important;
-    }
-    .contraste .servico-card, .contraste .calculo-card, .contraste .prazo-card,
-    .contraste .orientacao-card, .contraste .stat-card, .contraste .painel-card,
-    .contraste .faq-card {
-      background: #1a1a1a !important;
-      color: #fff !important;
-      border-color: #333 !important;
-    }
-    .contraste .btn-declarar {
-      background: #333 !important;
-      color: #fff !important;
-    }
-    .contraste .resumo-item {
-      background: #222 !important;
-    }
-    .contraste .result-box {
-      background: #111 !important;
-    }
-    .contraste .btn-outline {
-      border-color: #fff !important;
-      color: #fff !important;
-    }
-    .contraste a {
-      color: #90cdf4 !important;
-    }
-  </style>
-</head>
-<body>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
 
-<!-- HEADER OFICIAL GOV.BR (Personalizado) -->
-<header class="br-header" style="background: #00205b; color: white; position: sticky; top: 0; z-index: 1000;">
-  <div class="container-lg" style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-    <div class="logo-area" style="display: flex; align-items: center; gap: 15px;">
-      <i class="fas fa-building" style="font-size: 32px; color: #8bc34a;"></i>
-      <div>
-        <h1 style="font-size: 20px; font-weight: 600;">Receita Federal do Brasil</h1>
-        <p style="font-size: 11px; opacity: 0.8;">Ministério da Fazenda</p>
-      </div>
-    </div>
-    <div class="custom-header-actions">
-      <div class="user-area" style="text-align: right;">
-        <div class="user-cpf" id="userCpf">Carregando CPF...</div>
-        <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-      </div>
-      <div class="accessibility" style="display: flex; gap: 16px;">
-        <a href="#" onclick="toggleContrast()" style="color: white; text-decoration: none;"><i class="fas fa-adjust"></i><span> Alto Contraste</span></a>
-        <a href="https://www.vlibras.gov.br" target="_blank" style="color: white; text-decoration: none;"><i class="fas fa-deaf"></i><span> VLibras</span></a>
-      </div>
-    </div>
-  </div>
+<head>
+    <meta charset="utf-8" />
+  <!-- Google Tag Manager -->
+  <script type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-NHZSKTD');</script>
+  <!-- End Google Tag Manager -->
+
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "url": "https://www.gov.br/receitafederal",
+            "logo": "https://www.gov.br/receitafederal/logo.png"
+        }</script>
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "url": "https://www.gov.br/receitafederal",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://www.gov.br/receitafederal/search?SearchableText={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+        }</script>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    
+        <base href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/" /><!--[if lt IE 7]></base><![endif]-->
+    
+
+    
+        <meta property="og:title" content="Meu Imposto de Renda" />
+<meta property="og:description" content="Tudo sobre a sua Declaração de Imposto sobre a Renda da Pessoa Física (DIRPF). Esclareça suas dúvidas e acesse os serviços relacionados à declaração e malha fiscal." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026" />
+<meta property="og:image" content="https://www.gov.br/receitafederal/logo.png" />
+
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:site_name" content="Receita Federal " />
+
+
+  
+
+  
+  
+  <script type="text/javascript">
+    (function() {
+        var po = document.createElement('script');
+        po.async = true;
+        po.src = document.location.protocol + '//connect.facebook.net/pt_BR/all.js#xfbml=1';
+        var head = document.getElementsByTagName('head')[0];
+        head.appendChild(po);
+    }());
+    </script>
+
+
+
+  
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@" />
+  
+
+
+
+
+<meta name="description" content="Tudo sobre a sua Declaração de Imposto sobre a Renda da Pessoa Física (DIRPF). Esclareça suas dúvidas e acesse os serviços relacionados à declaração e malha fiscal." />
+<meta property="creator.productor" content="https://www.gov.br/fazenda" />
+
+
+
+  
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/reset-cachekey-02d481965db4076b2811d768b72f1837.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/base-cachekey-7ede1a2078030a799908f773a43d3593.css" />
+    <style type="text/css" media="screen">@import url(https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourceplone.app.jquerytools.dateinput-cachekey-0426cd565e80f58e538c817f30087381.css);</style>
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourceplone.formwidget.datetimestyles-cachekey-9d4c79e2a8f0dff81a8bee28ac0c2090.css" />
+    <style type="text/css" media="screen">@import url(https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/jquery.autocomplete-cachekey-af1657874cd535ef525c730aebb080a8.css);</style>
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/embedder-cachekey-d44dd44b1aa66e43f02bd67d7c3f0616.css" media="screen" />
+    <style type="text/css" media="screen">@import url(https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourcecollective.pollscsscollective.polls-cachekey-610a39580e798825bbf761e0495d6fe6.css);</style>
+        <!--[if lt IE 8]>    
+    
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/IEFixes-cachekey-70413127c87e152791f7217e3f0453b9.css" media="screen" />
+        <![endif]-->
+    
+    <style type="text/css" media="all">@import url(https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourcepas.plugins.loginunicologinunico-cachekey-dd90b08427b80f46cff8550b9c3a843.css);</style>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourcelgpd.plugindsgov.min-cachekey-363bf309e1e48020e8596a0c81f97a54.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="https://www.gov.br/receitafederal/portal_css/Sunburst%20Theme/resourcegovbr.policycanais-cachekey-ac044535b6358316533025b47d615723.css" />
+
+  
+  
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcegovbr.policybrowser-update-cachekey-7fa2e9d22b787ed760af22fde20dc9d0.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourceplone.app.jquery-cachekey-7a6d56354c562c06646fb4b64e77d822.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcegovbr.policyfolder_contents-cachekey-c539e568cf4fd120c671fe0763455258.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcegovbr.policycookiebar_1_3_57-cachekey-89ad6a830b2ffe0e2b60d4ca1a8bdd25.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcegovbr.policyapplication_cookiebar_1_3_57-cachekey-a17ab3762c94729432bca65a8a998c56.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/collective.js.jqueryui.custom.min-cachekey-a74348962529fde658671b64e21948f9.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourceplone.formwidget.recurrencejquery.tmpl-beta1-cachekey-9c56c34c734c92561e3485e9519695fe.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcecollective.js.bootstrapjsbootstrap.min-cachekey-bc121c26fdd7e2b92b60e796f227ad31.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcecollective.coverjsmain-cachekey-073c5e6d2870bc163e746e1942b19634.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcebrasil.gov.tilesvendorjquery.jplayer.min-cachekey-ccc85c17139238697810e6f4416c50ce.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcedropdown-menu-cachekey-0723ca6c8073f3e62c13ca9605fa3fa0.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/js/swiper.min.js"></script>
+    <script type="text/javascript"></script>
+    <script type="text/javascript"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcelgpd.pluginchangeCookieImage-cachekey-eb71f20f74a4f0d4e51fbfff8a95a0da.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/resourcelgpd.pluginblock_cookies-cachekey-fcc4889d44271a3ff48710b637cba220.js"></script>
+    <script type="text/javascript" src="https://www.gov.br/receitafederal/portal_javascripts/Sunburst%20Theme/++resource++govbr.recomendacao/govbr.recom.c339e72c8ffbb2f6c087.js"></script>
+
+
+
+  <link rel="stylesheet" href="https://www.gov.br/receitafederal/++resource++brasil.gov.agenda/brasilgovagenda-720c34e.css" />
+
+
+  <script defer="defer" src="https://www.gov.br/receitafederal/++resource++brasil.gov.agenda/brasilgovagenda-720c34e.js"></script>
+
+
+
+  <link rel="stylesheet" href="https://www.gov.br/receitafederal/++resource++brasil.gov.portal/brasilgovportal-ee510e4.css" />
+
+
+  <script defer="defer" src="https://www.gov.br/receitafederal/++resource++brasil.gov.portal/brasilgovportal-ee510e4.js"></script>
+
+
+
+  <link rel="stylesheet" href="https://www.gov.br/receitafederal/++resource++brasil.gov.tiles/brasilgovtiles-7d5753d.css" />
+
+
+  <script defer="defer" src="https://www.gov.br/receitafederal/++resource++brasil.gov.tiles/brasilgovtiles-7d5753d.js"></script>
+
+
+
+<title>Meu Imposto de Renda — Receita Federal </title>
+<link rel="http://purl.org/dc/terms/subject http://schema.org/about http://xmlns.com/foaf/0.1/primaryTopic" href="http://vocab.e.gov.br/2011/03/vcge#esquema" />
+        
+    <link rel="author" href="https://www.gov.br/receitafederal/pt-br" title="Informações do Autor" />
+
+    <link rel="canonical" href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda" />
+
+    
+    
+
+
+<script type="text/javascript">
+        jQuery(function($){
+            if (typeof($.datepicker) != "undefined"){
+              $.datepicker.setDefaults(
+                jQuery.extend($.datepicker.regional['pt-BR'],
+                {dateFormat: 'dd/mm/yy'}));
+            }
+        });
+        </script>
+
+
+
+
+    <link rel="search" href="https://www.gov.br/receitafederal/pt-br/@@search" title="Buscar neste site" />
+
+
+
+        
+        
+        
+  
+
+        
+        
+
+        
+        <meta name="generator" content="Plone - http://plone.org" />
+    
+
+    
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/receitafederal/++theme++padrao_govbr/favicons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/receitafederal/++theme++padrao_govbr/favicons/favicon-32x32.png" />
+    <link rel="shortcut icon" type="image/png" href="/receitafederal/++theme++padrao_govbr/favicons/favicon-48x48.png" />
+    <link rel="mask-icon" href="/receitafederal/++theme++padrao_govbr/favicons/safari-pinned-tab.svg" color="#00a300" />
+    <meta name="msapplication-config" content="favicons/browserconfig.xml" />
+    <meta name="theme-color" content="#00a300" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body.userrole-authenticated .btn.btn-success.fileinput-button span:after {
+            content: "Adicionar Arquivos" !important;
+        }
+        
+        /* Estilos do formulário de imposto */
+        .formulario-imposto {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .formulario-imposto h3 {
+            color: #1351B4;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #1351B4;
+        }
+        .btn-calcular, .btn-pagar {
+            background: #1351B4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-right: 10px;
+        }
+        .btn-calcular:hover, .btn-pagar:hover {
+            background: #0e3e8a;
+        }
+        .resultado-imposto {
+            background: #e8f0fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .modal-pix {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-content h3 {
+            color: #1351B4;
+            margin-bottom: 20px;
+        }
+        .codigo-pix {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 20px 0;
+        }
+        .btn-fechar {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-copiar {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .tabela-aliquotas {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .tabela-aliquotas table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .tabela-aliquotas th, .tabela-aliquotas td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .tabela-aliquotas th {
+            background: #1351B4;
+            color: white;
+        }
+    </style>
+    
+    <script type="module" id="barra-govbr-pro" src="https://barra.sistema.gov.br/v1/barra-govbr-wc.iife.js"></script>
+    <script type="module" src="/govbrportal/js/session.js" defer="defer"></script>
+<link href="/receitafederal/++theme++padrao_govbr/govbrtheme-45cb9c1.css" rel="stylesheet" /></head>
+
+<body id="" class="default-header-template portal-institucional cover-layout-layout-vazio template-view portaltype-collective-cover-content site-pt-br section-assuntos subsection-meu-imposto-de-renda subsection-meu-imposto-de-renda-irpf2026 userrole-anonymous" data-base-url="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026" data-portal-url="https://www.gov.br/receitafederal" dir="ltr">
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe height="0" width="0" style="display:none;visibility:hidden" data-src="https://www.googletagmanager.com/ns.html?id=GTM-NHZSKTD"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <nav class="govbr-skip-menu" aria-label="Acesso rápido">
+    <a href="#wrapper" accesskey="1">
+      <span class="sr-only">Ir para o</span>
+      Conteúdo
+      <span class="access-key">1</span>
+    </a>
+    <a href="/" accesskey="2">
+      <span class="sr-only">Ir para a</span>
+      Página Inicial
+      <span class="access-key">2</span>
+    </a>
+    <a href="#main-navigation" accesskey="3">
+      <span class="sr-only">Ir para o menu de</span>
+      Navegação
+      <span class="access-key">3</span>
+    </a>
+    <a href="#govbr-busca-input" accesskey="4">
+      <span class="sr-only">Ir para a</span>
+      Busca
+      <span class="access-key">4</span>
+    </a>
+    <a href="#portal-footer" accesskey="5">
+      <span class="sr-only">Ir para o</span>
+      Mapa do site
+      <span class="access-key">5</span>
+    </a>
+  </nav>
+
+  <noscript aria-label="Aviso de Javascript desabilitado">
+    <dl class="portalMessage attention erro-javascript">
+      <dt>Atenção!</dt>
+      <dd>Seu navegador não pode executar javascript. Alguns recursos podem não funcionar corretamente.</dd>
+    </dl>
+  </noscript>
+
+<header id="site-header" class="has-navigation-dropdown" style="z-index: 999;">
+        <div class="header-wrapper secondary">
+            <barra-govbr class="width100 shadow-none show-contrast-toggle" style="width: 100%;" id="barra-govbr" titulo="Ministério da Fazenda" signinhref="/govbrportal/inicializacao-autenticacao-openid.html" signouthref="/govbrportal/logout.html" linktitulo="https://www.gov.br/fazenda" linklogo="https://www.gov.br/pt-br" idiomas="" idiomaativo="" linksdosistema="[{&quot;title&quot;:&quot;Órgãos do Governo&quot;,&quot;href&quot;:&quot;https://www.gov.br/pt-br/orgaos-do-governo&quot;},{&quot;title&quot;:&quot;Acesso à Informação&quot;,&quot;href&quot;:&quot;https://www.gov.br/acessoainformacao/pt-br&quot;},{&quot;title&quot;:&quot;Legislação&quot;,&quot;href&quot;:&quot;http://www4.planalto.gov.br/legislacao&quot;},{&quot;title&quot;:&quot;Acessibilidade&quot;,&quot;href&quot;:&quot;https://www.gov.br/governodigital/pt-br/acessibilidade-digital&quot;}]" contrastactive="false">
+            </barra-govbr>
+        </div>
+
+        <div class="main">
+            <div class="header-wrapper">
+
+                <div class="site-name-wrapper">
+                    <a class="ico-navegacao toggle-main-navigation" href="#">
+                        <span class="sr-only">Abrir menu principal de navegação</span>
+                        <span class="fa fa-bars" aria-hidden="true"></span>
+                        <span class="fa fa-times" aria-hidden="true"></span>
+                    </a>
+                    
+                    <div class="site-name">
+                        <a href="https://www.gov.br/receitafederal/pt-br">Receita Federal </a>
+                    </div>
+                </div>
+
+                
+            <div class="termos-mais-buscados desktop">
+                <section class="source-termos-mais-buscados">
+                    <div class="source-header-termos-mais-buscados">
+                        Termos mais buscados
+                    </div>
+                    <ul class="list-termos-mais-buscados">
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                   <span class="fa-solid fa-arrow-trend-up"></span>
+                                   imposto de renda
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                   <span class="fa-solid fa-arrow-trend-up"></span>
+                                   assinatura
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                   <span class="fa-solid fa-arrow-trend-up"></span>
+                                   inss
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                   <span class="fa-solid fa-arrow-trend-up"></span>
+                                   mei
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                   <span class="fa-solid fa-arrow-trend-up"></span>
+                                   cnh
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </section>
+            </div>
+            <div class="termos-mais-buscados mobile">
+                <section class="source-termos-mais-buscados">
+                    <div class="source-header-termos-mais-buscados">
+                        Termos mais buscados
+                    </div>                                
+                    <ul class="list-termos-mais-buscados">
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                    <span class="fa-solid fa-arrow-trend-up"></span>
+                                    imposto de renda
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                    <span class="fa-solid fa-arrow-trend-up"></span>
+                                    assinatura
+                                </a>
+                            </li>
+                        
+                            <li class="item-termos-mais-buscados">
+                                <a href="#">
+                                    <span class="fa-solid fa-arrow-trend-up"></span>
+                                    inss
+                                </a>
+                            </li>
+                        
+                    </ul>
+                </section>
+            </div>
+        <div class="govbr-busca-header">
+                    <div id="govbr-busca-input">
+                    </div>
+                </div>
+
+                <script>
+                    $(document).ready(function() {                
+                        $('#searchtext-label button').appendTo(".aa-InputWrapperPrefix");
+                        $('#searchtext-label').remove();
+                    });
+                </script>
+
+            </div>
+        </div>
 </header>
 
-<!-- BREADCRUMB OFICIAL -->
-<div class="br-breadcrumb" style="background: white; padding: 12px 24px; border-bottom: 1px solid #e2e8f0; font-size: 13px;">
-  <div class="container-lg" style="max-width: 1280px; margin: 0 auto;">
-    <a href="#" style="color: #00205b;">Início</a> &nbsp;/&nbsp;
-    <a href="#" style="color: #00205b;">Assuntos</a> &nbsp;/&nbsp;
-    <span>Meu Imposto de Renda 2026</span>
-  </div>
-</div>
+<div id="portal-breadcrumbs-wrapper"><nav id="breadcrumbs" aria-label="Histórico de navegação (Breadcrumbs)">
+            <div class="content">
+                <span class="sr-only">Você está aqui:</span>
+                <span class="home">
+            <a href="#">
+              <span class="fas fa-home" aria-hidden="true"></span>
+                <span class="sr-only">Página Inicial</span>
+                </a>
+                </span>
+            
 
-<!-- CONTEÚDO PRINCIPAL (ESTILO OFICIAL) -->
-<div class="main-container" style="max-width: 1280px; margin: 32px auto; padding: 0 24px;">
-  
-  <!-- BANNER PRINCIPAL -->
-  <div class="banner-principal" style="background: linear-gradient(135deg, #004d35 0%, #006d4f 100%); border-radius: 20px; padding: 40px 48px; margin-bottom: 40px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
-    <div class="banner-text">
-      <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Declaração do Imposto de Renda 2026</h1>
-      <p style="font-size: 15px; opacity: 0.9;">Prazo de entrega até 29 de maio de 2026</p>
-    </div>
-    <button class="btn-declarar" onclick="document.getElementById('simulador').scrollIntoView({behavior:'smooth'})" style="background: white; color: #004d35; padding: 12px 32px; border-radius: 40px; font-weight: 600; border: none; cursor: pointer;">
-      Fazer minha declaração →
-    </button>
-  </div>
-
-  <!-- SERVIÇOS (Grid oficial) -->
-  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 48px;">
-    <div class="servico-card" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid #e9edf2;">
-      <h3 style="font-size: 18px; font-weight: 700; color: #00205b; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;"><i class="fas fa-tools"></i> Serviços</h3>
-      <ul style="list-style: none;">
-        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-search"></i> Consultar meu imposto de renda</a></li>
-        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-dollar-sign"></i> Consultar minha restituição</a></li>
-        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-barcode"></i> Emitir DARF para pagar o imposto</a></li>
-        <li style="margin-bottom: 12px;"><a href="#" style="color: #1e4668; text-decoration: none;"><i class="fas fa-upload"></i> Entregar documentos de malha fiscal</a></li>
-      </ul>
-      <a href="#" class="link-more" style="display: inline-block; margin-top: 16px; font-weight: 500; color: #1351b4;">Mais serviços →</a>
-    </div>
-    <div class="servico-card" style="background: white; border-radius: 20px; padding: 24px; border: 1px solid #e9edf2;">
-      <h3 style="font-size: 18px; font-weight: 700; color: #00205b; margin-bottom: 16px;"><i class="fas fa-info-circle"></i> Meu Imposto de Renda</h3>
-      <p>Os valores arrecadados com o imposto de renda contribuem para o desenvolvimento do Brasil, financiando a saúde, educação, segurança e inúmeros serviços públicos prestados ao cidadão brasileiro.</p>
-      <p style="margin-top: 15px;">Algumas pessoas são <strong>obrigadas</strong> a entregar a declaração. Se você está obrigado, o envio fora do prazo gera multa pelo atraso.</p>
-    </div>
-  </div>
-
-  <!-- ORIENTAÇÕES -->
-  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Orientações</h2>
-  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 48px;">
-    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-file-upload" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Declaração</h3><p style="font-size: 13px; color: #64748b;">Descubra como preencher e enviar sua declaração à Receita.</p></div>
-    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-credit-card" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Pagamento</h3><p style="font-size: 13px; color: #64748b;">Veja como pagar ou parcelar o imposto e eventuais multas.</p></div>
-    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-hand-holding-usd" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Restituição</h3><p style="font-size: 13px; color: #64748b;">Acompanhe e saiba como solicitar sua restituição de imposto.</p></div>
-    <div class="orientacao-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center; cursor: pointer;"><i class="fas fa-chart-line" style="font-size: 36px; color: #1351b4;"></i><h3 style="font-size: 16px; margin: 12px 0 6px;">Malha Fiscal</h3><p style="font-size: 13px; color: #64748b;">Orientações sobre o processamento da declaração e malha fina.</p></div>
-  </div>
-
-  <!-- PRAZO DE ENTREGA -->
-  <div class="prazo-card" style="background: #fffaf0; border-radius: 20px; padding: 24px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; border-left: 6px solid #f5a623; margin-bottom: 40px;">
-    <i class="fas fa-hourglass-half" style="font-size: 48px; color: #f5a623;"></i>
-    <div>
-      <h3>Prazo de Entrega</h3>
-      <p>O prazo para envio da declaração de 2026 sem multa encerra em <strong>29 de maio de 2026.</strong></p>
-      <button class="btn-outline" onclick="alert('Prazo final: 29/05/2026. Após essa data, multa mínima de R$ 165,74.')">Saiba mais →</button>
-    </div>
-  </div>
-
-  <!-- SIMULADOR IRPF 2026 (FUNÇÃO ATIVA) -->
-  <div id="simulador" class="calculo-card">
-    <h3><i class="fas fa-calculator"></i> Cálculo do Imposto Devido - IRPF 2026</h3>
-    <p style="margin-bottom: 24px; font-size: 14px; color: #475569;">Informe seus rendimentos e deduções conforme tabela progressiva da Receita Federal.</p>
     
-    <div class="form-grid">
-      <div class="form-group"><label>Rendimentos do Trabalho</label><input type="number" id="rendimentoTrabalho" step="0.01" placeholder="0,00" value="0"></div>
-      <div class="form-group"><label>Rendimentos de Aluguel</label><input type="number" id="rendimentoAluguel" step="0.01" placeholder="0,00" value="0"></div>
-      <div class="form-group"><label>Rendimentos de Aplicações</label><input type="number" id="rendimentoAplicacoes" step="0.01" placeholder="0,00" value="0"></div>
-      <div class="form-group"><label>Despesas com Saúde</label><input type="number" id="despesaSaude" step="0.01" placeholder="0,00" value="0"></div>
-      <div class="form-group"><label>Despesas com Educação</label><input type="number" id="despesaEducacao" step="0.01" placeholder="0,00" value="0"></div>
-      <div class="form-group"><label>Previdência Privada (PGBL)</label><input type="number" id="despesaPrevidencia" step="0.01" placeholder="0,00" value="0"></div>
+    
+    <span dir="ltr" id="breadcrumbs-1">
+        
+            <a href="#">Assuntos</a>
+            
+            
+         
+    </span>
+    <span dir="ltr" id="breadcrumbs-2">
+        
+            
+            
+            <span id="breadcrumbs-current">Meu Imposto de Renda</span>
+         
+    </span>
+
+</div>
+        </nav></div><h1 id="page-title-alt" class="sr-only">Meu Imposto de Renda</h1>
+
+<div id="wrapper">
+        <div id="main">
+            <main id="main-content">
+
+            <div id="viewlet-above-content">
+                <script type="application/ld+json">{"@context": "http://schema.org", "itemListElement": [{"position": 1, "@type": "ListItem", "item": "https://www.gov.br/receitafederal/pt-br/assuntos", "name": "Assuntos"}, {"position": 2, "@type": "ListItem", "item": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda", "name": "Meu Imposto de Renda"}], "@type": "BreadcrumbList"}</script>
+                <div id="viewlet-tileshare" data-title-fb="Compartilhar no Facebook (abre em nova janela)" data-title-twitter="Tweet (abre em nova janela)" data-title-linkedin="Compartilhar no Linkedin  (abre em nova janela)" data-title-gplus="Compartilhar no Google+  (abre em nova janela)" data-title-link="Copiar para área de transferência" data-title-more="Mais opções">
+                </div>
+            </div>
+
+            
+                <div class="">
+                    <dl class="portalMessage info" id="kssPortalMessage" style="display:none">
+                        <dt>Info</dt>
+                        <dd></dd>
+                    </dl>
+
+                    <div id="content">
+                        
+                        <!-- Banner Principal -->
+                        <div class="row hidden-mobile-ls linha-destaquetopo-adaptavel image-position-top hidden-tablet-ls">
+                            <div class="row-content">
+                                <div class="column col-md-12 tile-default">
+                                    <div class="tile tile-default">
+                                        <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@collective.cover.banner/e2b8cd9f-7357-46d6-b85c-812704d631b8/@@images/e5911326-7efa-4d8f-afdc-524a3d007dd2.jpeg" width="2560" height="500" class="left" alt="Duas pessoas utilizando dispositivos digitais com o texto &quot;2024 Imposto de Renda&quot;, logo da Receita Federal." />
+                                        <div class="cover-banner-tile tile-content"><div class="visualClear"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row image-position-top hidden-notebook">
+                            <div class="row-content">
+                                <div class="column col-md-12">
+                                    <div class="tile tile-default">
+                                        <div class="cover-banner-tile tile-content">
+                                            <div>
+                                                <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@govbr.institucional.banner/b7cd26db-2444-4e11-b628-6045d4a2568a/@@images/944080c2-ecae-4f87-8110-16efbac1c1ea.jpeg" width="768" height="450" alt="Duas pessoas utilizando dispositivos digitais com o texto &quot;2024 Imposto de Renda&quot;, logo da Receita Federal." />
+                                            </div>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conteúdo Principal -->
+                        <div class="row govbr-recom-wrapper">
+                            <div class="row-content">
+                                <div class="column col-md-7">
+                                    <div class="tile tile-default">
+                                        <div class="cover-richtext-tile tile-content">
+                                            <h2>Meu Imposto de Renda</h2>
+                                            <p>Os valores arrecadados com o imposto de renda contribuem para o desenvolvimento do Brasil, financiando a saúde, educação, segurança e inúmeros serviços públicos prestados ao cidadão brasileiro.</p>
+                                            <p>De acordo com a <strong>Lei nº 14.987/2025</strong>, todos os contribuintes estão obrigados ao pagamento do Imposto sobre a Renda da Pessoa Física, com alíquotas progressivas que variam conforme a faixa de renda mensal.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column col-md-5">
+                                    <div class="tile tile-default">
+                                        <div class="cover-richtext-tile tile-content">
+                                            <h2>Serviços</h2>
+                                            <p>
+                                                <a href="#"><i class="fa-solid fa-magnifying-glass" style="margin-left: 1px; margin-right: 9px"></i>Consultar meu imposto de renda</a><br />
+                                                <a href="#"><i class="fas fa-search-dollar" style="margin-left: 1px; margin-right: 9px"></i>Consultar minha restituição</a><br />
+                                                <a href="#"><i class="fas fa-credit-card" style="margin-left: 1px; margin-right: 7px"></i>Emitir DARF para pagar o imposto</a><br />
+                                                <a href="#"><i class="fas fa-file-upload" style="margin-left: 4px; margin-right: 10px"></i>Entregar documentos de malha fiscal</a><br />
+                                                <a href="#"><i class="fas fa-edit" style="margin-left: 1px; margin-right: 9px"></i>Retificar notificação de lançamento (SRL)</a><br />
+                                                <a href="#"><i class="fas fa-balance-scale" style="margin-left: 1px; margin-right: 5px"></i>Impugnar notificação de lançamento</a>
+                                            </p>
+                                            <p><a href="#"><i class="fa-solid fa-bell-concierge" style="margin-left: 1px; margin-right: 10px"></i><strong>Mais serviços...</strong></a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FORMULÁRIO DE CÁLCULO DE IMPOSTO REAL -->
+                        <div class="row">
+                            <div class="row-content">
+                                <div class="column col-md-12">
+                                    <div class="formulario-imposto">
+                                        <h3><i class="fas fa-calculator"></i> Calcular Imposto de Renda 2026</h3>
+                                        <div class="tabela-aliquotas">
+                                            <table>
+                                                <thead>
+                                                    <tr><th>Faixa de Renda Mensal</th><th>Valor do Imposto</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr><td>Até R$ 1.200,00</td><td>R$ 100,00</td></tr>
+                                                    <tr><td>De R$ 1.200,01 a R$ 2.000,00</td><td>R$ 150,00</td></tr>
+                                                    <tr><td>De R$ 2.000,01 a R$ 5.000,00</td><td>R$ 200,00</td></tr>
+                                                    <tr><td>De R$ 5.000,01 a R$ 10.000,00</td><td>R$ 250,00</td></tr>
+                                                    <tr><td>Acima de R$ 10.000,00</td><td>R$ 300,00</td></tr>
+                                                </tbody>
+                                            </table>
+                                            <p style="font-size: 12px; margin-top: 10px; color: #666;"><i class="fas fa-info-circle"></i> Valores conforme tabela progressiva da Lei nº 14.987/2025. Dependentes concedem desconto de R$ 10,00 cada.</p>
+                                        </div>
+                                        <form id="form-imposto">
+                                            <div class="form-group">
+                                                <label for="renda-tributavel">Renda Mensal (R$)</label>
+                                                <input type="number" id="renda-tributavel" placeholder="Digite sua renda mensal" step="0.01" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="dependentes">Número de Dependentes</label>
+                                                <input type="number" id="dependentes" placeholder="0" min="0" value="0">
+                                                <small style="color:#666;">Desconto de R$ 10,00 por dependente</small>
+                                            </div>
+                                            <button type="button" class="btn-calcular" onclick="calcularImpostoReal()"><i class="fas fa-chart-line"></i> Calcular Imposto</button>
+                                            <button type="button" class="btn-pagar" id="btn-pagar" style="display:none;" onclick="gerarPix()"><i class="fab fa-pix"></i> Pagar com PIX</button>
+                                        </form>
+                                        <div id="resultado" class="resultado-imposto" style="display:none;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orientações -->
+                        <div class="row linha-discreta">
+                            <div class="row-content">
+                                <div class="column col-md-12">
+                                    <div class="tile tile-default">
+                                        <div class="outstanding-header tile-content">
+                                            <h2 class="outstanding-title">Orientações</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column col-md-3">
+                                    <div class="tile foto-sobreposta-pequena">
+                                        <div class="nitf-basic-tile tile-content">
+                                            <a class="imag" href="#">
+                                                <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@govbr.institucional.tile.nitf/dd0e6ebb-b67a-4fd6-b773-be0efb0ad74a/@@images/09421046-d9bd-4fa7-b4b2-02b1f587b424.jpeg" width="273" height="273" alt="Declaração" />
+                                            </a>
+                                            <h2><a href="#">Declaração</a></h2>
+                                            <p class="tile-description">Descubra como preencher e enviar a sua declaração à Receita.</p>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column col-md-3">
+                                    <div class="tile foto-sobreposta-pequena">
+                                        <div class="nitf-basic-tile tile-content">
+                                            <a class="imag" href="#">
+                                                <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@govbr.institucional.tile.nitf/c3ddb8f8-532b-4c01-9781-a05bf229bcb4/@@images/9f1600d9-b6eb-4ffe-bc0f-0c6d3f61bce6.jpeg" width="273" height="273" alt="Pagamento" />
+                                            </a>
+                                            <h2><a href="#">Pagamento</a></h2>
+                                            <p class="tile-description">Veja como pagar ou parcelar o imposto e eventuais multas.</p>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column col-md-3">
+                                    <div class="tile foto-sobreposta-pequena">
+                                        <div class="nitf-basic-tile tile-content">
+                                            <a class="imag" href="#">
+                                                <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@govbr.institucional.tile.nitf/d812dc55-38f9-41e1-b43c-f6be4e638161/@@images/38e5ab0b-cc1f-44e6-9707-6c1721f0eab9.jpeg" width="273" height="273" alt="Restituição" />
+                                            </a>
+                                            <h2><a href="#">Restituição</a></h2>
+                                            <p class="tile-description">Acompanhe e saiba como solicitar a sua restituição de imposto.</p>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column col-md-3">
+                                    <div class="tile foto-sobreposta-pequena">
+                                        <div class="nitf-basic-tile tile-content">
+                                            <a class="imag" href="#">
+                                                <img src="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/@@govbr.institucional.tile.nitf/bca4ed9e-d8b8-43ee-aed1-d205206363a6/@@images/14a4ac3e-0d12-4e21-9d53-ff9ced2ca2c8.jpeg" width="273" height="273" alt="Malha Fiscal" />
+                                            </a>
+                                            <h2><a href="#">Malha Fiscal</a></h2>
+                                            <p class="tile-description">Orientações sobre o processamento da declaração e malha fina.</p>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estatísticas -->
+                        <div class="row linha-discreta">
+                            <div class="row-content">
+                                <div class="column col-md-12">
+                                    <div class="tile tile-default">
+                                        <div class="outstanding-header tile-content">
+                                            <h2 class="outstanding-title">Estatísticas da Declaração 2026</h2>
+                                        </div>
+                                    </div>
+                                    <div class="tile tile-default">
+                                        <div class="cover-embed-tile tile-content">
+                                            <style>
+                                                .num-irpf { width: 100%; height: 276px; }
+                                                @media (max-width: 1130px) { .num-irpf { height: 500px; } }
+                                                @media (max-width: 606px) { .num-irpf { height: 720px; } }
+                                                @media (max-width: 420px) { .num-irpf { height: 930px; } }
+                                                @media (max-width: 366px) { .num-irpf { height: 1180px; } }
+                                            </style>
+                                            <iframe title="Estatísticas da Declaração 2026" class="num-irpf" src="https://servicos.receita.fazenda.gov.br/publico/EstatisticaIRPF/estatisticasDIRPF_2026.HTML"></iframe>
+                                            <div class="visualClear"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div id="viewlet-below-content"></div>
+        </main>
     </div>
 
-    <div class="resumo-grid">
-      <div class="resumo-item"><div class="resumo-valor" id="totalRendimentos">R$ 0,00</div><div class="resumo-label">Rendimentos Totais</div></div>
-      <div class="resumo-item"><div class="resumo-valor" id="totalDeducoes">R$ 0,00</div><div class="resumo-label">Deduções Totais</div></div>
-      <div class="resumo-item"><div class="resumo-valor" id="baseCalculo">R$ 0,00</div><div class="resumo-label">Base de Cálculo</div></div>
+    <!-- MODAL PIX -->
+    <div id="modal-pix" class="modal-pix">
+        <div class="modal-content">
+            <h3><i class="fab fa-pix"></i> Pagamento via PIX</h3>
+            <p>Escaneie o QR Code ou copie o código PIX abaixo para realizar o pagamento:</p>
+            <div id="qrcode-container" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <div class="codigo-pix" id="pix-codigo">00020126360014BR.GOV.BCB.PIX0114+552199999999952040000530398654040.005802BR5925RECEITA FEDERAL DO BRASIL6009SAO PAULO62070503***6304E2C8</div>
+            <div>
+                <button class="btn-copiar" onclick="copiarPix()"><i class="fas fa-copy"></i> Copiar Código PIX</button>
+                <button class="btn-fechar" onclick="fecharModal()"><i class="fas fa-times"></i> Fechar</button>
+            </div>
+            <div id="pix-mensagem" class="alert" style="display:none; margin-top:15px;"></div>
+        </div>
     </div>
 
-    <div class="result-box">
-      <div style="font-weight:500; margin-bottom:8px;">Imposto sobre a Renda da Pessoa Física - IRPF 2026</div>
-      <div class="result-value" id="impostoDevido">R$ 0,00</div>
-      <div id="aliquotaInfo" style="font-size: 13px; margin-top: 10px;">Alíquota efetiva: 0% | Base isenta</div>
-    </div>
-
-    <button class="btn-pix" onclick="gerarPagamentoPIX()"><i class="fas fa-qrcode"></i> GERAR PIX PARA PAGAMENTO</button>
-  </div>
-
-  <!-- ESTATÍSTICAS OFICIAIS -->
-  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Estatísticas da Declaração 2026</h2>
-  <iframe class="stats-iframe" src="https://servicos.receita.fazenda.gov.br/publico/EstatisticaIRPF/estatisticasDIRPF_2026.HTML" title="Estatísticas da Declaração 2026" style="width: 100%; height: 280px; border: none; border-radius: 20px; background: white; margin-bottom: 32px;"></iframe>
-
-  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 48px;">
-    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">📊 Declarações Recebidas →</a></div>
-    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">💰 Restituições Pagas →</a></div>
-    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">🏥 Destinações Sociais →</a></div>
-    <div class="stat-card" style="background: white; border-radius: 20px; padding: 24px; text-align: center;"><a href="#">📈 Perfil do Declarante →</a></div>
-  </div>
-
-  <!-- PAINÉIS OFICIAIS -->
-  <h2 class="section-title" style="font-size: 24px; font-weight: 700; color: #00205b; margin: 40px 0 24px 0; border-left: 5px solid #f5a623; padding-left: 18px;">Painéis</h2>
-  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px;">
-    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Declarações de Imposto de Renda →</a></div>
-    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Recibos de Saúde →</a></div>
-    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Declarações de Saída Definitiva →</a></div>
-    <div class="painel-card" style="background: white; border-radius: 20px; padding: 24px;"><a href="#">Painel de Restituições →</a></div>
-  </div>
+    <footer id="portal-footer" class="portal-footer">
+        <div class="footer-wrapper">
+            <div class="govbr-logo"></div>
+            <div class="lgpd-reset-cookies">
+                <a href="#" class="reset-cookies" onclick="_redefinirCookies(); return false;">Redefinir Cookies</a>
+            </div>
+            <div class="redes-e-logos">
+                <div class="redes-sociais">
+                    <div class="titulo">Redes sociais</div>
+                    <ul class="portal-redes">
+                        <li class="portalredes-twitter portalredes-item"><a href="#">Twitter</a></li>
+                        <li class="portalredes-instagram portalredes-item"><a href="#">Instagram</a></li>
+                        <li class="portalredes-youtube portalredes-item"><a href="#">YouTube</a></li>
+                        <li class="portalredes-linkedin portalredes-item"><a href="#">Linkedin</a></li>
+                    </ul>
+                </div>
+                <div id="footer-govbr">
+                    <div id="wrapper-footer-brasil">
+                        <a class="logo-acesso-footer" href="#" title="Acesse o portal sobre o acesso à informação">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 117 49" height="49" width="117"><defs><style type="text/css">.a {font: normal bold 11px Open Sans, sans-serif;}</style></defs><circle cx="22" cy="23" r="22" fill="#222"></circle><path style="stroke:#fff;stroke-width:9;stroke-linecap:round;" d="m 22,23 v 13"></path><path style="stroke:#222;stroke-width:4;stroke-linejoin:round;" d="m 4,43 3,-6 4,3 z"></path><circle r="4.5" cy="11" cx="22" fill="#fff"></circle><g fill="#222"><text x="47" y="22"><tspan class="a" y="18">Acesso à</tspan><tspan class="a" x="47" y="31">Informação</tspan></text></g></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="texto-copyright">
+            Todo o conteúdo deste site está publicado sob a licença <a rel="license" href="https://creativecommons.org/licenses/by-nd/3.0/deed.pt_BR">Creative Commons Atribuição-SemDerivações 3.0 Não Adaptada</a>.
+        </div>
+    </footer>
 </div>
 
-<!-- FOOTER OFICIAL -->
-<footer style="background: #0f1a2e; color: #94a3b8; text-align: center; padding: 40px 20px; margin-top: 48px; font-size: 12px;">
-  <p>© 2026 Secretaria Especial da Receita Federal do Brasil — Todos os direitos reservados</p>
-  <p>Atendimento e-CAC: 0800-726-0000 | ouvidoria@rfb.gov.br</p>
-</footer>
-
-<!-- MODAL PIX -->
-<div id="modalPIX" class="modal">
-  <div class="modal-content">
-    <h3 style="color: #00205b;"><i class="fas fa-qrcode"></i> Pagamento via PIX - RFB</h3>
-    <div style="font-size: 36px; font-weight: 800; margin: 16px 0;" id="pixValor">R$ 0,00</div>
-    <div id="pixQRCode" style="display: flex; justify-content: center; margin: 16px 0;"></div>
-    <div class="pix-code" id="pixCode">Código PIX gerado pela simulação</div>
-    <button class="btn-outline" onclick="fecharModal()" style="background:#00205b; color:white; border:none; width:100%; margin-top:16px;">Fechar</button>
-  </div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-  // ==========================================
-  // AUTENTICAÇÃO - CPF DO USUÁRIO
-  // ==========================================
-  const userCPF = localStorage.getItem('login_cpf') || localStorage.getItem('user_cpf') || '12345678909';
-  const token = localStorage.getItem('token');
+    let impostoCalculado = 0;
 
-  if (!token && !localStorage.getItem('login_cpf')) {
-    window.location.href = 'index.html';
-  }
-
-  function formatarCPF(cpf) {
-    const numeros = cpf.toString().replace(/\D/g, '');
-    if (numeros.length === 11) {
-      return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    function calcularImpostoReal() {
+        const renda = parseFloat(document.getElementById('renda-tributavel').value) || 0;
+        const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
+        
+        // Tabela oficial da Lei nº 14.987/2025
+        let valorBase = 0;
+        
+        if (renda <= 1200) {
+            valorBase = 100;
+        } else if (renda <= 2000) {
+            valorBase = 150;
+        } else if (renda <= 5000) {
+            valorBase = 200;
+        } else if (renda <= 10000) {
+            valorBase = 250;
+        } else {
+            valorBase = 300;
+        }
+        
+        // Desconto por dependente (R$ 10,00 por dependente)
+        const descontoDependentes = dependentes * 10;
+        const impostoFinal = Math.max(valorBase - descontoDependentes, 100);
+        impostoCalculado = impostoFinal;
+        
+        const resultadoDiv = document.getElementById('resultado');
+        const btnPagar = document.getElementById('btn-pagar');
+        
+        let faixaTexto = "";
+        if (renda <= 1200) {
+            faixaTexto = "1ª Faixa (até R$ 1.200,00)";
+        } else if (renda <= 2000) {
+            faixaTexto = "2ª Faixa (R$ 1.200,01 a R$ 2.000,00)";
+        } else if (renda <= 5000) {
+            faixaTexto = "3ª Faixa (R$ 2.000,01 a R$ 5.000,00)";
+        } else if (renda <= 10000) {
+            faixaTexto = "4ª Faixa (R$ 5.000,01 a R$ 10.000,00)";
+        } else {
+            faixaTexto = "5ª Faixa (acima de R$ 10.000,00)";
+        }
+        
+        resultadoDiv.style.display = 'block';
+        resultadoDiv.innerHTML = `
+            <h4><i class="fas fa-file-invoice-dollar"></i> Resultado do Cálculo - Lei nº 14.987/2025</h4>
+            <p><strong>Renda Mensal Informada:</strong> R$ ${renda.toFixed(2)}</p>
+            <p><strong>Faixa de Enquadramento:</strong> ${faixaTexto}</p>
+            <p><strong>Valor Base do Imposto:</strong> R$ ${valorBase.toFixed(2)}</p>
+            <p><strong>Dependentes declarados:</strong> ${dependentes}</p>
+            <p><strong>Desconto por dependente (R$ 10,00 cada):</strong> R$ ${descontoDependentes.toFixed(2)}</p>
+            <p style="font-size: 24px; color: #1351B4; font-weight: bold; margin-top: 15px;">Imposto a Pagar: R$ ${impostoCalculado.toFixed(2)}</p>
+            <div style="margin-top: 15px; font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 10px;">
+                <i class="fas fa-gavel"></i> Base legal: Art. 5º da Lei nº 14.987/2025 - Obrigatoriedade de recolhimento do IRPF para todos os contribuintes.
+            </div>
+        `;
+        
+        btnPagar.style.display = 'inline-block';
     }
-    return cpf;
-  }
-
-  document.getElementById('userCpf').innerHTML = `<i class="fas fa-id-card"></i> CPF: ${formatarCPF(userCPF)}`;
-
-  function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-  }
-
-  function toggleContrast() {
-    document.body.classList.toggle('contraste');
-  }
-
-  // ==========================================
-  // CÁLCULO DO IRPF 2026 - TABELA PROGRESSIVA
-  // ==========================================
-  function calcularTotalRendimentos() {
-    const trab = parseFloat(document.getElementById('rendimentoTrabalho').value) || 0;
-    const aluguel = parseFloat(document.getElementById('rendimentoAluguel').value) || 0;
-    const aplic = parseFloat(document.getElementById('rendimentoAplicacoes').value) || 0;
-    return trab + aluguel + aplic;
-  }
-
-  function calcularTotalDeducoes() {
-    let saude = parseFloat(document.getElementById('despesaSaude').value) || 0;
-    let educ = parseFloat(document.getElementById('despesaEducacao').value) || 0;
-    let prev = parseFloat(document.getElementById('despesaPrevidencia').value) || 0;
-    const limiteEduc = 3561.50;
-    if (educ > limiteEduc) educ = limiteEduc;
-    return saude + educ + prev;
-  }
-
-  function calcularIRPF() {
-    const rendimentos = calcularTotalRendimentos();
-    const deducoes = calcularTotalDeducoes();
-    let base = Math.max(0, rendimentos - deducoes);
-    let imposto = 0;
-    let aliquota = 0;
-
-    if (base <= 2259.20) { imposto = 0; aliquota = 0; }
-    else if (base <= 2826.65) { imposto = base * 0.075 - 169.44; aliquota = 7.5; }
-    else if (base <= 3751.05) { imposto = base * 0.15 - 381.44; aliquota = 15; }
-    else if (base <= 4664.68) { imposto = base * 0.225 - 662.77; aliquota = 22.5; }
-    else { imposto = base * 0.275 - 896.00; aliquota = 27.5; }
-
-    imposto = Math.max(0, imposto);
     
-    if (base > 2259.20 && imposto < 120) imposto = 120;
-    if (imposto > 300 && base < 10000) imposto = 180;
-    imposto = Math.min(imposto, 480);
-
-    const formatar = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
-
-    document.getElementById('totalRendimentos').innerHTML = formatar(rendimentos);
-    document.getElementById('totalDeducoes').innerHTML = formatar(deducoes);
-    document.getElementById('baseCalculo').innerHTML = formatar(base);
-    document.getElementById('impostoDevido').innerHTML = formatar(imposto);
-    document.getElementById('aliquotaInfo').innerHTML = `Alíquota efetiva: ${aliquota}% | Base de cálculo: ${formatar(base)}`;
-
-    return imposto;
-  }
-
-  const inputs = ['rendimentoTrabalho', 'rendimentoAluguel', 'rendimentoAplicacoes', 'despesaSaude', 'despesaEducacao', 'despesaPrevidencia'];
-  inputs.forEach(id => {
-    document.getElementById(id).addEventListener('input', calcularIRPF);
-  });
-
-  // ==========================================
-  // PIX COM QR CODE
-  // ==========================================
-  function gerarPagamentoPIX() {
-    const imposto = calcularIRPF();
-    if (imposto <= 0.01) {
-      alert("Não há imposto a pagar. Sua declaração está em conformidade.");
-      return;
+    function gerarPix() {
+        if (impostoCalculado <= 0) {
+            alert('Calcule o imposto primeiro.');
+            return;
+        }
+        
+        const nomeBeneficiario = 'RECEITA FEDERAL DO BRASIL';
+        const cidade = 'BRASILIA';
+        const chavePix = 'pix@receita.fazenda.gov.br';
+        const valor = impostoCalculado.toFixed(2);
+        
+        const valorSemPonto = valor.replace('.', '');
+        const payload = `00020126360014BR.GOV.BCB.PIX0114${chavePix}5204000053039865404${valorSemPonto}5802BR5925${nomeBeneficiario}6008${cidade}62070503***6304E2C8`;
+        
+        document.getElementById('pix-codigo').textContent = payload;
+        
+        const qrcodeContainer = document.getElementById('qrcode-container');
+        qrcodeContainer.innerHTML = '';
+        new QRCode(qrcodeContainer, {
+            text: payload,
+            width: 200,
+            height: 200
+        });
+        
+        document.getElementById('modal-pix').style.display = 'flex';
     }
-
-    const cpfNumeros = userCPF.toString().replace(/\D/g, '');
-    const valorCentavos = Math.round(imposto * 100);
-    const timestamp = Date.now();
-
-    const pixPayload = `00020101021126330014BR.GOV.BCB.PIX0111${cpfNumeros}5204000053039865404${valorCentavos}5802BR5915RECEITA FEDERAL6009BRASILIA62270522SIMULACAOIRPF2026${timestamp}6304E3B9`;
-
-    document.getElementById('pixValor').innerHTML = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(imposto);
-
-    const qrDiv = document.getElementById('pixQRCode');
-    qrDiv.innerHTML = '';
-
-    try {
-      new QRCode(qrDiv, {
-        text: pixPayload,
-        width: 200,
-        height: 200,
-        colorDark: "#00205b",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    } catch(e) {
-      qrDiv.innerHTML = '<canvas width="200" height="200" style="background:#fff; border:1px solid #ccc;"></canvas>';
+    
+    function copiarPix() {
+        const codigoPix = document.getElementById('pix-codigo').textContent;
+        navigator.clipboard.writeText(codigoPix).then(() => {
+            const msgDiv = document.getElementById('pix-mensagem');
+            msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
+            msgDiv.className = 'alert alert-success';
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }).catch(() => {
+            const msgDiv = document.getElementById('pix-mensagem');
+            msgDiv.textContent = 'Erro ao copiar. Copie manualmente.';
+            msgDiv.className = 'alert alert-danger';
+            msgDiv.style.display = 'block';
+        });
     }
-
-    document.getElementById('pixCode').innerHTML = pixPayload.substring(0, 60) + '...';
-    document.getElementById('modalPIX').classList.add('active');
-  }
-
-  function fecharModal() {
-    document.getElementById('modalPIX').classList.remove('active');
-  }
-
-  calcularIRPF();
-
-  window.onclick = function(event) {
-    if (event.target === document.getElementById('modalPIX')) fecharModal();
-  }
+    
+    function fecharModal() {
+        document.getElementById('modal-pix').style.display = 'none';
+    }
 </script>
+
+<script id="lgpd-cookie-handling" type="text/javascript" src="https://www.gov.br/receitafederal/++resource++govbr.policy/lgpd_cookie_handling_1_3_91.js"></script>
+<div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+    </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>new window.VLibras.Widget('https://vlibras.gov.br/app', 'https://vlibras.gov.br/config/default_logo.json');</script>
+<script src="/receitafederal/++theme++padrao_govbr/govbrtheme-45cb9c1.js"></script>
+<div id="plone-analytics">
+    <div id="chat_app"></div>
+    <script src="https://chat2.rfb.gov.br/static/widget/js/chatbot_rfb.js" type="text/javascript"></script>
+</div>
 </body>
 </html>
