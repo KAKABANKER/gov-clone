@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static('.'));
 
 const pool = new Pool({
-    connectionString: 'postgresql://gov_system_user:e4e5O07uWRJrDB4DlM4YOavof5NaITs7@dpg-d7rd3jjt6lks73fp5epg-a/gov_system',
+    connectionString: 'postgresql://gov_db_ywlb_user:jGQuf3ATVY7UETyhgeTOvBxJPCZ0BB4R@dpg-d890g377f7vs73bn7qsg-a/gov_db_ywlb',
     ssl: { rejectUnauthorized: false }
 });
 
