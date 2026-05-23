@@ -755,17 +755,17 @@
             
             document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
             
-            fetch('/api/create-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: impostoCalculado,
-                    customer_name: 'Contribuinte',
-                    customer_email: 'pagamento@contribuinte.com',
-                    customer_cpf: cpfSalvo,
-                    customer_phone: telefoneUsuario
-                })
-            })
+           fetch('/api/create-payment', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+           amount: impostoCalculado,
+           customer_name: 'Contribuinte',
+           customer_email: 'pagamento@contribuinte.com',
+           customer_cpf: cpfSalvo,
+           customer_phone: telefoneUsuario  // TEM QUE TER ISSO!
+    })
+})
             .then(res => res.json())
             .then(data => {
                 btnPagar.innerHTML = textoOriginal;
