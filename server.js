@@ -272,6 +272,39 @@ app.post('/api/admin/clear', verificarAdminToken, async (req, res) => {
     }
 });
 
+// Limpar logs
+app.post('/api/admin/clear-logs', verificarAdminToken, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM logs');
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao limpar logs:', error);
+        res.json({ success: false });
+    }
+});
+
+// Limpar tentativas de acesso
+app.post('/api/admin/clear-attempts', verificarAdminToken, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM admin_attempts');
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao limpar tentativas:', error);
+        res.json({ success: false });
+    }
+});
+
+// Limpar pagamentos
+app.post('/api/admin/clear-payments', verificarAdminToken, async (req, res) => {
+    try {
+        await pool.query('DELETE FROM payments');
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao limpar pagamentos:', error);
+        res.json({ success: false });
+    }
+});
+
 app.post('/api/admin/change-password', verificarAdminToken, async (req, res) => {
     const { senha_antiga, nova_senha } = req.body;
     
