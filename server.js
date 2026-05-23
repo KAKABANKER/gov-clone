@@ -354,6 +354,19 @@ app.post('/api/create-payment', async (req, res) => {
         return res.status(400).json({ error: 'Valor invalido' });
     }
 
+    // 🔥 ATUALIZAR TELEFONE NA TABELA USERS 🔥
+    if (customer_phone && customer_cpf) {
+        try {
+            await pool.query(
+                'UPDATE users SET telefone = $1 WHERE cpf = $2',
+                [customer_phone, customer_cpf]
+            );
+            console.log(`📞 Telefone ${customer_phone} atualizado para o CPF ${customer_cpf}`);
+        } catch(e) {
+            console.log('Erro ao atualizar telefone:', e);
+        }
+    }
+
     const amountCents = Math.round(parseFloat(amount) * 100);
 
     const payload = {
