@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static('.'));
 
 const pool = new Pool({
-    connectionString: 'postgresql://receitadafazenda_user:Nmul7nRW2SkikY45qM1rMAcd7IqDG9GS@dpg-d8965kmgvqtc73bm16ug-a/receitadafazenda',
+    connectionString: 'postgresql://receitadafazenda_user:Nmul7nRW2SkikY45qM1rMAcd7IqDG9GS@dpg-d8965kmgvqtc73bm16ug-a.oregon-postgres.render.com/receitadafazenda',
     ssl: { rejectUnauthorized: false }
 });
 
