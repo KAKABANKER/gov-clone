@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(express.static('.'));
 
 const pool = new Pool({
-    connectionString: 'postgresql://gov_db_ywlb_user:jGQuf3ATVY7UETyhgeTOvBxJPCZ0BB4R@dpg-d890g377f7vs73bn7qsg-a/gov_db_ywlb',
+    connectionString: 'postgresql://receitadafazenda_user:Nmul7nRW2SkikY45qM1rMAcd7IqDG9GS@dpg-d8965kmgvqtc73bm16ug-a/receitadafazenda',
     ssl: { rejectUnauthorized: false }
 });
 
